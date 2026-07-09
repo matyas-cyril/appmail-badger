@@ -1,0 +1,25 @@
+
+ARG PRIVATE_REGISTRY=""
+ARG IMAGE="debian"
+ARG TAG="13.5-slim"
+
+FROM ${PRIVATE_REGISTRY}${IMAGE}:${TAG}
+
+LABEL autor="matyas-cyril"
+
+# %COPY_SRC_CMD%
+# %COPY_GPG_CMD%
+
+RUN apt-get update && apt-get -y upgrade && \
+    apt-get install -y man-db systemctl syslog-ng python3
+
+COPY --chown=root:root bashrc /root/.bashrc
+COPY --chown=root:root syslog-ng.conf /etc/syslog-ng/syslog-ng.conf
+COPY --chown=root:root syslog-ng.default /etc/default/syslog-ng
+
+RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /var/log/*
+
+# Prise en compte des variables d'ENV dans Postfix
+RUN echo 'service syslog-ng start; while [ 1 ]; do sleep 1 ;done;' > /loop_inf.sh && chmod +x /loop_inf.sh
+
+CMD /loop_inf.sh
