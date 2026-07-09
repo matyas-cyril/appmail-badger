@@ -1,0 +1,32 @@
+
+name: appmail-badger
+
+networks:
+  appmail_bridge:
+    name: appmail_bridge
+    driver: bridge
+    ipam:
+      config:
+        - subnet: "172.0.200.0/28" 
+          gateway: "172.0.200.1"
+
+services:
+
+  smtp_01:
+    container_name: smtp_appmail_01
+    build:
+      context: ./DEBIAN
+      dockerfile: Dockerfile
+      args:
+        PRIVATE_REGISTRY: ${PRIVATE_REGISTRY:-}
+    image: my_debian:13.5
+    restart: unless-stopped
+    hostname: smtp-01
+    ports:
+      - ${EXT_SMTP:-60025}:25
+      - ${EXT_SMTPS:-60587}:587
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    networks:
+      appmail_bridge:
+        ipv4_address: 172.0.200.10
