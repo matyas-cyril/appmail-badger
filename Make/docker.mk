@@ -32,7 +32,7 @@
 	@echo "successfully purge plateform";
 
 .rm_platform: .init_dot.env
-	@docker compose -f ${DOCKER_YAML} --env-file dot.env down -v --remove-orphans \
+	@docker compose -f ${DOCKER_YAML} --env-file dot.env down \
 	  || { echo "[ERROR] failed to remove plateform - $?" >&2; exit 1; };
 	@echo "successfully delete plateform";
 ###

@@ -18,7 +18,6 @@ purge: .purge_platform
 
 platform-up: .init_dot.env .up_platform
 platform-stop: .stop_platform
-platform-down: .down_platform
 platform-rm: .rm_platform
 platform-purge: .purge_platform
 
