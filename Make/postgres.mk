@@ -10,11 +10,7 @@
 	@docker compose -f ${DOCKER_YAML} --env-file dot.env rm -sf postgres \
 	  || { echo "[ERROR] failed to remove docker Postgres service" >&2; exit 1; }
 
-.docker_postgres_purge: .init_dot.env
-	@docker compose -f ${DOCKER_YAML} --env-file dot.env rm -v -sf postgres \
-	  || { echo "[ERROR] failed to purge docker Postgres service - $?" >&2; exit 1; }
-	@echo "successfully purge docker Postgres service";
-
+.docker_postgres_purge: .init_dot.env .docker_postgres_rm
 	@docker volume inspect appmail-badger_Postgres >/dev/null 2>&1 && ( \
 			docker volume rm appmail-badger_Postgres >/dev/null 2>&1 && \
 				 echo "successfully deleted volume Postgres" || \
@@ -22,4 +18,3 @@
 
 	@docker image prune -f -a --filter "label=com.docker.compose.project=${PROJECT_NAME}" \
 	  || { echo "[ERROR] failed to remove docker ${PROJECT_NAME} images - $?" >&2; exit 1; }
-	@echo "successfully purge plateform ${PROJECT_NAME}";
