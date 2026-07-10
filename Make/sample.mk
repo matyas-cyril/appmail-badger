@@ -19,3 +19,7 @@ sql-init: .docker_postgres_up .waiting_postgres
 sql-drop: .docker_postgres_up .waiting_postgres
 	@docker exec -i postgres_$(PROJECT_NAME) psql -U $(PG_USER) -d $(BDD) < $(SQL_DROP) \
 	  || { echo "[ERROR] failed to drop database" >&2; exit 1; }
+
+sql-data: .docker_postgres_up .waiting_postgres
+	@docker exec -i postgres_$(PROJECT_NAME) psql -U $(PG_USER) -d $(BDD) < $(SQL_DATA) \
+	  || { echo "[ERROR] failed to drop database" >&2; exit 1; }
