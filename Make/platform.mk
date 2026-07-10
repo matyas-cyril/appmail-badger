@@ -5,15 +5,15 @@
 
 .stop_platform: .init_dot.env
 	@docker compose -f ${DOCKER_YAML} --env-file dot.env stop \
-	  || { echo "[ERROR] failed to remove plateform - $?" >&2; exit 1; };
+	  || { echo "[ERROR] failed to remove docker appmail-badger plateform - $?" >&2; exit 1; };
 	@echo "successfully delete plateform";
 
 .purge_platform: .init_dot.env
 	@docker compose -f ${DOCKER_YAML} --env-file dot.env down -v --remove-orphans --rmi all \
-	  || { echo "[ERROR] failed to purge plateform - $?" >&2; exit 1; }
+	  || { echo "[ERROR] failed to purge docker appmail-badger plateform - $?" >&2; exit 1; }
 	@echo "successfully purge plateform";
 
 .rm_platform: .init_dot.env
 	@docker compose -f ${DOCKER_YAML} --env-file dot.env down \
-	  || { echo "[ERROR] failed to remove plateform - $?" >&2; exit 1; };
+	  || { echo "[ERROR] failed to remove docker appmail-badger plateform - $?" >&2; exit 1; };
 	@echo "successfully delete plateform";
