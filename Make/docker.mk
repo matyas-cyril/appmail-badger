@@ -1,11 +1,11 @@
 
--include Make/platform.mk
--include Make/postgres.mk
--include Make/smtp.mk
--include Make/cyrus.mk
--include Make/redis.mk
--include Make/webmail.mk
--include Make/adminer.mk
+-include Make/Docker/platform.mk
+-include Make/Docker/postgres.mk
+-include Make/Docker/smtp.mk
+-include Make/Docker/cyrus.mk
+-include Make/Docker/redis.mk
+-include Make/Docker/webmail.mk
+-include Make/Docker/adminer.mk
 
 # Créer un fichier vide pour éviter les if dans les déclarations suivantes
 .init_dot.env:
