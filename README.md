@@ -84,3 +84,19 @@ make redis-rm
 # Arrêter et supprimer le container et l'image du service Redis
 make redis-purge
 ```
+
+## 1.5 Service Webmail
+
+```bash
+# Générer le ou les services Webmail
+make webmail-up
+
+# Mettre en pause le ou les services Webmail
+make webmail-stop
+
+# Arrêter et supprimer le ou les containers Webmail
+make webmail-rm
+
+# Arrêter et supprimer le container et l'image du service Webmail
+make webmail-purge
+```

@@ -66,7 +66,7 @@ services:
         TAG_DEBIAN: ${TAG_DEBIAN:-13.5-slim}
     image: ${COMPOSE_PROJECT_NAME}/cyrus:${TAG_DEBIAN:-13.5-slim}
     restart: unless-stopped
-    hostname: cyrus-imap
+    hostname: ${CYRUS_HOSTNAME:-cyrus-imap}
     volumes:
       - /etc/localtime:/etc/localtime:ro
     networks:
@@ -89,6 +89,33 @@ services:
     networks:
       appmail_bridge:
         ipv4_address: 172.0.200.9
+
+  webmail:
+    container_name: webmail_${COMPOSE_PROJECT_NAME}
+    build:
+      context: ./WEBMAIL
+      dockerfile: Dockerfile
+      args:
+        PRIVATE_REGISTRY: ${PRIVATE_REGISTRY:-}
+        TAG_WEBMAIL: ${TAG_WEBMAIL:-1.6.17-apache}
+    image: ${COMPOSE_PROJECT_NAME}/webmail:${TAG_WEBMAIL:-1.6.17-apache} 
+    restart: unless-stopped
+    hostname: webmail
+    ports:
+      - ${EXT_WEBMAIL:-60080}:80 
+    environment:
+      - ROUNDCUBEMAIL_DB_TYPE=sqlite
+      - ROUNDCUBEMAIL_SKIN=elastic
+      - ROUNDCUBEMAIL_DEFAULT_HOST=${CYRUS_HOSTNAME:-cyrus-imap}
+      - ROUNDCUBEMAIL_DEFAULT_PORT=143
+      - ROUNDCUBEMAIL_SMTP_SERVER=${CYRUS_HOSTNAME:-cyrus-imap}
+      - ROUNDCUBEMAIL_SMTP_PORT=25
+      - ROUNDCUBEMAIL_UPLOAD_MAX_FILESIZE=10M
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    networks:
+      appmail_bridge:
+        ipv4_address: 172.0.200.8
 
 volumes:
   Postgres: {}

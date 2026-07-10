@@ -43,3 +43,8 @@ redis-up: .docker_redis_up
 redis-stop: .docker_redis_stop
 redis-rm: .docker_redis_rm
 redis-purge: .docker_redis_purge
+
+webmail-up: .docker_webmail_up
+webmail-stop: .docker_webmail_stop
+webmail-rm: .docker_webmail_rm
+webmail-purge: .docker_webmail_purge
