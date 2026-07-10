@@ -37,7 +37,7 @@ make postgres-rm
 make postgres-purge
 ```
 
-## 1.2 Service SMTP
+## 1.3 Service SMTP
 
 ```bash
 # Générer le ou les services SMTP
@@ -51,4 +51,20 @@ make smtp-rm
 
 # Arrêter et supprimer le container et l'image du service SMTP
 make smtp-purge
+```
+
+## 1.4 Service Cyrus
+
+```bash
+# Générer le ou les services Cyrus
+make cyrus-up
+
+# Mettre en pause le ou les services Cyrus
+make cyrus-stop
+
+# Arrêter et supprimer le ou les containers Cyrus
+make cyrus-rm
+
+# Arrêter et supprimer le container et l'image du service Cyrus
+make cyrus-purge
 ```
