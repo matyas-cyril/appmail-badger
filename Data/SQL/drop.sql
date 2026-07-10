@@ -1,0 +1,16 @@
+DROP VIEW IF EXISTS v_used_servers;
+DROP VIEW IF EXISTS v_unused_servers;
+DROP VIEW IF EXISTS v_orphaned_servers;
+
+DROP TABLE IF EXISTS ProjectsDomains;
+DROP TABLE IF EXISTS ProjectsSenders;
+DROP TABLE IF EXISTS ProjectsServers;
+DROP TABLE IF EXISTS Servers;
+DROP TABLE IF EXISTS Senders;
+DROP TABLE IF EXISTS Auth;
+DROP TABLE IF EXISTS Domains;
+DROP TABLE IF EXISTS Projects;
+DROP TABLE IF EXISTS Users;
+DROP TABLE IF EXISTS Groups;
+
+DROP FUNCTION IF EXISTS enforce_ip_host_format;
