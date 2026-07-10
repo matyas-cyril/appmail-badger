@@ -1,6 +1,7 @@
 
 -include Make/platform.mk
 -include Make/postgres.mk
+-include Make/smtp.mk
 
 # Créer un fichier vide pour éviter les if dans les déclarations suivantes
 .init_dot.env:
