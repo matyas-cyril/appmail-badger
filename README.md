@@ -119,3 +119,19 @@ make adminer-rm
 # Arrêter et supprimer le container et l'image du service Adminer
 make adminer-purge
 ```
+
+## 1.7 Base de données
+
+L'initialisation de la base de données nécessite la présence du service Postgres à minima.  
+Pour une exploitation graphique il faut ajouter le service Adminer.  
+
+```bash
+# Intialiser la BDD
+make sql-init
+
+# Supprimer les tables, views, données...
+make sql-drop
+
+# Ajouter des données 
+make sql-data
+```
