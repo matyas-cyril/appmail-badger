@@ -4,7 +4,7 @@ name: ${PROJECT_NAME:-appmail-badger}
 networks:
 
   appmail_bridge:
-    name: appmail_bridge
+    name: ${COMPOSE_PROJECT_NAME}_bridge
     driver: bridge
     ipam:
       config:
@@ -14,7 +14,7 @@ networks:
 services:
 
   smtp_01:
-    container_name: smtp_appmail_01
+    container_name: smtp_${COMPOSE_PROJECT_NAME}_01
     build:
       context: ./DEBIAN
       dockerfile: Dockerfile
@@ -34,7 +34,7 @@ services:
         ipv4_address: 172.0.200.10
 
   postgres:
-    container_name: postgres_appmail
+    container_name: postgres_${COMPOSE_PROJECT_NAME}
     build:
       context: ./POSTGRES
       dockerfile: Dockerfile
@@ -55,6 +55,23 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - Postgres:/var/lib/postgresql
+
+  cyrus:
+    container_name: cyrus_${COMPOSE_PROJECT_NAME}
+    build:
+      context: ./DEBIAN
+      dockerfile: Dockerfile
+      args:
+        PRIVATE_REGISTRY: ${PRIVATE_REGISTRY:-}
+        TAG_DEBIAN: ${TAG_DEBIAN:-13.5-slim}
+    image: ${COMPOSE_PROJECT_NAME}/cyrus:${TAG_DEBIAN:-13.5-slim}
+    restart: unless-stopped
+    hostname: cyrus-imap
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    networks:
+      appmail_bridge:
+        ipv4_address: 172.0.200.3
 
 volumes:
   Postgres: {}
