@@ -21,7 +21,7 @@ services:
       args:
         PRIVATE_REGISTRY: ${PRIVATE_REGISTRY:-}
         TAG_DEBIAN: ${TAG_DEBIAN:-13.5-slim}
-    image: ${COMPOSE_PROJECT_NAME}/debian:${TAG_DEBIAN:-13.5-slim}
+    image: ${COMPOSE_PROJECT_NAME}/smtp:${TAG_DEBIAN:-13.5-slim}
     restart: unless-stopped
     hostname: smtp-01
     ports:
