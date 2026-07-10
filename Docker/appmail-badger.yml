@@ -2,6 +2,7 @@
 name: appmail-badger
 
 networks:
+
   appmail_bridge:
     name: appmail_bridge
     driver: bridge
@@ -30,3 +31,23 @@ services:
     networks:
       appmail_bridge:
         ipv4_address: 172.0.200.10
+
+  postgres:
+    container_name: postgres_appmail
+    image: ${PRIVATE_REGISTRY:-}postgres:18.4-alpine
+    restart: unless-stopped
+    hostname: postgres
+    # set shared memory limit pour l'utilisation Docker
+    shm_size: 128mb
+    environment:
+      POSTGRES_USER: ${PG_USER:-appmailBadger}
+      POSTGRES_PASSWORD: ${PG_PWD:-PassAppmail}
+    networks:
+      appmail_bridge:
+        ipv4_address: 172.0.200.2
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - Postgres:/var/lib/postgresql
+
+volumes:
+  Postgres: {}
