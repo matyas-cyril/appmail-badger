@@ -8,6 +8,9 @@ DOCKER_YAML=Docker/appmail-badger.yml
 # Inclure uniquement le fichier si existe
 sinclude dot.env
 
+# Attribuer une valeur par défaut
+PROJECT_NAME ?= appmail-badger
+
 -include Make/docker.mk
 
 .PHONY: all 
