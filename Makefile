@@ -33,3 +33,8 @@ smtp-up: .docker_smtp_up
 smtp-stop: .docker_smtp_stop
 smtp-rm: .docker_smtp_rm
 smtp-purge: .docker_smtp_purge
+
+cyrus-up: .docker_cyrus_up
+cyrus-stop: .docker_cyrus_stop
+cyrus-rm: .docker_cyrus_rm
+cyrus-purge: .docker_cyrus_purge
