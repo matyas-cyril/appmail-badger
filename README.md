@@ -1,6 +1,10 @@
 # appmail-badger
 
-# Make
+# 1. Make
+
+## 1.1 Ensemble de la plateforme
+
+Les commandes suivantes permettent d'interagir avec l'ensemble des services.  
 
 ```bash
 # Générer la plateforme
@@ -16,4 +20,19 @@ make platform-rm
 make platform-purge
 ou
 make purge
+```
+## 1.2 Service PostgreSQL
+
+```bash
+# Générer le service Postgres
+make postgres-up
+
+# Mettre en pause le service Postgres
+make postgres-stop
+
+# Arrêter et supprimer le container
+make postgres-rm
+
+# Arrêter et supprimer le container et le volume du service Postgres
+make postgres-purge
 ```
