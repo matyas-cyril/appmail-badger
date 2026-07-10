@@ -16,8 +16,12 @@ all: platform-up
 
 purge: .purge_platform
 
-platform-up: .init_dot.env .up_platform
+platform-up: .up_platform
 platform-stop: .stop_platform
 platform-rm: .rm_platform
 platform-purge: .purge_platform
 
+postgres-up: .docker_postgres_up
+postgres-stop: .docker_postgres_stop
+postgres-rm: .docker_postgres_rm
+postgres-purge: .docker_postgres_purge
