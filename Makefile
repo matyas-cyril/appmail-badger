@@ -48,3 +48,8 @@ webmail-up: .docker_webmail_up
 webmail-stop: .docker_webmail_stop
 webmail-rm: .docker_webmail_rm
 webmail-purge: .docker_webmail_purge
+
+adminer-up: .docker_adminer_up
+adminer-stop: .docker_adminer_stop
+adminer-rm: .docker_adminer_rm
+adminer-purge: .docker_adminer_purge

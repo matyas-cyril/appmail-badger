@@ -100,3 +100,22 @@ make webmail-rm
 # Arrêter et supprimer le container et l'image du service Webmail
 make webmail-purge
 ```
+
+## 1.6 Service Adminer
+
+Le service Adminer dépend du service Postgres.  
+Un **make adminer-up** va créer le service Postgres si non présent.  
+
+```bash
+# Générer le ou les services Adminer
+make adminer-up
+
+# Mettre en pause le ou les services Adminer
+make adminer-stop
+
+# Arrêter et supprimer le ou les containers Adminer
+make adminer-rm
+
+# Arrêter et supprimer le container et l'image du service Adminer
+make adminer-purge
+```

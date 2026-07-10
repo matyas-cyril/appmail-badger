@@ -117,5 +117,49 @@ services:
       appmail_bridge:
         ipv4_address: 172.0.200.8
 
+  adminer:
+    container_name: adminer_${COMPOSE_PROJECT_NAME}
+    build:
+      context: ./ADMINER
+      dockerfile: Dockerfile
+      args:
+        PRIVATE_REGISTRY: ${PRIVATE_REGISTRY:-}
+        TAG_ADMINER: ${TAG_ADMINER:-5.4.2}
+    image: ${COMPOSE_PROJECT_NAME}/adminer:${TAG_ADMINER:-5.4.2} 
+    restart: unless-stopped
+    hostname: adminer
+    ports:
+      - ${EXT_ADMINER:-60081}:8080
+    environment:
+      - ADMINER_DEFAULT_DRIVER=pgsql
+      - ADMINER_DEFAULT_SERVER=postgres
+      - ADMINER_DEFAULT_USERNAME=${PG_USER:-appmailBadger}
+      - ADMINER_DEFAULT_PASSWORD=${PG_PWD:-PassAppmail}
+    networks:
+      appmail_bridge:
+        ipv4_address: 172.0.200.7
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    depends_on:
+      - postgres
+    configs:
+      - source: adminer-index.php
+        target: /var/www/html/index.php
+        mode: 0755
+
+configs:
+  adminer-index.php:
+    content: |
+      <?php
+        if(!count($$_GET)) {
+          $$_POST['auth'] = [
+            'server' => $$_ENV['ADMINER_DEFAULT_SERVER'],
+            'driver' => $$_ENV['ADMINER_DEFAULT_DRIVER'],
+            'username' => $$_ENV['ADMINER_DEFAULT_USERNAME'],
+            'password' => $$_ENV['ADMINER_DEFAULT_PASSWORD'],
+          ];
+        }
+        include './adminer.php';
+
 volumes:
   Postgres: {}

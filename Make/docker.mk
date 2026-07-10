@@ -5,6 +5,7 @@
 -include Make/cyrus.mk
 -include Make/redis.mk
 -include Make/webmail.mk
+-include Make/adminer.mk
 
 # Créer un fichier vide pour éviter les if dans les déclarations suivantes
 .init_dot.env:
