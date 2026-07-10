@@ -33,6 +33,22 @@ make postgres-stop
 # Arrêter et supprimer le container
 make postgres-rm
 
-# Arrêter et supprimer le container et le volume du service Postgres
+# Arrêter et supprimer le container, le volume et l'image du service Postgres
 make postgres-purge
+```
+
+## 1.2 Service SMTP
+
+```bash
+# Générer le ou les services SMTP
+make smtp-up
+
+# Mettre en pause le ou les services SMTP
+make smtp-stop
+
+# Arrêter et supprimer le ou les containers SMTP
+make smtp-rm
+
+# Arrêter et supprimer le container et l'image du service SMTP
+make smtp-purge
 ```
