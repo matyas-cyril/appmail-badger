@@ -20,7 +20,8 @@ services:
       dockerfile: Dockerfile
       args:
         PRIVATE_REGISTRY: ${PRIVATE_REGISTRY:-}
-    image: my_debian:13.5
+        TAG_DEBIAN: ${TAG_DEBIAN:-13.5-slim}
+    image: ${COMPOSE_PROJECT_NAME}/debian:${TAG_DEBIAN:-13.5-slim}
     restart: unless-stopped
     hostname: smtp-01
     ports:
@@ -34,7 +35,13 @@ services:
 
   postgres:
     container_name: postgres_appmail
-    image: ${PRIVATE_REGISTRY:-}postgres:18.4-alpine
+    build:
+      context: ./POSTGRES
+      dockerfile: Dockerfile
+      args:
+        PRIVATE_REGISTRY: ${PRIVATE_REGISTRY:-}
+        TAG_POSTGRES: ${TAG_POSTGRES:-18.4-alpine}
+    image: ${COMPOSE_PROJECT_NAME}/postgres:${TAG_POSTGRES:-18.4-alpine}
     restart: unless-stopped
     hostname: postgres
     # set shared memory limit pour l'utilisation Docker
