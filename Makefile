@@ -11,7 +11,15 @@ sinclude dot.env
 # Attribuer une valeur par défaut
 PROJECT_NAME ?= appmail-badger
 
+PG_USER ?= Badger
+
+BDD ?= AppMail
+SQL_INIT ?= Data/SQL/init.sql
+SQL_DROP ?= Data/SQL/drop.sql
+SQL_DATA ?= Data/SQL/data.sql
+
 -include Make/docker.mk
+-include Make/sample.mk
 
 .PHONY: all 
 
@@ -53,3 +61,4 @@ adminer-up: .docker_adminer_up
 adminer-stop: .docker_adminer_stop
 adminer-rm: .docker_adminer_rm
 adminer-purge: .docker_adminer_purge
+

@@ -1,0 +1,151 @@
+
+----- CRÉATION DES TABLES -----
+
+--- Table Groups
+CREATE TABLE IF NOT EXISTS Groups (
+	id_group BIGSERIAL PRIMARY KEY,
+	name TEXT NOT NULL,
+	description TEXT
+);
+
+--- Table Senders
+CREATE TABLE IF NOT EXISTS Senders (
+	id_sender SERIAL PRIMARY KEY,
+	sender VARCHAR(64) NOT NULL,
+	description TEXT
+);
+
+--- Table Domains
+CREATE TABLE IF NOT EXISTS Domains (
+	id_domain SERIAL PRIMARY KEY,
+	domain VARCHAR(254) NOT NULL
+);
+CREATE UNIQUE INDEX IF NOT EXISTS domain ON Domains(domain);
+
+--- Table Servers
+CREATE TABLE IF NOT EXISTS Servers (
+	id_server UUID PRIMARY KEY DEFAULT uuidv7(),
+	name TEXT NOT NULL,
+	ip INET NOT NULL,
+	description TEXT,
+	
+	CONSTRAINT servers_name_unique UNIQUE (name),
+	CONSTRAINT servers_ip_unique UNIQUE (ip)
+);
+
+--- Table Users
+CREATE TABLE IF NOT EXISTS Users (
+	id_user UUID PRIMARY KEY DEFAULT uuidv7(),
+	username VARCHAR(64) NOT NULL,
+	password VARCHAR(256) NOT NULL CHECK (password ~ '^\$argon2id\$v=\d+\$m=\d+,t=\d+,p=\d+\$[A-Za-z0-9+/=]+\$[A-Za-z0-9+/=]+$'),
+	not_before TIMESTAMPTZ NOT NULL DEFAULT now(),
+	expiration TIMESTAMPTZ,
+	disabled BOOLEAN NOT NULL DEFAULT false,
+	description TEXT,
+	
+	--On ne peut pas avoir la date d'expiration <= à la date d'utilisation
+	CONSTRAINT issued_after_not_before CHECK (expiration IS NULL OR expiration > not_before)
+);
+CREATE UNIQUE INDEX IF NOT EXISTS users_username_idx ON Users(username);
+
+--- Table Projects
+CREATE TABLE IF NOT EXISTS Projects (
+	id_project uuid PRIMARY KEY DEFAULT uuidv7(),
+	name TEXT NOT NULL,
+	reply_to VARCHAR(64),
+	rcpt_max SMALLINT DEFAULT 15 CHECK (rcpt_max >= 0 AND rcpt_max <= 1500),
+	rate_limit VARCHAR(20) NOT NULL DEFAULT 0 CHECK (rate_limit ~ '^(?:\d+/\d+(?:s|m|h)|0)$'),
+	size_max NUMERIC(20,0) NOT NULL DEFAULT 3145728 CHECK (size_max >= 0), -- Correspond à UINT64
+	rcpt_pattern TEXT,
+	enabled BOOLEAN NOT NULL DEFAULT false,
+	description TEXT,
+	id_group BIGINT,
+	
+	CONSTRAINT projects_rcpt_max_nonneg CHECK (rcpt_max >= 0),
+	CONSTRAINT projects_size_max_nonneg CHECK (size_max >= 0 AND size_max <= 18446744073709551615),
+	CONSTRAINT projects_id_group_fkey FOREIGN KEY (id_group) REFERENCES Groups(id_group) ON DELETE SET NULL
+);
+
+--- Table Auth
+CREATE TABLE IF NOT EXISTS Auth (
+	id_project UUID NOT NULL,
+	id_user    UUID NOT NULL,
+
+	PRIMARY KEY (id_project, id_user),
+	FOREIGN KEY (id_project) REFERENCES Projects(id_project) ON DELETE CASCADE,
+	FOREIGN KEY (id_user) REFERENCES Users(id_user) ON DELETE CASCADE
+);
+
+--- Table ProjectsSenders
+CREATE TABLE IF NOT EXISTS ProjectsSenders (
+	id_project UUID NOT NULL,
+	id_sender  SERIAL NOT NULL,
+
+	PRIMARY KEY (id_project, id_sender),
+	FOREIGN KEY (id_project) REFERENCES Projects(id_project) ON DELETE CASCADE,
+	FOREIGN KEY (id_sender) REFERENCES Senders(id_sender) ON DELETE CASCADE
+);
+
+--- Table ProjectServers
+CREATE TABLE IF NOT EXISTS ProjectsServers (
+	id_project UUID NOT NULL,
+	id_server  UUID NOT NULL,
+
+	PRIMARY KEY (id_project, id_server),
+	FOREIGN KEY (id_project) REFERENCES Projects(id_project) ON DELETE CASCADE,
+	FOREIGN KEY (id_server) REFERENCES Servers(id_server) ON DELETE CASCADE
+);
+
+--- Table ProjectsDomains
+CREATE TABLE IF NOT EXISTS ProjectsDomains (
+	id_project UUID NOT NULL,
+	id_domain SERIAL NOT NULL,
+
+	PRIMARY KEY (id_project, id_domain),
+	FOREIGN KEY (id_project) REFERENCES Projects(id_project) ON DELETE CASCADE,
+	FOREIGN KEY (id_domain) REFERENCES Domains(id_domain) ON DELETE CASCADE
+);
+
+----- Fonctions ------
+CREATE OR REPLACE FUNCTION enforce_ip_host_format()
+RETURNS TRIGGER AS $$
+BEGIN
+	-- Convertir l'IP en format d'hôte
+	NEW.ip := host(NEW.ip);
+	RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+----- Triggers -----
+CREATE TRIGGER enforce_ip_host
+	BEFORE INSERT OR UPDATE ON Servers
+	FOR EACH ROW
+	EXECUTE FUNCTION enforce_ip_host_format();
+
+----- View -----
+
+--- Liste des serveurs utilisés dans les projets
+CREATE OR REPLACE VIEW v_used_servers AS
+    SELECT DISTINCT s.id_server AS id_server, s.ip AS ip, s.name AS name
+    FROM Servers s
+    JOIN ProjectsServers ps ON ps.id_server = s.id_server
+    JOIN Projects p ON p.id_project = ps.id_project
+    WHERE p.enabled IS TRUE
+    ORDER BY s.ip ASC;
+
+--- Liste des serveurs non utilisés mais appartenant à des projets
+CREATE OR REPLACE VIEW v_unused_servers AS
+    SELECT DISTINCT s.id_server AS id_server, s.ip AS ip, s.name AS name
+    FROM Servers s
+    JOIN ProjectsServers ps ON ps.id_server = s.id_server
+    JOIN Projects p ON p.id_project = ps.id_project
+    WHERE p.enabled IS FALSE
+    ORDER BY s.ip ASC;
+
+--- Liste des serveurs sans projets -- Orphelins
+CREATE OR REPLACE VIEW v_orphaned_servers AS
+    SELECT DISTINCT s.id_server AS id_server, s.ip AS ip, s.name AS name, s.description AS description
+    FROM Servers s
+    FULL JOIN ProjectsServers ps ON ps.id_server = s.id_server
+    WHERE ps.id_server IS NULL OR s.id_server IS NULL
+    ORDER BY s.ip ASC;

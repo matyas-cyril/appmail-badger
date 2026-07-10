@@ -47,8 +47,9 @@ services:
     # set shared memory limit pour l'utilisation Docker
     shm_size: 128mb
     environment:
-      POSTGRES_USER: ${PG_USER:-appmailBadger}
-      POSTGRES_PASSWORD: ${PG_PWD:-PassAppmail}
+      POSTGRES_USER: ${PG_USER:-Badger}
+      POSTGRES_PASSWORD: ${PG_PWD:-Password}
+      POSTGRES_DB: ${BDD:-AppMail}
     networks:
       appmail_bridge:
         ipv4_address: 172.0.200.2
@@ -133,8 +134,8 @@ services:
     environment:
       - ADMINER_DEFAULT_DRIVER=pgsql
       - ADMINER_DEFAULT_SERVER=postgres
-      - ADMINER_DEFAULT_USERNAME=${PG_USER:-appmailBadger}
-      - ADMINER_DEFAULT_PASSWORD=${PG_PWD:-PassAppmail}
+      - ADMINER_DEFAULT_USERNAME=${PG_USER:-Badger}
+      - ADMINER_DEFAULT_PASSWORD=${PG_PWD:-Password}
     networks:
       appmail_bridge:
         ipv4_address: 172.0.200.7
