@@ -32,3 +32,4 @@ postgres-purge: .docker_postgres_purge
 smtp-up: .docker_smtp_up
 smtp-stop: .docker_smtp_stop
 smtp-rm: .docker_smtp_rm
+smtp-purge: .docker_smtp_purge
