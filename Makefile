@@ -38,3 +38,8 @@ cyrus-up: .docker_cyrus_up
 cyrus-stop: .docker_cyrus_stop
 cyrus-rm: .docker_cyrus_rm
 cyrus-purge: .docker_cyrus_purge
+
+redis-up: .docker_redis_up
+redis-stop: .docker_redis_stop
+redis-rm: .docker_redis_rm
+redis-purge: .docker_redis_purge

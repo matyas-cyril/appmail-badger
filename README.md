@@ -68,3 +68,19 @@ make cyrus-rm
 # Arrêter et supprimer le container et l'image du service Cyrus
 make cyrus-purge
 ```
+
+## 1.4 Service Redis
+
+```bash
+# Générer le ou les services Redis
+make redis-up
+
+# Mettre en pause le ou les services Redis
+make redis-stop
+
+# Arrêter et supprimer le ou les containers Redis
+make redis-rm
+
+# Arrêter et supprimer le container et l'image du service Redis
+make redis-purge
+```

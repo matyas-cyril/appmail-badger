@@ -3,6 +3,7 @@
 -include Make/postgres.mk
 -include Make/smtp.mk
 -include Make/cyrus.mk
+-include Make/redis.mk
 
 # Créer un fichier vide pour éviter les if dans les déclarations suivantes
 .init_dot.env:

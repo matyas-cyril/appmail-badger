@@ -73,5 +73,22 @@ services:
       appmail_bridge:
         ipv4_address: 172.0.200.3
 
+  redis:
+    container_name: redis_${COMPOSE_PROJECT_NAME}
+    build:
+      context: ./REDIS
+      dockerfile: Dockerfile
+      args:
+        PRIVATE_REGISTRY: ${PRIVATE_REGISTRY:-}
+        TAG_REDIS: ${TAG_REDIS:-8.6.4-trixie}
+    image: ${COMPOSE_PROJECT_NAME}/redis:${TAG_REDIS:-8.6.4-trixie}    
+    restart: unless-stopped
+    hostname: redis
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    networks:
+      appmail_bridge:
+        ipv4_address: 172.0.200.9
+
 volumes:
   Postgres: {}
