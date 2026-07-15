@@ -1,2 +1,5 @@
 ---
 # tasks file for smtp
+- include_tasks: postfix.yml
+  tags:
+    - install

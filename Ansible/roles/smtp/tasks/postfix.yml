@@ -1,0 +1,65 @@
+---
+
+- name: "Installer Postfix sans configuration"
+  debconf:
+    name: postfix
+    question: postfix/main_mailer_type
+    value: 'No configuration'
+    vtype: string
+  tags:
+    - install
+
+- name: "Installer Postfix et ses modules"
+  apt:
+    name:
+      - postfix
+      - postfix-cdb
+      - postfix-doc
+      - postfix-pcre
+      - postfix-lmdb
+      - postfix-mysql
+      - postfix-pgsql
+      - postfix-ldap
+      - postfix-sqlite
+      - sasl2-bin
+    state: present
+    install_recommends: no
+  tags:
+    - install
+
+- name: "Ajouter l'utilisateur postfix au groupe mail"
+  user:
+    name: postfix
+    groups: mail
+    append: yes
+  tags:
+    - install
+
+- name: "Créer le répertoire /etc/postfix/sasl"
+  file:
+    path: /etc/postfix/sasl
+    state: directory
+    owner: root
+    group: root
+    mode: 0644
+  tags:
+    - install
+
+- name: "Générer les fichiers pour Postfix"
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+    backup: no
+  with_items:
+    - { src: 'main.conf', dest: '/etc/postfix/main.cf', owner: 'root', group: 'root', mode: '0644' }
+    - { src: 'master.conf', dest: '/etc/postfix/master.cf', owner: 'root', group: 'root', mode: '0644' }
+    - { src: 'domains.list', dest: '/etc/postfix/domains.list', owner: 'root', group: 'root', mode: '0644' }
+    - { src: 'smtpd.conf', dest: '/etc/postfix/sasl/smtpd.conf', owner: 'root', group: 'root', mode: '0644' }
+  notify:
+    restart_postfix
+  tags:
+    - install
+    - update

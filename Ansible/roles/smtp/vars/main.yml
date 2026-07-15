@@ -1,2 +1,4 @@
 ---
 # vars file for smtp
+_hostname: "{%- if hostname is string -%}{{ hostname | trim }}{%- else -%}{{ ansible_hostname }}{%- endif -%}"
+_hostname_fqdn: "{%- if hostname_fqdn is string -%}{{ hostname_fqdn | trim }}{%- else -%}{{ _hostname + '.localhost' | string }}{%- endif -%}"
