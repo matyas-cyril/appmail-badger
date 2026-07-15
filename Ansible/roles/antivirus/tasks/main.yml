@@ -1,2 +1,13 @@
 ---
 # tasks file for antivirus
+- name: "Tâches pour Clamav"
+  include_tasks:
+    clamav.yml
+  tags:
+    - always
+
+- name: "Tâches pour Amavis"
+  include_tasks:
+    amavis.yml
+  tags:
+    - always

@@ -1,2 +1,15 @@
 ---
 # vars file for antivirus
+# vars file for msg-shared
+_hostname: "{%- if hostname is string -%}{{ hostname | trim }}{%- else -%}{{ ansible_hostname }}{%- endif -%}"
+_hostname_fqdn: "{%- if hostname_fqdn is string -%}{{ hostname_fqdn | trim }}{%- else -%}{{ _hostname + '.localhost' | string }}{%- endif -%}"
+
+##### Freshclam
+# Définir la durée en (jour) de ala recherche des MAJ des bases de l'antivirus
+_check_database_days: "{{ (clamav_check_database_days | default(24) | int) if (clamav_check_database_days is not none) else 24 }}"
+
+# Mirroir pour les MAJ de l'antivirus
+_clamav_private_mirror: "{{ (clamav_private_mirror | default('') | string | trim ) }}"
+
+# Définir la fréquence des purges de quarantaine. Par défaut on met 40 jours.
+_date_quaratine_file: "{{ (amavis_quarantine_purge | default(30) | int) }}"

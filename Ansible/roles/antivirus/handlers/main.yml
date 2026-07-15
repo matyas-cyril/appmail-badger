@@ -1,2 +1,19 @@
 ---
 # handlers file for antivirus
+- name: restart_clamav
+  service:
+    name: clamav-daemon
+    state: restarted
+    enabled: yes
+
+- name: restart_freshclam
+  service:
+    name: clamav-freshclam
+    state: restarted
+    enabled: yes
+
+- name: restart_amavis
+  service:
+    name: amavis
+    state: restarted
+    enabled: yes

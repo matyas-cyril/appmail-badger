@@ -1,0 +1,54 @@
+
+- name: "Installation de Clamav"
+  apt:
+    install_recommends: yes
+    state: latest
+    update_cache: no
+    pkg:
+      - clamav
+      - clamav-daemon
+      - clamav-freshclam
+      - arc
+      - arj
+      - bzip2
+      - cabextract
+      - cpio
+      - file
+      - gzip
+      - lhasa
+      - libcompress-bzip2-perl
+#      - liblz4-tool
+      - lrzip
+      - lz4
+      - lzip
+      - lzop
+      - nomarch
+      - p7zip-full
+      - pax
+#      - rar
+      - rpm
+      - rpm2cpio
+      - sleuthkit
+      - tnef
+      - unrar-free
+      - unzip
+      - zip
+  register: modif_install_clamav
+  notify:
+    restart_clamav
+  tags:
+    - install
+
+- name: "Modifier le fichier freshclam.conf pour prise en compte des MAJ"
+  template:
+    src: freshclam.conf
+    dest: /etc/clamav/freshclam.conf
+    owner: clamav
+    group: adm
+    mode: 0444
+    backup: no
+  notify:
+    restart_freshclam
+  tags:
+    - install
+    - update

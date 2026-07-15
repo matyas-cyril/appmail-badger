@@ -1,0 +1,64 @@
+---
+# On ignore l'erreur d'install car il faut modifier le 05-node_id 
+- name: "Installation d'Amavis"
+  apt:
+    install_recommends: no
+    state: latest
+    update_cache: yes
+    pkg:
+      - amavisd-new
+  register: modif_install_amavis
+  tags:
+    - install
+
+- name: "Ajouter l'utilisateur Clamav au groupe Amavis"
+  user:
+    name: clamav
+    groups: clamav, amavis
+    append: yes
+  tags:
+    - install
+
+- name: "Copier les fichiers de config Amavis"
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+    backup: no
+  with_items:
+    - { src: '01-debian', dest: '/etc/amavis/conf.d/01-debian', owner: 'root', group: 'root', mode: '0644' }
+    - { src: '15-content_filter_mode', dest: '/etc/amavis/conf.d/15-content_filter_mode', owner: 'root', group: 'root', mode: '0644' }
+  notify:
+    restart_amavis
+  tags:
+    - install
+    - update
+
+- name: "Générer les fichiers de config Amavis"
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+    backup: no
+  with_items:
+    - { src: '05-node_id', dest: '/etc/amavis/conf.d/05-node_id', owner: 'root', group: 'root', mode: '0644' }
+    - { src: 'amavisd-cleaner', dest: '/etc/cron.daily/amavisd-cleaner', owner: 'root', group: 'root', mode: '0755' }
+  notify:
+    restart_amavis
+  tags:
+    - install
+    - update
+
+- name: "Correction erreur : (!)connect to /var/run/clamav/clamd.ctl failed"
+  lineinfile:
+    dest: /etc/clamav/clamd.conf
+    line: "AllowSupplementaryGroups true"
+  notify:
+    restart_amavis
+  tags:
+    - install
+    - update

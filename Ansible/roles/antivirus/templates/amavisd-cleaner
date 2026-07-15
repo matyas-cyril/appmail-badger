@@ -1,0 +1,4 @@
+#!/bin/bash
+
+# Supprimer les fichiers en Quarantaire de plus de {{ _date_quaratine_file }} jour(s)
+find /var/lib/amavis/virusmails/ -type f -mtime +{{ _date_quaratine_file }} -delete
