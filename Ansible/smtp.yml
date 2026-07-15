@@ -17,6 +17,27 @@
   gather_facts: yes
 
   tasks:
+
+    - name: "Debian"
+      block:
+        - include_role:
+            name: debian
+          tags:
+            - install
+      rescue:
+        - debug:
+            msg: "Erreur lors de l'exécution du rôle Debian"
+
+    - name: "Installer antivirus Clamav Antivirus"
+      block:
+        - include_role:
+            name: antivirus
+          tags:
+            - install
+      rescue:
+        - debug:
+            msg: "Erreur lors de l'installation du rôle antivirus Clamav Antivirus"
+
     - name: "Installer SMTP"
       block:
         - include_role:
