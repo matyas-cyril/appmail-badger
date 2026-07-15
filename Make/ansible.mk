@@ -25,3 +25,5 @@ ansible-init: .install_ansible
 ansible-rm: .rm_venv
 
 smtp-deploy: .deploy_smtp
+
+smtp-deploy-from-scratch: .docker_smtp_rm .deploy_smtp
