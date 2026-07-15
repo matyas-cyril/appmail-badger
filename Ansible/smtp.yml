@@ -1,0 +1,14 @@
+---
+
+- hosts: localhost
+  gather_facts: no
+
+  tasks:
+    - name: "Démarrer les services SMTP Docker de la plateforme"
+      command: make smtp-up
+      args:
+        chdir: ..
+      register: smtp_make
+      failed_when: smtp_make.rc != 0
+      tags:
+        - always

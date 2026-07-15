@@ -1,3 +1,6 @@
+
+-include Make/Ansible/smtp.mk
+
 .make_venv:
 	@if [ ! -d $(VENV_DIR) ] || [ ! -f $(VENV_DIR)/bin/activate ]; then \
 		$(PYTHON) -m venv $(VENV_DIR) \
@@ -21,3 +24,4 @@
 ansible-init: .install_ansible
 ansible-rm: .rm_venv
 
+smtp-deploy: .deploy_smtp
