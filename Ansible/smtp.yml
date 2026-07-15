@@ -12,3 +12,17 @@
       failed_when: smtp_make.rc != 0
       tags:
         - always
+
+- hosts: smtp
+  gather_facts: yes
+
+  tasks:
+    - name: "Installer SMTP"
+      block:
+        - include_role:
+            name: smtp
+          tags:
+            - install
+      rescue:
+        - debug:
+            msg: "Erreur lors de l'installation du serveur SMTP"
