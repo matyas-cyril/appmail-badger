@@ -1,0 +1,23 @@
+---
+- name: "MAJ du cache apt"
+  apt:
+    update_cache: yes
+  tags:
+    - install
+
+- name: "Installer les paquets par défaut"
+  apt:
+    name:
+      - man-db
+      - htop
+      - procps
+      - db-util
+      - locate
+      - gettext-base
+      - vim
+      - vim-common
+      - tree
+      - rlwrap
+    state: present
+  tags:
+    - install
