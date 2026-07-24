@@ -149,3 +149,22 @@ CREATE OR REPLACE VIEW v_orphaned_servers AS
     FULL JOIN ProjectsServers ps ON ps.id_server = s.id_server
     WHERE ps.id_server IS NULL OR s.id_server IS NULL
     ORDER BY s.ip ASC;
+
+--- Liste des serveurs authorisés
+CREATE OR REPLACE VIEW v_clients_allowlist AS
+    SELECT DISTINCT s.ip AS ip, s.name AS servername
+    FROM Servers s
+    JOIN ProjectsServers ps ON ps.id_server = s.id_server
+    JOIN Projects p ON p.id_project = ps.id_project
+    WHERE p.enabled IS TRUE;
+
+--- Liste des comptes mails, sender @ domains actifs
+CREATE OR REPLACE VIEW v_enabled_emails AS
+    SELECT DISTINCT S.sender AS sender, D.domain AS domain, CONCAT(S.sender, '@', D.domain) AS mail
+    FROM ProjectsSenders PS
+    INNER JOIN Senders S ON S.id_sender = PS.id_sender
+    INNER JOIN Projects P ON P.id_project = PS.id_project AND P.enabled IS TRUE
+    INNER JOIN ProjectsDomains PD ON PD.id_project = P.id_project
+    INNER JOIN Domains D ON D.id_domain = PD.id_domain
+    ORDER BY mail ASC;
+
