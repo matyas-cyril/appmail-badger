@@ -22,7 +22,6 @@
       - postfix-ldap
       - postfix-sqlite
       - sasl2-bin
-      - policyd-rate-limit
     state: present
     install_recommends: no
   tags:
@@ -46,16 +45,6 @@
   tags:
     - install
 
-- name: "Correction du bug de stop ou restart de Policyd"
-  copy:
-    src: policyd-rate-limit.init.d
-    dest: /etc/init.d/policyd-rate-limit
-    owner: root
-    group: root
-    mode: 0755
-  tags:
-    - always
-
 - name: "Générer les fichiers pour Postfix"
   template:
     src: "{{ item.src }}"
@@ -76,19 +65,10 @@
     - install
     - update
 
-- name: "Générer les fichiers pour Policyd Rate Limit"
-  template:
-    src: "{{ item.src }}"
-    dest: "{{ item.dest }}"
-    owner: "{{ item.owner }}"
-    group: "{{ item.group }}"
-    mode: "{{ item.mode }}"
-    backup: no
-  with_items:
-    - { src: 'policyd-rate-limit.yaml.source', dest: '/etc/policyd-rate-limit.yaml.source', owner: 'root', group: 'policyd-rate-limit', mode: '0640' }
-    - { src: 'policyd-rate-limit.yaml', dest: '/etc/policyd-rate-limit.yaml', owner: 'root', group: 'policyd-rate-limit', mode: '0640' }
-  notify:
-    restart_policyd
+- name: "Activer et démarrer Postfix au boot"
+  service:
+    name: postfix
+    enabled: yes
+    state: started
   tags:
     - install
-    - update
