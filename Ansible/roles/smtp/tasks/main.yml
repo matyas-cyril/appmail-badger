@@ -2,4 +2,8 @@
 # tasks file for smtp
 - include_tasks: postfix.yml
   tags:
-    - install
+    - always
+
+- include_tasks: policyd.yml
+  tags:
+    - always
