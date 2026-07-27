@@ -4,3 +4,8 @@
   service:
     name: postfix
     state: restarted
+
+- name: restart_policyd
+  service:
+    name: policyd-rate-limit
+    state: restarted
