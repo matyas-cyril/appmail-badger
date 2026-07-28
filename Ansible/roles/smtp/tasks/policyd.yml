@@ -4,6 +4,7 @@
   apt:
     name:
       - policyd-rate-limit
+      - python3-psycopg2
     state: present
     install_recommends: no
   tags:
