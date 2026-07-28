@@ -62,3 +62,11 @@
   tags:
     - install
     - update
+
+- name: "Activer et démarrer Amavis au boot"
+  service:
+    name: amavis
+    enabled: yes
+    state: started
+  tags:
+    - install
