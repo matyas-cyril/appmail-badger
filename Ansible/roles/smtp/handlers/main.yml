@@ -5,7 +5,13 @@
     name: postfix
     state: restarted
 
-- name: restart_policyd
+- name: restart_postfwd
   service:
-    name: policyd-rate-limit
+    name: postfwd
     state: restarted
+
+- name: restart_rspamd
+  service:
+    name: rspamd
+    state: restarted
+

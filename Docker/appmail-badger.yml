@@ -27,6 +27,7 @@ services:
     ports:
       - ${EXT_SMTP:-60025}:25
       - ${EXT_SMTPS:-60587}:587
+      - ${EXT_RSPAMD_UI:-11334}:11334
     volumes:
       - /etc/localtime:/etc/localtime:ro
     networks:

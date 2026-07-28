@@ -1,0 +1,27 @@
+---
+
+- name: "Installer Rspamd"
+  apt:
+    name:
+      - rspamd
+    state: present
+    install_recommends: no
+  tags:
+    - install
+
+- name: "Générer les fichiers pour Rspamd"
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+    backup: no
+  with_items:
+    - { src: 'rspamd/redis.conf', dest: '/etc/rspamd/modules.d/redis.conf', owner: 'root', group: 'root', mode: '0644' }
+    - { src: 'rspamd/worker-controller.conf', dest: '/etc/rspamd/local.d/worker-controller.conf', owner: 'root', group: 'root', mode: '0640' }
+  notify:
+    restart_rspamd
+  tags:
+    - install
+    - update
