@@ -46,6 +46,19 @@
     - install
     - update
 
+- name: "Génération du cron policyd-rate-limit avec horaires aléatoires - pour être différent entre les serveurs"
+  cron:
+    name: "Nettoyer la table mail_count. Attention ce cron est généré via Ansible"
+    # Génèrer une min rand entre 0 et 59 en utilisant le nom de la machine comme base aléatoire
+    minute: "{{ (inventory_hostname | hash | int(base=16)) % 60 }}"
+    # Génèrer une heure rand entre 0 et 59 en utilisant le nom de la machine comme base aléatoire
+    hour: "{{ (inventory_hostname | hash | int(base=16)) % 24 }}"
+    job: "/usr/bin/policyd-rate-limit --clean >/dev/null 2>&1"
+    user: root
+    cron_file: policyd-autoclean
+  tags:
+    - install
+
 - name: "Activer et démarrer policyD Rate Limit au boot"
   service:
     name: policyd-rate-limit
