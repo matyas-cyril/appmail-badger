@@ -50,18 +50,19 @@ limits_by_id: {}
 # sql_limits_by_id: "SELECT `limits` FROM `rate_limits` WHERE `id` IN (SELECT `rate_limit`  FROM `virtual_users` WHERE `email`=%s)"
 #
 sql_limits_by_id: ""
+#sql_limits_by_id: "SELECT limits FROM rate_limits WHERE id IN (SELECT rate_limit_id FROM v_all_rate_limits WHERE identifier = %s OR (identifier LIKE '%/%' AND CAST(identifier AS INET) >>= CAST(%s AS INET)));"
 
-# Apply limits by sasl usernames.
+# ACTIVATION DU CUMUL DES TROIS RÈGLES - si True
+# Étape 1 : Vérifie si un user SASL correspond à %s
 limit_by_sasl: True
-# If no sasl username is found, or limit by sasl usernames disabled,
-# apply limits by sender addresses.
+# Étape 2 : Si pas de SASL, vérifie si l'adresse d'expédition correspond à %s
 limit_by_sender: True
-# If sasl username and sender address not found or disabled, apply limits by ip addresses.
+# Étape 3 : Si ni SASL ni Sender, vérifie si l'IP correspond à %s
 limit_by_ip: True
 
 # A list of ip networks in cidr notation on which limits are applied. An empty list is equal
 # to limit_by_ip: False, put "0.0.0.0/0" and "::/0" for every ip addresses.
-limited_networks: []
+limited_networks: ["0.0.0.0/0", "::/0"]
 
 # If no limits are reach, which action postfix should do.
 # see http://www.postfix.org/access.5.html for a list of actions.
