@@ -9,27 +9,17 @@ group: "policyd-rate-limit"
 # path where the program will try to write its pid to.
 pidfile: "/var/run/policyd-rate-limit/policyd-rate-limit.pid"
 
-# The config to connect to a mysql server.
-mysql_config:
-    user: "username"
-    passwd: "*****"
-    db: "database"
-    host: "localhost"
-    charset: 'utf8'
-
-# The config to connect to a sqlite3 database.
-sqlite_config:
-    database: "/var/lib/policyd-rate-limit/db.sqlite3"
-
 # The config to connect to a postgresql server.
 pgsql_config:
-    database: "database"
-    user: "username"
-    password: "*****"
-    host: "localhost"
+    database: "AppMail"
+    user: "Badger"
+    password: "Password"
+    host: "postgres"
+    port: 5432
+    connect_timeout: 5
 
 # Which data backend to use. Possible values are 0 for sqlite3, 1 for mysql and 2 for postgresql.
-backend: 0
+backend: 2
 
 # The socket to bind to. Can be a path to an unix socket or a couple [ip, port].
 # SOCKET: ["127.0.0.1", 8552]
@@ -65,9 +55,9 @@ sql_limits_by_id: ""
 limit_by_sasl: True
 # If no sasl username is found, or limit by sasl usernames disabled,
 # apply limits by sender addresses.
-limit_by_sender: False
+limit_by_sender: True
 # If sasl username and sender address not found or disabled, apply limits by ip addresses.
-limit_by_ip: False
+limit_by_ip: True
 
 # A list of ip networks in cidr notation on which limits are applied. An empty list is equal
 # to limit_by_ip: False, put "0.0.0.0/0" and "::/0" for every ip addresses.
@@ -104,7 +94,7 @@ report_limits: [86400]
 report_only_if_needed: True
 
 # The smtp server to use to send emails [host, port]
-smtp_server: ["localhost", 25]
+smtp_server: ["127.0.0.1", 25]
 # Should we use starttls (you should set this to True if you use smtp_credentials)
 smtp_starttls: False
 # Should we use credentials to connect to smtp_server ? if yes set ["user", "password"], else null
