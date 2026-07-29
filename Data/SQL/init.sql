@@ -10,14 +10,14 @@ CREATE TABLE IF NOT EXISTS Groups (
 
 --- Table Senders
 CREATE TABLE IF NOT EXISTS Senders (
-	id_sender SERIAL PRIMARY KEY,
+	id_sender BIGSERIAL PRIMARY KEY,
 	sender VARCHAR(64) NOT NULL,
 	description TEXT
 );
 
 --- Table Domains
 CREATE TABLE IF NOT EXISTS Domains (
-	id_domain SERIAL PRIMARY KEY,
+	id_domain BIGSERIAL PRIMARY KEY,
 	domain VARCHAR(254) NOT NULL
 );
 CREATE UNIQUE INDEX IF NOT EXISTS domain ON Domains(domain);
@@ -52,7 +52,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS users_username_idx ON Users(username);
 CREATE TABLE IF NOT EXISTS Projects (
 	id_project uuid PRIMARY KEY DEFAULT uuidv7(),
 	name TEXT NOT NULL,
-	id_sender INTEGER NOT NULL, -- S'assurer que chaque Project a exactement 1 Sender
+	id_sender BIGINT NOT NULL, -- S'assurer que chaque Project a exactement 1 Sender
 	reply_to VARCHAR(64),
 	rcpt_max SMALLINT DEFAULT 15 CHECK (rcpt_max >= 0 AND rcpt_max <= 1500),
 	rate_limit VARCHAR(20) NOT NULL DEFAULT 0 CHECK (rate_limit ~ '^(?:\d+/\d+(?:s|m|h)|0)$'),
@@ -88,7 +88,7 @@ CREATE TABLE IF NOT EXISTS ProjectsServers (
 --- Table ProjectsDomains
 CREATE TABLE IF NOT EXISTS ProjectsDomains (
 	id_project UUID NOT NULL,
-	id_domain SERIAL NOT NULL,
+	id_domain BIGINT NOT NULL,
 
 	PRIMARY KEY (id_project, id_domain),
 	FOREIGN KEY (id_project) REFERENCES Projects(id_project) ON DELETE CASCADE,
