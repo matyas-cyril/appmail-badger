@@ -18,8 +18,9 @@
     mode: "{{ item.mode }}"
     backup: no
   with_items:
-    - { src: 'rspamd/redis.conf', dest: '/etc/rspamd/modules.d/redis.conf', owner: 'root', group: 'root', mode: '0644' }
+    - { src: 'rspamd/redis.inc', dest: '/etc/rspamd/local.d/redis.inc', owner: 'root', group: 'root', mode: '0644' }
     - { src: 'rspamd/worker-controller.inc', dest: '/etc/rspamd/local.d/worker-controller.inc', owner: 'root', group: 'root', mode: '0640' }
+    - { src: 'rspamd/pg.conf', dest: '/etc/rspamd/local.d/pg.conf', owner: 'root', group: 'root', mode: '0640' }
   notify:
     restart_rspamd
   tags:
