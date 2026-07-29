@@ -187,7 +187,7 @@
             <mxRectangle height="30" width="70" as="alternateBounds" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="x6Asldr6TDr0Itec32Xk-34" parent="x6Asldr6TDr0Itec32Xk-31" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;fontStyle=5;overflow=hidden;whiteSpace=wrap;html=1;" value="SERIAL" vertex="1">
+        <mxCell id="x6Asldr6TDr0Itec32Xk-34" parent="x6Asldr6TDr0Itec32Xk-31" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;fontStyle=5;overflow=hidden;whiteSpace=wrap;html=1;" value="UUID_V7" vertex="1">
           <mxGeometry height="30" width="100" x="100" as="geometry">
             <mxRectangle height="30" width="100" as="alternateBounds" />
           </mxGeometry>
@@ -316,7 +316,7 @@
             <mxRectangle height="30" width="70" as="alternateBounds" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="x6Asldr6TDr0Itec32Xk-63" parent="x6Asldr6TDr0Itec32Xk-60" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;fontStyle=5;overflow=hidden;whiteSpace=wrap;html=1;" value="SERIAL" vertex="1">
+        <mxCell id="x6Asldr6TDr0Itec32Xk-63" parent="x6Asldr6TDr0Itec32Xk-60" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;fontStyle=5;overflow=hidden;whiteSpace=wrap;html=1;" value="UUID_V7" vertex="1">
           <mxGeometry height="30" width="80" x="100" as="geometry">
             <mxRectangle height="30" width="80" as="alternateBounds" />
           </mxGeometry>
@@ -425,7 +425,7 @@
             <mxRectangle height="30" width="70" as="alternateBounds" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="x6Asldr6TDr0Itec32Xk-88" parent="x6Asldr6TDr0Itec32Xk-85" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;fontStyle=5;overflow=hidden;whiteSpace=wrap;html=1;" value="SERIAL" vertex="1">
+        <mxCell id="x6Asldr6TDr0Itec32Xk-88" parent="x6Asldr6TDr0Itec32Xk-85" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;fontStyle=5;overflow=hidden;whiteSpace=wrap;html=1;" value="BIGSERIAL" vertex="1">
           <mxGeometry height="30" width="110" x="100" as="geometry">
             <mxRectangle height="30" width="110" as="alternateBounds" />
           </mxGeometry>
@@ -504,7 +504,7 @@
             <mxRectangle height="30" width="69" as="alternateBounds" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="ELa9ypaUlkQuOkCfilEc-5" parent="ELa9ypaUlkQuOkCfilEc-2" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;fontStyle=5;overflow=hidden;whiteSpace=wrap;html=1;" value="SERIAL" vertex="1">
+        <mxCell id="ELa9ypaUlkQuOkCfilEc-5" parent="ELa9ypaUlkQuOkCfilEc-2" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;fontStyle=5;overflow=hidden;whiteSpace=wrap;html=1;" value="BIGSERIAL" vertex="1">
           <mxGeometry height="30" width="93" x="99" as="geometry">
             <mxRectangle height="30" width="93" as="alternateBounds" />
           </mxGeometry>
@@ -563,7 +563,7 @@
             <mxRectangle height="30" width="62" as="alternateBounds" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="ELa9ypaUlkQuOkCfilEc-38" parent="ELa9ypaUlkQuOkCfilEc-35" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;fontStyle=5;overflow=hidden;whiteSpace=wrap;html=1;" value="SERIAL" vertex="1">
+        <mxCell id="ELa9ypaUlkQuOkCfilEc-38" parent="ELa9ypaUlkQuOkCfilEc-35" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;fontStyle=5;overflow=hidden;whiteSpace=wrap;html=1;" value="BIGSERIAL" vertex="1">
           <mxGeometry height="30" width="100" x="92" as="geometry">
             <mxRectangle height="30" width="100" as="alternateBounds" />
           </mxGeometry>
