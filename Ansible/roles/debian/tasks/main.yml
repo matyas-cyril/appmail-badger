@@ -18,6 +18,13 @@
       - vim-common
       - tree
       - rlwrap
+      - swaks
+      - inetutils-ping 
+      - iproute2
+      - telnet
+      - netcat-openbsd
+      - tcptraceroute
+      - tcpdump
     state: present
   tags:
     - install
