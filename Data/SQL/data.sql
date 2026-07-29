@@ -20,7 +20,7 @@ INSERT INTO Domains (domain) VALUES ('email.test');
 INSERT INTO Domains (domain) VALUES ('programm.test');
 
 --- Ajout des projets
-INSERT INTO Projects(name) VALUES ('Photocopieurs direction');
+INSERT INTO Projects(name, id_sender) VALUES ('Photocopieurs direction',3);
 
 --- Affecter des utilisateurs à un projet
 INSERT INTO Auth (id_project, id_user)
@@ -48,14 +48,5 @@ CROSS JOIN Domains AS D
 WHERE P.name LIKE 'Photocopieurs direction'
   AND ( domain = 'email.test' );
 
-
---- Définir des senders pour le projet
-INSERT INTO ProjectsSenders(id_project, id_sender)
-SELECT P.id_project AS id_project, S.id_sender AS id_sender
-FROM Projects AS P
-CROSS JOIN Senders AS S
-WHERE P.name LIKE 'Photocopieurs direction'
-  AND ( S.sender = 'photocopieurs' OR S.sender = 'sans-reponse' );
-  
 --- NE PAS OUBLIER D'ACTIVER LE PROJET
 
