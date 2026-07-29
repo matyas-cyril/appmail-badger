@@ -52,17 +52,16 @@ CREATE UNIQUE INDEX IF NOT EXISTS users_username_idx ON Users(username);
 CREATE TABLE IF NOT EXISTS Projects (
 	id_project uuid PRIMARY KEY DEFAULT uuidv7(),
 	name TEXT NOT NULL,
+	id_sender INTEGER NOT NULL, -- S'assurer que chaque Project a exactement 1 Sender
 	reply_to VARCHAR(64),
 	rcpt_max SMALLINT DEFAULT 15 CHECK (rcpt_max >= 0 AND rcpt_max <= 1500),
 	rate_limit VARCHAR(20) NOT NULL DEFAULT 0 CHECK (rate_limit ~ '^(?:\d+/\d+(?:s|m|h)|0)$'),
-	size_max NUMERIC(20,0) NOT NULL DEFAULT 3145728 CHECK (size_max >= 0), -- Correspond à UINT64
+	size_max NUMERIC(20,0) NOT NULL DEFAULT 3145728 CHECK (size_max >= 0 AND size_max <= 18446744073709551615), -- Correspond à UINT64
 	rcpt_pattern TEXT,
 	enabled BOOLEAN NOT NULL DEFAULT false,
 	description TEXT,
 	id_group BIGINT,
 	
-	CONSTRAINT projects_rcpt_max_nonneg CHECK (rcpt_max >= 0),
-	CONSTRAINT projects_size_max_nonneg CHECK (size_max >= 0 AND size_max <= 18446744073709551615),
 	CONSTRAINT projects_id_group_fkey FOREIGN KEY (id_group) REFERENCES Groups(id_group) ON DELETE SET NULL
 );
 
@@ -74,16 +73,6 @@ CREATE TABLE IF NOT EXISTS Auth (
 	PRIMARY KEY (id_project, id_user),
 	FOREIGN KEY (id_project) REFERENCES Projects(id_project) ON DELETE CASCADE,
 	FOREIGN KEY (id_user) REFERENCES Users(id_user) ON DELETE CASCADE
-);
-
---- Table ProjectsSenders
-CREATE TABLE IF NOT EXISTS ProjectsSenders (
-	id_project UUID NOT NULL,
-	id_sender  SERIAL NOT NULL,
-
-	PRIMARY KEY (id_project, id_sender),
-	FOREIGN KEY (id_project) REFERENCES Projects(id_project) ON DELETE CASCADE,
-	FOREIGN KEY (id_sender) REFERENCES Senders(id_sender) ON DELETE CASCADE
 );
 
 --- Table ProjectServers
@@ -159,12 +148,19 @@ CREATE OR REPLACE VIEW v_clients_allowlist AS
     WHERE p.enabled IS TRUE;
 
 --- Liste des comptes mails, sender @ domains actifs
-CREATE OR REPLACE VIEW v_enabled_emails AS
-    SELECT DISTINCT S.sender AS sender, D.domain AS domain, CONCAT(S.sender, '@', D.domain) AS mail
-    FROM ProjectsSenders PS
-    INNER JOIN Senders S ON S.id_sender = PS.id_sender
-    INNER JOIN Projects P ON P.id_project = PS.id_project AND P.enabled IS TRUE
-    INNER JOIN ProjectsDomains PD ON PD.id_project = P.id_project
+CREATE OR REPLACE VIEW v_enabled_projects AS
+    SELECT DISTINCT S.sender, D.domain AS domain, CONCAT(S.sender, '@', D.domain) AS mail, P.rate_limit AS rate_limit, P.size_max AS size_max, P.reply_to AS reply_to, P.rcpt_max AS rcpt_max, P.rcpt_pattern AS rcpt_patter, P.id_project AS id_project
+    FROM ProjectsDomains PD
     INNER JOIN Domains D ON D.id_domain = PD.id_domain
-    ORDER BY mail ASC;
+    INNER JOIN Projects P ON P.id_project = PD.id_project AND P.enabled IS TRUE
+    INNER JOIN Senders S ON S.id_sender = P.id_sender
+    ORDER BY S.sender ASC;
 
+--- Liste des Projets par Serveur
+CREATE OR REPLACE VIEW v_projects_by_server AS
+    SELECT SV.ip AS ip_server, SV.name AS server_name, S.sender AS sender, P.id_project AS id_project, P.enabled AS enabled_project
+    FROM ProjectsServers PS
+    INNER JOIN Projects P ON P.id_project = PS.id_project
+    INNER JOIN Servers SV ON SV.id_server = PS.id_server
+    INNER JOIN Senders S ON S.id_sender = P.id_sender
+    ORDER BY SV.ip ASC;
