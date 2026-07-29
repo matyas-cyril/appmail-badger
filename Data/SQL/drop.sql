@@ -1,9 +1,11 @@
-DROP VIEW IF EXISTS v_used_servers;
-DROP VIEW IF EXISTS v_unused_servers;
+DROP VIEW IF EXISTS v_clients_allowlist;
+DROP VIEW IF EXISTS v_enabled_projects;
 DROP VIEW IF EXISTS v_orphaned_servers;
+DROP VIEW IF EXISTS v_projects_by_server;
+DROP VIEW IF EXISTS v_unused_servers;
+DROP VIEW IF EXISTS v_used_servers;
 
 DROP TABLE IF EXISTS ProjectsDomains;
-DROP TABLE IF EXISTS ProjectsSenders;
 DROP TABLE IF EXISTS ProjectsServers;
 DROP TABLE IF EXISTS Servers;
 DROP TABLE IF EXISTS Senders;
