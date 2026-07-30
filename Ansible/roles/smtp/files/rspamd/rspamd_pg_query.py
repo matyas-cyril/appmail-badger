@@ -2,20 +2,42 @@
 
 import sys
 import json
+import os
+import configparser
 import psycopg2
 from psycopg2 import pool
 
+# Fichier de conf par défaut
+CONFIG_FILE = "/etc/rspamd/local.d/postgres.conf"
+
+def load_db_config(filename=CONFIG_FILE):
+    """Charge les identifiants depuis un fichier clé = valeur sans section"""
+    if not os.path.exists(filename):
+        raise FileNotFoundError(f"Le fichier de configuration {filename} est introuvable.")
+        
+    config = configparser.ConfigParser()
+    
+    # Astuce : On injecte une section virtuelle [global] pour lire
+    with open(filename, "r", encoding="utf-8") as f:
+        config_string = "[global]\n" + f.read()
+        
+    config.read_string(config_string)
+    return dict(config.items("global"))
 
 try:
+    # Chargement des identifiants
+    db_params = load_db_config()
+
+    # Initialisation du pool
     connection_pool = psycopg2.pool.SimpleConnectionPool(
         1, 5,
-        dbname="AppMail",
-        user="Badger",
-        password="Password",
-        host="postgres",
-        port=5432,
-        connect_timeout=3,  # Échoue si la connexion prend plus de 3 secondes
-        options="-c statement_timeout=2000"  # Échoue si la requête SQL prend plus de 2000ms (2s)
+        dbname=db_params.get("dbname",""),
+        user=db_params.get("user",""),
+        password=db_params.get("password",""),
+        host=db_params.get("host","127.0.0.1"),
+        port=int(db_params.get("port", 5432)),
+        connect_timeout=int(db_params.get("timout", 3)),
+        options="-c statement_timeout=2000"
     )
 
 except Exception as e:
