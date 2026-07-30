@@ -25,6 +25,7 @@
       - netcat-openbsd
       - tcptraceroute
       - tcpdump
+      - ripgrep
     state: present
   tags:
     - install
