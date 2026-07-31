@@ -107,10 +107,9 @@ def get_sender_ratelimit(email):
 
                 case _:
                     return {
-                        "success": True,
+                        "success": False,
                         "email": email,
-                        "ratelimit": None,
-                        "message": "No ratelimit available"
+                        "error": "No data available"
                     }
 
     except Exception as e:
@@ -167,9 +166,8 @@ def get_sender_maxsize(email):
 
                 case _:
                     return {
-                        "success": True,
+                        "success": False,
                         "email": email,
-                        "maxsize": None,
                         "message": "No size available"
                     }
 
