@@ -55,7 +55,8 @@ CREATE TABLE IF NOT EXISTS Projects (
 	id_sender BIGINT NOT NULL, -- S'assurer que chaque Project a exactement 1 Sender
 	reply_to VARCHAR(64),
 	rcpt_max SMALLINT DEFAULT 15 CHECK (rcpt_max >= 0 AND rcpt_max <= 1500),
-	rate_limit VARCHAR(20) NOT NULL DEFAULT 0 CHECK (rate_limit ~ '^(?:\d+/\d+(?:s|m|h)|0)$'),
+    burst INTEGER NOT NULL DEFAULT 150 CHECK (burst >= 0 AND burst <= 65535), -- Nbr de mails que peut envoyer un utilisateur en 1 seul fois - mode rafale ;-)
+	rate_limit VARCHAR(20) NOT NULL DEFAULT 0 CHECK (rate_limit ~ '^(?:\d+/\d+(?:s|m|h|d)|0)$'), -- 0 désactive le ratelimit
 	size_max NUMERIC(20,0) NOT NULL DEFAULT 3145728 CHECK (size_max >= 0 AND size_max <= 18446744073709551615), -- Correspond à UINT64
 	rcpt_pattern TEXT,
 	enabled BOOLEAN NOT NULL DEFAULT false,
@@ -149,7 +150,7 @@ CREATE OR REPLACE VIEW v_clients_allowlist AS
 
 --- Liste des comptes mails, sender @ domains actifs
 CREATE OR REPLACE VIEW v_enabled_projects AS
-    SELECT DISTINCT S.sender, D.domain AS domain, CONCAT(S.sender, '@', D.domain) AS mail, P.rate_limit AS rate_limit, P.size_max AS size_max, P.reply_to AS reply_to, P.rcpt_max AS rcpt_max, P.rcpt_pattern AS rcpt_patter, P.id_project AS id_project
+    SELECT DISTINCT S.sender, D.domain AS domain, CONCAT(S.sender, '@', D.domain) AS mail, P.burst AS burst, P.rate_limit AS rate_limit, P.size_max AS size_max, P.reply_to AS reply_to, P.rcpt_max AS rcpt_max, P.rcpt_pattern AS rcpt_pattern, P.id_project AS id_project
     FROM ProjectsDomains PD
     INNER JOIN Domains D ON D.id_domain = PD.id_domain
     INNER JOIN Projects P ON P.id_project = PD.id_project AND P.enabled IS TRUE
