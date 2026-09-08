@@ -165,3 +165,12 @@ CREATE OR REPLACE VIEW v_projects_by_server AS
     INNER JOIN Servers SV ON SV.id_server = PS.id_server
     INNER JOIN Senders S ON S.id_sender = P.id_sender
     ORDER BY SV.ip ASC;
+
+--- Liste des utilisateurs autorisés
+CREATE OR REPLACE VIEW v_users AS
+    SELECT id_user, username, password AS password_hash
+    FROM users
+    WHERE disabled = false
+        AND not_before < now()
+        AND (expiration IS NULL OR expiration > now());
+
