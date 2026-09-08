@@ -33,3 +33,6 @@ go.work.sum
 
 Docker/DEBIAN/Dockerfile
 venv/
+
+# Auth uniquement ce fichier .so
+!pam_pg_argon2.so
