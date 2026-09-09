@@ -176,7 +176,7 @@ CREATE OR REPLACE VIEW v_logins AS
 
 --- Liste pour le login mismatch
 CREATE OR REPLACE VIEW v_sender_login_maps AS
-    SELECT DISTINCT LOWER(CONCAT(S.sender,'@',D.domain)) AS mail, U.username AS username
+    SELECT DISTINCT LOWER(CONCAT(S.sender,'@',D.domain)) AS mail, U.username AS login
     FROM Auth A
     INNER JOIN Projects P ON P.id_project = A.id_project
     INNER JOIN Users U ON U.id_user = A.id_user
