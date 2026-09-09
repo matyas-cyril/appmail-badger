@@ -167,7 +167,7 @@ CREATE OR REPLACE VIEW v_projects_by_server AS
     ORDER BY SV.ip ASC;
 
 --- Liste des utilisateurs autorisés
-CREATE OR REPLACE VIEW v_login AS
+CREATE OR REPLACE VIEW v_logins AS
     SELECT id_user, username, password AS password_hash
     FROM users
     WHERE disabled = false
