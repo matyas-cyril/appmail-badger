@@ -1,5 +1,9 @@
 ---
 # tasks file for smtp
+- include_tasks: memcached.yml
+  tags:
+    - always
+
 - include_tasks: postfix.yml
   tags:
     - always

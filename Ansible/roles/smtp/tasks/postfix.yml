@@ -58,6 +58,7 @@
     - { src: 'postfix/domains.list', dest: '/etc/postfix/domains.list', owner: 'root', group: 'root', mode: '0644' }
     - { src: 'postfix/smtpd.conf', dest: '/etc/postfix/sasl/smtpd.conf', owner: 'root', group: 'root', mode: '0644' }
     - { src: 'postfix/pgsql-client-allow.conf', dest: '/etc/postfix/pgsql-client-allow.conf', owner: 'root', group: 'root', mode: '0644' }
+    - { src: 'postfix/pgsql_sender_login_maps.conf', dest: '/etc/postfix/pgsql_sender_login_maps.conf', owner: 'root', group: 'root', mode: '0644' }
   notify:
     restart_postfix
   tags:
