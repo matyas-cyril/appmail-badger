@@ -12,10 +12,6 @@
   tags:
     - always
 
-#- include_tasks: policyd.yml
-#  tags:
-#    - always
-
 - include_tasks: rspamd.yml
   tags:
     - always
