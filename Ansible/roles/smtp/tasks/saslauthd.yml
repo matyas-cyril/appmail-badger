@@ -1,0 +1,99 @@
+---
+
+- name: "Installer Saslauthd"
+  apt:
+    name:
+      - sasl2-bin
+      - libargon2-1
+    state: present
+    install_recommends: no
+  tags:
+    - install
+
+- name: "Ajouter l'utilisateur postfix au groupe sasl"
+  user:
+    name: postfix
+    groups: sasl
+    append: yes
+  tags:
+    - install
+
+- name: "Créer le répertoire saslauthd dans le chroot de Postfix"
+  file:
+    path: /var/spool/postfix/var/run/saslauthd
+    state: directory
+    owner: root
+    group: sasl
+    mode: 0710
+  tags:
+    - install
+    - update
+
+- name: "Vérifier si le statoverride existe déjà pour les futures MAJ"
+  command: "dpkg-statoverride --list /var/spool/postfix/var/run/saslauthd"
+  register: saslauthd_override_check
+  failed_when: false
+  changed_when: false
+  tags:
+    - install
+    - update
+
+- name: "Ajouter la dérogation dpkg-statoverride pour saslauthd"
+  command: "dpkg-statoverride --add root sasl 710 /var/spool/postfix/var/run/saslauthd"
+  when: saslauthd_override_check.rc != 0
+  tags:
+    - install
+    - update
+
+- name: "Copier le fichiers pour PAM"
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+    backup: no
+  with_items:
+    - { src: 'pam/pam_pg_argon2.so', dest: '/usr/lib/x86_64-linux-gnu/security/pam_pg_argon2.so', owner: 'root', group: 'root', mode: '0644' }
+  tags:
+    - install
+    - update
+
+- name: "Générer les fichiers pour PAM"
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+    backup: no
+  with_items:
+    - { src: 'pam/smtp-mtk', dest: '/etc/pam.d/smtp-mtk', owner: 'root', group: 'root', mode: '0644' }
+    - { src: 'pam/pam_pg_argon2.conf', dest: '/etc/security/pam_pg_argon2.conf', owner: 'root', group: 'root', mode: '0644' }
+  tags:
+    - install
+    - update
+
+- name: "Copier les fichiers pour Saslauthd"
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+    backup: no
+  with_items:
+    - { src: 'saslauthd/saslauthd.conf', dest: '/etc/default/saslauthd', owner: 'root', group: 'root', mode: '0644' }
+  notify:
+    restart_sasl
+  tags:
+    - install
+    - update
+
+- name: "Activer et démarrer Saslauthd au boot"
+  service:
+    name: saslauthd
+    enabled: yes
+    state: started
+  tags:
+    - install
