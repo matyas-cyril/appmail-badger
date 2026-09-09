@@ -4,6 +4,10 @@
   tags:
     - always
 
+- include_tasks: saslauthd.yml
+  tags:
+    - always
+
 #- include_tasks: policyd.yml
 #  tags:
 #    - always
