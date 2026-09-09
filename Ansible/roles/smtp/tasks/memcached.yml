@@ -1,0 +1,33 @@
+---
+- name: "Installer memcached"
+  apt:
+    name:
+      - memcached
+    state: present
+    install_recommends: no
+  tags:
+    - install
+
+- name: "Générer le fichier pour memcached"
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+    backup: no
+  with_items:
+    - { src: 'memcached/memcached.conf', dest: '/etc/memcached.conf', owner: 'root', group: 'root', mode: '0644' }
+  notify:
+    restart_memcached
+  tags:
+    - install
+    - update
+
+- name: "Activer et démarrer memcached au boot"
+  service:
+    name: memcached
+    enabled: yes
+    state: started
+  tags:
+    - install

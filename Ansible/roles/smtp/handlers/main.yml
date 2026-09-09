@@ -19,3 +19,8 @@
   service:
     name: saslauthd
     state: restarted
+
+- name: restart_memcached
+  service:
+    name: memcached
+    state: restarted
