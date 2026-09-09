@@ -167,10 +167,22 @@ CREATE OR REPLACE VIEW v_projects_by_server AS
     ORDER BY SV.ip ASC;
 
 --- Liste des utilisateurs autorisés
-CREATE OR REPLACE VIEW v_users AS
+CREATE OR REPLACE VIEW v_login AS
     SELECT id_user, username, password AS password_hash
     FROM users
     WHERE disabled = false
         AND not_before < now()
         AND (expiration IS NULL OR expiration > now());
+
+--- Liste pour le login mismatch
+CREATE OR REPLACE VIEW v_sender_login_maps AS
+    SELECT DISTINCT LOWER(CONCAT(S.sender,'@',D.domain)) AS mail, U.username AS username
+    FROM Auth A
+    INNER JOIN Projects P ON P.id_project = A.id_project
+    INNER JOIN Users U ON U.id_user = A.id_user
+    INNER JOIN Senders S ON S.id_sender = P.id_sender
+    INNER JOIN ProjectsDomains PD ON PD.id_project = P.id_project
+    INNER JOIN Domains D ON D.id_domain = PD.id_domain
+    WHERE P.enabled = true
+
 

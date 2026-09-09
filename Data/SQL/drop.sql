@@ -4,7 +4,8 @@ DROP VIEW IF EXISTS v_orphaned_servers;
 DROP VIEW IF EXISTS v_projects_by_server;
 DROP VIEW IF EXISTS v_unused_servers;
 DROP VIEW IF EXISTS v_used_servers;
-DROP VIEW IF EXISTS v_users;
+DROP VIEW IF EXISTS v_logins;
+DROP VIEW IF EXISTS v_sender_login_maps;
 
 DROP TABLE IF EXISTS ProjectsDomains;
 DROP TABLE IF EXISTS ProjectsServers;
