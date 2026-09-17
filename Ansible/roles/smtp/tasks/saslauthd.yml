@@ -4,6 +4,9 @@
   apt:
     name:
       - sasl2-bin
+      - libpam0g
+      - libpq5
+      - libssl3t64
       - libargon2-1
       - libinih1
     state: present
