@@ -5,6 +5,7 @@
     name:
       - sasl2-bin
       - libargon2-1
+      - libinih1
     state: present
     install_recommends: no
   tags:
@@ -69,7 +70,7 @@
     backup: no
   with_items:
     - { src: 'pam/smtp-mtk', dest: '/etc/pam.d/smtp-mtk', owner: 'root', group: 'root', mode: '0644' }
-    - { src: 'pam/pam_pg_argon2.conf', dest: '/etc/security/pam_pg_argon2.conf', owner: 'root', group: 'root', mode: '0644' }
+    - { src: 'pam/pam_pg_argon2.init', dest: '/etc/security/pam_pg_argon2.ini', owner: 'root', group: 'root', mode: '0644' }
   tags:
     - install
     - update
