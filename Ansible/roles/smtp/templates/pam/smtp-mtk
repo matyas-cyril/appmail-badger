@@ -1,4 +1,4 @@
 # Permet l'authentification sur une BDD PG avec des mots de passe en Argon2id
 # Les identifiants sont dans le fichier /etc/security/pam_pg_argon2.conf
-auth    required    pam_pg_argon2.so conffile=/etc/security/pam_pg_argon2.conf
+auth    required    pam_pg_argon2.so conf_file=/etc/security/pam_pg_argon2.ini
 account required    pam_permit.so
