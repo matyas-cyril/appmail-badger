@@ -7,7 +7,7 @@
     value: 'No configuration'
     vtype: string
   tags:
-    - install
+    - install-postfix
 
 - name: "Installer Postfix et ses modules"
   apt:
@@ -24,7 +24,7 @@
     state: present
     install_recommends: no
   tags:
-    - install
+    - install-postfix
 
 - name: "Ajouter l'utilisateur postfix au groupe mail"
   user:
@@ -32,7 +32,7 @@
     groups: mail
     append: yes
   tags:
-    - install
+    - install-postfix
 
 - name: "Créer le répertoire /etc/postfix/sasl"
   file:
@@ -42,7 +42,7 @@
     group: root
     mode: 0644
   tags:
-    - install
+    - install-postfix
 
 - name: "Générer les fichiers pour Postfix"
   template:
@@ -64,8 +64,8 @@
   notify:
     restart_postfix
   tags:
-    - install
-    - update
+    - install-postfix
+    - update-postfix
 
 - name: "Activer et démarrer Postfix au boot"
   service:
@@ -73,4 +73,4 @@
     enabled: yes
     state: started
   tags:
-    - install
+    - install-postfix

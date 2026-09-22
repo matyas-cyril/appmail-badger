@@ -4,10 +4,12 @@
   include_tasks:
     clamav.yml
   tags:
-    - always
+    - install-clamav
+    - update-clamav
 
 - name: "Tâches pour Amavis"
   include_tasks:
     amavis.yml
   tags:
-    - always
+    - install-amavis
+    - update-amavis

@@ -5,13 +5,16 @@ ARG TAG_DEBIAN=""
 
 FROM ${PRIVATE_REGISTRY}${IMAGE}:${TAG_DEBIAN}
 
+# Définir la variable pour toutes les instructions RUN
+ENV DEBIAN_FRONTEND=noninteractive
+
 LABEL autor="matyas-cyril"
 
 # %COPY_SRC_CMD%
 # %COPY_GPG_CMD%
 
 RUN apt-get update && apt-get -y upgrade && \
-    apt-get install -y man-db systemctl syslog-ng python3
+    apt-get install -y man-db systemctl syslog-ng python3 tzdata
 
 COPY --chown=root:root bashrc /root/.bashrc
 COPY --chown=root:root syslog-ng.conf /etc/syslog-ng/syslog-ng.conf

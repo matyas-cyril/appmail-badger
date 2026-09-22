@@ -10,7 +10,6 @@
 		echo "virtual environment '$(VENV_DIR)' already exist"; \
 	fi
 
-
 .install_ansible: .make_venv
 	@echo "starting install of Ansible $(ANSIBLE_VERSION)";
 	@$(VENV_DIR)/bin/pip3 install ansible==$(ANSIBLE_VERSION) \
@@ -22,8 +21,29 @@
 	echo "successfully removed '$(VENV_DIR)'";
 
 ansible-init: .install_ansible
-ansible-rm: .rm_venv
+ansible-delete: .rm_venv
 
-smtp-deploy: .deploy_smtp
-smtp-deploy-reset: .docker_smtp_rm .deploy_smtp
-smtp-deploy-from-scratch: .docker_smtp_purge .deploy_smtp
+# Déployer toute la plateforme
+smtp-full-install: .smtp_full_install
+smtp-full-update: .smtp_full_update
+smtp-full-upgrade: .smtp_full_upgrade
+smtp-os-ready: docker_smtp_rm .smtp_debian_install
+
+smtp-saslauthd-install: .smtp_saslauthd_install
+smtp-saslauthd-update: .smtp_saslauthd_update
+
+smtp-postfix-install: .smtp_postfix_install
+smtp-postfix-update: .smtp_postfix_update
+
+smtp-antivirus-install: .smtp_antivirus_install
+smtp-antivirus-update: .smtp_antivirus_update
+
+smtp-clamav-install: .smtp_clamav_install
+smtp-clamav-update: .smtp_clamav_update
+
+smtp-amavis-install: .smtp_amavis_install
+smtp-amavis-update: .smtp_amavis_update
+
+smtp-debian-install: .smtp_debian_install
+smtp-debian-update: .smtp_debian_update
+smtp-debian-upgrade: .smtp_debian_upgrade

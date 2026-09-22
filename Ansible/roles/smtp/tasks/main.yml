@@ -2,16 +2,20 @@
 # tasks file for smtp
 - include_tasks: memcached.yml
   tags:
-    - always
+    - install-memcached
+    - update-memcached
 
 - include_tasks: postfix.yml
   tags:
-    - always
+    - install-postfix
+    - update-postfix
 
 - include_tasks: saslauthd.yml
   tags:
-    - always
+    - install-sasl
+    - update-sasl
 
 - include_tasks: rspamd.yml
   tags:
-    - always
+    - install-rspamd
+    - update-rspamd

@@ -1,9 +1,60 @@
 ---
-- name: "MAJ du cache apt"
+- name: "Mise à jour du cache apt"
   apt:
     update_cache: yes
+    cache_valid_time: 3600
   tags:
-    - install
+    - install-debian
+    - update-debian
+    - upgrade-debian
+
+- name: "Upgrade des paquets"
+  apt:
+    upgrade: dist
+    dpkg_options: "force-confdef,force-confold"
+  tags:
+    - upgrade-debian
+
+- name: "Supprimer les dépendances inutiles"
+  apt:
+    autoremove: true
+    autoclean: true
+  tags:
+    - upgrade-debian
+
+- name: "Vérifier si un redémarrage est nécessaire"
+  stat:
+    path: /var/run/reboot-required
+  register: debian_reboot_required
+  tags:
+    - upgrade-debian  
+
+# Désactiver - A voir en prod
+#- name: "Redémarrer le serveur"
+#  reboot:
+#    msg: "Redémarrage après upgrade du serveur Debian"
+#    reboot_timeout: 600
+#  tags:
+#    - upgrade-debian
+#  when:
+#    - debian_reboot_required
+
+- name: "Afficher une alerte de redémarrage"
+  fail:
+    msg: "ATTENTION : REDÉMARRAGE DU SERVEUR RECOMMANDÉ !!!"
+  ignore_errors: true
+  tags:
+    - upgrade-debian
+  when:
+    - debian_reboot_required.stat.exists
+
+- name: "Pas de redémarrage suite à l'Upgrade"
+  debug:
+    msg: "Pas de redémarrage nécessaire suite à l'Upgrade"
+  tags:
+    - upgrade-debian
+  when:
+    - not(debian_reboot_required.stat.exists)
 
 - name: "Installer les paquets par défaut"
   apt:
@@ -28,4 +79,4 @@
       - ripgrep
     state: present
   tags:
-    - install
+    - install-debian

@@ -18,32 +18,116 @@
 
   tasks:
 
-    - name: "Debian"
+    - name: "Installer le serveur Debian"
       block:
         - include_role:
             name: debian
           tags:
-            - install
+            - install-debian
       rescue:
         - debug:
-            msg: "Erreur lors de l'exécution du rôle Debian"
+            msg: "Erreur lors de l'exécution d'installation du rôle Debian"
 
-    - name: "Installer antivirus Clamav Antivirus"
+    - name: "Mise à jour du serveur Debian"
+      block:
+        - include_role:
+            name: debian
+          tags:
+            - update-debian
+      rescue:
+        - debug:
+            msg: "Erreur lors de l'exécution de la mise à jour du rôle Debian"
+
+    - name: "Upgrade du serveur Debian"
+      block:
+        - include_role:
+            name: debian
+          tags:
+            - upgrade-debian
+      rescue:
+        - debug:
+            msg: "Erreur lors de l'exécution de l'upgrade du rôle Debian"
+
+
+    - name: "Installer l'antivirus Clamav Antivirus"
       block:
         - include_role:
             name: antivirus
           tags:
-            - install
+            - install-clamav
       rescue:
         - debug:
-            msg: "Erreur lors de l'installation du rôle antivirus Clamav Antivirus"
+            msg: "Erreur lors de l'installation du rôle antivirus Clamav Antivirus pour le rôle Antivirus"
 
-    - name: "Installer SMTP"
+    - name: "Mise à jour de l'antivirus Clamav Antivirus"
+      block:
+        - include_role:
+            name: antivirus
+          tags:
+            - update-clamav
+      rescue:
+        - debug:
+            msg: "Erreur lors de la mise à jour du rôle antivirus Clamav Antivirus pour le rôle Antivirus"
+
+
+    - name: "Installer le filtre Amavis pour Clamav"
+      block:
+        - include_role:
+            name: antivirus
+          tags:
+            - install-amavis
+      rescue:
+        - debug:
+            msg: "Erreur lors de l'installation du rôle Amavis pour le rôle Antivirus"
+
+    - name: "Mise à jour du filtre Amavis pour Clamav"
+      block:
+        - include_role:
+            name: antivirus
+          tags:
+            - update-amavis
+      rescue:
+        - debug:
+            msg: "Erreur lors de la mise à jour du rôle Amavis pour le rôle Antivirus"
+
+
+    - name: "Installer Postfix pour le rôle SMTP"
       block:
         - include_role:
             name: smtp
           tags:
-            - install
+            - install-postfix
       rescue:
         - debug:
-            msg: "Erreur lors de l'installation du serveur SMTP"
+            msg: "Erreur lors de l'installation du serveur Postfix pour le rôle SMTP"
+
+    - name: "Mise à jour de Postfix pour le rôle SMTP"
+      block:
+        - include_role:
+            name: smtp
+          tags:
+            - update-postfix
+      rescue:
+        - debug:
+            msg: "Erreur lors de la mise à jour du serveur Postfix pour le rôle SMTP"
+
+
+    - name: "Installer Saslauthd pour le rôle SMTP"
+      block:
+        - include_role:
+            name: smtp
+          tags:
+            - install-sasl
+      rescue:
+        - debug:
+            msg: "Erreur lors de l'installation du serveur Saslauthd pour le rôle SMTP"
+
+    - name: "Mise à jour de Saslauthd pour le rôle SMTP"
+      block:
+        - include_role:
+            name: smtp
+          tags:
+            - update-sasl
+      rescue:
+        - debug:
+            msg: "Erreur lors de la mise à jour du serveur Saslauthd pour le rôle SMTP"

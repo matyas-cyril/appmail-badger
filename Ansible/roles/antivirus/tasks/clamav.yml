@@ -36,7 +36,7 @@
   notify:
     restart_clamav
   tags:
-    - install
+    - install-clamav
 
 - name: "Modifier le fichier freshclam.conf pour prise en compte des MAJ"
   template:
@@ -49,8 +49,8 @@
   notify:
     restart_freshclam
   tags:
-    - install
-    - update
+    - install-clamav
+    - update-clamav
 
 - name: "Activer et démarrer Freshclam au boot"
   service:
@@ -58,7 +58,7 @@
     enabled: yes
     state: started
   tags:
-    - install
+    - install-clamav
 
 - name: "Activer et démarrer Clamav au boot"
   service:
@@ -66,4 +66,4 @@
     enabled: yes
     state: started
   tags:
-    - install
+    - install-clamav
