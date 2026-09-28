@@ -5,7 +5,7 @@
 
   tasks:
     - name: "Démarrer les services SMTP Docker de la plateforme"
-      command: make smtp-up
+      command: make docker-smtp-up
       args:
         chdir: ..
       register: smtp_make
