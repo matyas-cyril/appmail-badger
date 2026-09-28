@@ -5,6 +5,11 @@
     name: postfix
     state: restarted
 
+- name: reload_postfix
+  service:
+    name: postfix
+    state: reloaded
+
 - name: restart_postfwd
   service:
     name: postfwd

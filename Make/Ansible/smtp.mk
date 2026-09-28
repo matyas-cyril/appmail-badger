@@ -41,6 +41,10 @@
 	ANSIBLE_CONFIG=Ansible/ansible.cfg \
 		$(VENV_DIR)/bin/ansible-playbook Ansible/smtp.yml --tags update-postfix
 
+.smtp_postfix_update_data:
+	ANSIBLE_CONFIG=Ansible/ansible.cfg \
+		$(VENV_DIR)/bin/ansible-playbook Ansible/smtp.yml --tags update-postfix-data
+
 # Antivirus
 .smtp_antivirus_install:
 	ANSIBLE_CONFIG=Ansible/ansible.cfg \

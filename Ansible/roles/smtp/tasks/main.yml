@@ -9,6 +9,7 @@
   tags:
     - install-postfix
     - update-postfix
+    - update-postfix-data
 
 - include_tasks: saslauthd.yml
   tags:

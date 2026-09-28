@@ -67,6 +67,32 @@
     - install-postfix
     - update-postfix
 
+- name: "Copier des fichiers pour Postfix nécessitant une génération db"
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+    backup: no
+  with_items:
+    - { src: 'postfix/transport_to_mbx', dest: '/etc/postfix/transport_to_mbx', owner: 'root', group: 'root', mode: '0644' }
+  register: postfix_copy_file_to_cdb
+  tags:
+    - install-postfix
+    - update-postfix
+    - update-postfix-data
+
+- name: "Générer les cdb des fichiers modifiés"
+  command: "postmap cdb:{{ item.item.dest }}"
+  with_items: "{{ postfix_copy_file_to_cdb.results }}"
+  when: item.changed
+  notify: reload_postfix
+  tags:
+    - install-postfix
+    - update-postfix
+    - update-postfix-data
+
 - name: "Activer et démarrer Postfix au boot"
   service:
     name: postfix

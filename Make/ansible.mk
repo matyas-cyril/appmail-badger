@@ -34,6 +34,7 @@ smtp-saslauthd-update: .smtp_saslauthd_update
 
 smtp-postfix-install: .smtp_postfix_install
 smtp-postfix-update: .smtp_postfix_update
+smtp-postfix-data: .smtp_postfix_update_data
 
 smtp-antivirus-install: .smtp_antivirus_install
 smtp-antivirus-update: .smtp_antivirus_update
