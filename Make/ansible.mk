@@ -50,3 +50,6 @@ smtp-debian-upgrade: .smtp_debian_upgrade
 
 smtp-memcached-install: .smtp_memcached_install
 smtp-memcached-update: .smtp_memcached_update
+
+smtp-rspamd-install: .smtp_rspamd_install
+smtp-rspamd-update: .smtp_rspamd_update

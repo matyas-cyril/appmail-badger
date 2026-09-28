@@ -151,3 +151,23 @@
       rescue:
         - debug:
             msg: "Erreur lors de la mise à jour du serveur Memcached pour le rôle SMTP"
+
+    - name: "Installer RSpamD pour le rôle SMTP"
+      block:
+        - include_role:
+            name: smtp
+          tags:
+            - install-rspamd
+      rescue:
+        - debug:
+            msg: "Erreur lors de l'installation du serveur RSpamD pour le rôle SMTP"
+
+    - name: "Mise à jour de RSpamD pour le rôle SMTP"
+      block:
+        - include_role:
+            name: smtp
+          tags:
+            - update-rspamd
+      rescue:
+        - debug:
+            msg: "Erreur lors de la mise à jour du serveur RSpamD pour le rôle SMTP"

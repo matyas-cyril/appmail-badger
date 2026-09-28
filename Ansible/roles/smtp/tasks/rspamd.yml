@@ -8,7 +8,7 @@
     state: present
     install_recommends: no
   tags:
-    - install
+    - install-rspamd
 
 - name: "Générer les fichiers pour Rspamd"
   template:
@@ -25,8 +25,8 @@
   notify:
     restart_rspamd
   tags:
-    - install
-    - update
+    - install-rspamd
+    - update-rspamd
 
 - name: "Copier les fichiers pour Rspamd"
   copy:
@@ -44,5 +44,5 @@
   notify:
     restart_rspamd
   tags:
-    - install
-    - update
+    - install-rspamd
+    - update-rspamd
