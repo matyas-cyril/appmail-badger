@@ -24,6 +24,8 @@ SQL_DATA ?= Data/SQL/data.sql
 
 .PHONY: all
 
-all: platform-up
+all: ansible-init docker-platform-up sql-init smtp-full-install
 
-purge: .purge_platform
+demo: all sql-data
+
+purge: .purge_platform ansible-delete
