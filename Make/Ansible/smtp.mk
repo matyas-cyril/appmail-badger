@@ -1,11 +1,11 @@
 # Toute la plateforme
 .smtp_full_install:
 	ANSIBLE_CONFIG=Ansible/ansible.cfg \
-		$(VENV_DIR)/bin/ansible-playbook Ansible/smtp.yml --tags install-debian,install-sasl,install-postfix,install-clamav,install-amavis
+		$(VENV_DIR)/bin/ansible-playbook Ansible/smtp.yml --tags install-debian,install-sasl,install-memcached,install-postfix,install-clamav,install-amavis
 
 .smtp_full_update:
 	ANSIBLE_CONFIG=Ansible/ansible.cfg \
-		$(VENV_DIR)/bin/ansible-playbook Ansible/smtp.yml --tags update-debian,update-sasl,update-postfix,update-clamav,update-amavis
+		$(VENV_DIR)/bin/ansible-playbook Ansible/smtp.yml --tags update-debian,update-sasl,update-memcached,update-postfix,update-clamav,update-amavis
 
 .smtp_full_upgrade: .smtp_debian_upgrade
 
@@ -67,3 +67,12 @@
 .smtp_amavis_update:
 	ANSIBLE_CONFIG=Ansible/ansible.cfg \
 		$(VENV_DIR)/bin/ansible-playbook Ansible/smtp.yml --tags update-amavis
+
+# Memcached
+.smtp_memcached_install:
+	ANSIBLE_CONFIG=Ansible/ansible.cfg \
+		$(VENV_DIR)/bin/ansible-playbook Ansible/smtp.yml --tags install-memcached
+
+.smtp_memcached_update:
+	ANSIBLE_CONFIG=Ansible/ansible.cfg \
+		$(VENV_DIR)/bin/ansible-playbook Ansible/smtp.yml --tags update-memcached

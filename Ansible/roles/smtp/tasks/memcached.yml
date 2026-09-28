@@ -7,7 +7,7 @@
     state: present
     install_recommends: no
   tags:
-    - install
+    - install-memcached
 
 - name: "Générer le fichier pour memcached"
   template:
@@ -22,8 +22,8 @@
   notify:
     restart_memcached
   tags:
-    - install
-    - update
+    - install-memcached
+    - update-memcached
 
 - name: "Activer et démarrer memcached au boot"
   service:
@@ -31,4 +31,5 @@
     enabled: yes
     state: started
   tags:
-    - install
+    - install-memcached
+  

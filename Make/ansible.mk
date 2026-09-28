@@ -47,3 +47,6 @@ smtp-amavis-update: .smtp_amavis_update
 smtp-debian-install: .smtp_debian_install
 smtp-debian-update: .smtp_debian_update
 smtp-debian-upgrade: .smtp_debian_upgrade
+
+smtp-memcached-install: .smtp_memcached_install
+smtp-memcached-update: .smtp_memcached_update
