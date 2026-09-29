@@ -2,125 +2,138 @@
 
 # 1. Make
 
-## 1.1 Ensemble de la plateforme
+## 1.1 Commandes de base
 
-Les commandes suivantes permettent d'interagir avec l'ensemble des services.  
+``` bash
+# Générer la plateforme, puis déployer les recettes Ansible et le schéma de BDD
+make all
+
+# Correspond à make all + ajout d'un jeu de données
+make demo
+
+# Arrêter et supprimer les images, même les orphelines (correspond à make docker-plateform-purge)
+make purge
+```
+
+## 1.2 Déploiement Docker
+
+### 1.2.1 Ensemble de la plateforme
+
 
 ```bash
 # Générer la plateforme
-make platform-up
+make docker-platform-up
 
 # Mettre en pause la plateforme
-make platform-stop
+make docker-platform-stop
 
 # Arrêter et supprimer les containers
-make platform-rm
+make docker-platform-rm
 
-# Arrêter et supprimer les images, même les orphelines
-make platform-purge
-ou
-make purge
+# Arrêter et supprimer les images, même les orphelines (correspond à make purge)
+make docker-platform-purge
+
 ```
-## 1.2 Service PostgreSQL
+### 1.2.2 Service PostgreSQL
 
 ```bash
 # Générer le service Postgres
-make postgres-up
+make docker-postgres-up
 
 # Mettre en pause le service Postgres
-make postgres-stop
+make docker-postgres-stop
 
 # Arrêter et supprimer le container
-make postgres-rm
+make docker-postgres-rm
 
 # Arrêter et supprimer le container, le volume et l'image du service Postgres
-make postgres-purge
+make docker-postgres-purge
 ```
 
-## 1.3 Service SMTP
+### 1.2.3 Service SMTP
 
 ```bash
 # Générer le ou les services SMTP
-make smtp-up
+make docker-smtp-up
 
 # Mettre en pause le ou les services SMTP
-make smtp-stop
+make docker-smtp-stop
 
 # Arrêter et supprimer le ou les containers SMTP
-make smtp-rm
+make docker-smtp-rm
 
 # Arrêter et supprimer le container et l'image du service SMTP
-make smtp-purge
+make docker-smtp-purge
 ```
 
-## 1.4 Service Cyrus
+### 1.2.4 Service Cyrus
 
 ```bash
 # Générer le ou les services Cyrus
-make cyrus-up
+make docker-cyrus-up
 
 # Mettre en pause le ou les services Cyrus
-make cyrus-stop
+make docker-cyrus-stop
 
 # Arrêter et supprimer le ou les containers Cyrus
-make cyrus-rm
+make docker-cyrus-rm
 
 # Arrêter et supprimer le container et l'image du service Cyrus
-make cyrus-purge
+make docker-cyrus-purge
 ```
 
-## 1.4 Service Redis
+### 1.2.5 Service Redis
 
 ```bash
 # Générer le ou les services Redis
-make redis-up
+make docker-redis-up
 
 # Mettre en pause le ou les services Redis
-make redis-stop
+make docker-redis-stop
 
 # Arrêter et supprimer le ou les containers Redis
-make redis-rm
+make docker-redis-rm
 
 # Arrêter et supprimer le container et l'image du service Redis
-make redis-purge
+make docker-redis-purge
 ```
 
-## 1.5 Service Webmail
+### 1.2.6 Service Webmail
 
 ```bash
 # Générer le ou les services Webmail
-make webmail-up
+make docker-webmail-up
 
 # Mettre en pause le ou les services Webmail
-make webmail-stop
+make docker-webmail-stop
 
 # Arrêter et supprimer le ou les containers Webmail
-make webmail-rm
+make docker-webmail-rm
 
 # Arrêter et supprimer le container et l'image du service Webmail
-make webmail-purge
+make docker-webmail-purge
 ```
 
-## 1.6 Service Adminer
+### 1.2.7 Service Adminer
 
 Le service Adminer dépend du service Postgres.  
 Un **make adminer-up** va créer le service Postgres si non présent.  
 
 ```bash
 # Générer le ou les services Adminer
-make adminer-up
+make docker-adminer-up
 
 # Mettre en pause le ou les services Adminer
-make adminer-stop
+make docker-adminer-stop
 
 # Arrêter et supprimer le ou les containers Adminer
-make adminer-rm
+make docker-adminer-rm
 
 # Arrêter et supprimer le container et l'image du service Adminer
-make adminer-purge
+make docker-adminer-purge
 ```
 
-## 1.7 Base de données
+## 1.3 Base de données
 
 L'initialisation de la base de données nécessite la présence du service Postgres à minima.  
 Pour une exploitation graphique il faut ajouter le service Adminer.  
