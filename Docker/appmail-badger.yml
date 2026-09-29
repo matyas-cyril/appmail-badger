@@ -164,6 +164,10 @@ services:
     hostname: adminer
     user: "1000:1000"
 
+    networks:
+      appmail_bridge:
+        ipv4_address: 172.0.200.11
+
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ../Golang/:/go/src/:cached

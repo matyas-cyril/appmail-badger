@@ -15,7 +15,7 @@ ENV GID=1000
 
 RUN apt-get update
 RUN apt-get install -y --no-install-recommends git gcc \
-            openssh-client make pandoc sudo strace \
+            openssh-client make pandoc sudo strace inetutils-ping \
             btop jq inetutils-ping telnet tcptraceroute
 
 RUN /usr/local/go/bin/go install -v github.com/ramya-rao-a/go-outline@latest \
