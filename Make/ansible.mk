@@ -27,7 +27,6 @@ ansible-delete: .rm_venv
 smtp-full-install: .smtp_full_install
 smtp-full-update: .smtp_full_update
 smtp-full-upgrade: .smtp_full_upgrade
-smtp-os-ready: docker_smtp_rm .smtp_debian_install
 
 smtp-saslauthd-install: .smtp_saslauthd_install
 smtp-saslauthd-update: .smtp_saslauthd_update
