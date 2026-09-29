@@ -1,0 +1,41 @@
+
+ARG PRIVATE_REGISTRY=""
+ARG GOLANG_VERSION="1.27.1"
+ARG DEBIAN_VERSION="trixie"
+
+FROM ${PRIVATE_REGISTRY}golang:${GOLANG_VERSION}-${DEBIAN_VERSION}
+
+ENV DIR_GOLANG_CODE=/go/src/
+ENV USER=golang
+ENV UID=1000
+ENV GID=1000
+
+# %COPY_SRC_CMD%
+# %COPY_GPG_CMD%
+
+RUN apt-get update
+RUN apt-get install -y --no-install-recommends git gcc \
+            openssh-client make pandoc sudo strace \
+            btop jq inetutils-ping telnet tcptraceroute
+
+RUN /usr/local/go/bin/go install -v github.com/ramya-rao-a/go-outline@latest \
+ && /usr/local/go/bin/go install -v golang.org/x/tools/gopls@latest \
+ && /usr/local/go/bin/go install -v github.com/go-delve/delve/cmd/dlv@latest \
+ && /usr/local/go/bin/go install -v honnef.co/go/tools/cmd/staticcheck@latest
+
+RUN addgroup "${USER}" && \
+    adduser --disabled-password --home "/home/${USER}" --ingroup "${USER}" --uid "${UID}" "${USER}"
+
+RUN chown -R "${USER}:${USER}" /go
+
+COPY --chown="${USER}:${USER}" --chmod="0644" bashrc.sh /home/${USER}/.bashrc
+
+RUN echo 'while [ 1 ]; do sleep 1 ;done;' > /loop_inf.sh && chmod +x /loop_inf.sh
+
+RUN echo 'golang   ALL=NOPASSWD:ALL' > /etc/sudoers.d/golang && chmod 440 /etc/sudoers.d/golang
+
+WORKDIR $DIR_GOLANG_CODE
+
+CMD ln -s /tmp/.ssh "/home/${USER}/.ssh" && \
+    ln -s /tmp/.gitconfig "/home/${USER}/.gitconfig"; \
+    /loop_inf.sh

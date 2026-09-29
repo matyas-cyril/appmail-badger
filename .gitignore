@@ -32,6 +32,7 @@ go.work.sum
 # .vscode/
 
 Docker/DEBIAN/Dockerfile
+Docker/GOLANG/Dockerfile
 venv/
 
 # Auth uniquement ce fichier .so

@@ -6,6 +6,7 @@
 -include Make/Docker/redis.mk
 -include Make/Docker/webmail.mk
 -include Make/Docker/adminer.mk
+-include Make/Docker/golang.mk
 
 # Créer un fichier vide pour éviter les if dans les déclarations suivantes
 .init_dot.env:
@@ -19,7 +20,7 @@
 			sed -e "s|\#\ \%COPY_GPG_CMD\%|$(COPY_GPG_CMD)|g" ./$$dir/Dockerfile.template | sed -e "s|\#\ \%COPY_SRC_CMD\%|$(COPY_SRC_CMD)|g" - > "./Docker/$$dir/Dockerfile"; \
 		done \
 	else \
-		for dir in Docker/DEBIAN; do \
+		for dir in Docker/DEBIAN Docker/GOLANG; do \
 			sed "\|\#\ \%COPY_GPG_CMD\%|d" ./$$dir/Dockerfile.template | sed "\|\#\ \%COPY_SRC_CMD\%|d" - > "./$$dir/Dockerfile"; \
 			rm -rf "./Docker/$$dir/sources"; \
 		done \
@@ -59,3 +60,8 @@ docker-adminer-up: .docker_adminer_up
 docker-adminer-stop: .docker_adminer_stop
 docker-adminer-rm: .docker_adminer_rm
 docker-adminer-purge: .docker_adminer_purge
+
+docker-golang-up: .docker_golang_up
+docker-golang-stop: .docker_golang_stop
+docker-golang-rm: .docker_golang_rm
+docker-golang-purge: .docker_golang_purge

@@ -133,6 +133,24 @@ make docker-adminer-rm
 make docker-adminer-purge
 ```
 
+## 1.2.8 Service Golang
+
+Le service Golang est utilisé uniquement pour le développement et la compilation.  
+
+```bash
+# Générer le ou les services Golang
+make docker-golang-up
+
+# Mettre en pause le ou les services Golang
+make docker-golang-stop
+
+# Arrêter et supprimer le ou les containers Golang
+make docker-golang-rm
+
+# Arrêter et supprimer le container et l'image du service Golang
+make docker-golang-purge
+```
+
 ## 1.3 Base de données
 
 L'initialisation de la base de données nécessite la présence du service Postgres à minima.  

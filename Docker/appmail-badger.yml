@@ -149,6 +149,27 @@ services:
         target: /var/www/html/index.php
         mode: 0755
 
+  golang:
+
+    container_name: go_appbadger_${GOLANG_VERSION:-1.27.1}
+
+    build:
+      context: ./GOLANG
+      dockerfile: Dockerfile
+      args:
+        GOLANG_VERSION: ${GOLANG_VERSION:-1.27.1}
+        DEBIAN_VERSION: ${DEBIAN_VERSION:-trixie}
+
+    restart: unless-stopped
+    hostname: adminer
+    user: "1000:1000"
+
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ../Golang/:/go/src/:cached
+      - ~/.gitconfig:/tmp/.gitconfig:ro
+      - ~/.ssh/:/tmp/.ssh/:ro,Z      
+
 configs:
   adminer-index.php:
     content: |

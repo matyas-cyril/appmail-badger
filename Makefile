@@ -21,6 +21,7 @@ SQL_DATA ?= Data/SQL/data.sql
 -include Make/ansible.mk
 -include Make/docker.mk
 -include Make/sample.mk
+-include Make/golang.mk
 
 .PHONY: all
 
