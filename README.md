@@ -148,3 +148,87 @@ make sql-drop
 # Ajouter des données 
 make sql-data
 ```
+## 1.4 Déploiement recettes Ansible
+
+La configuration Ansible est définie dans le fichier **./Ansible/ansible.cfg**
+
+La structure de déploiement : 
+- ****-install*** : Recette d'installation d'un service (paquets + fichiers de conf)
+- ****-update***  : Recette de mise à jour des fichiers de conf
+- ****-upgrade*** : Recette de mise à jour des paquets (équivalent **apt update && apt upgrade**)
+
+### 1.4.1 Ansible
+
+``` bash
+# Initialiser l'environnement virtuel Ansible
+make ansible-init
+
+# Supprimer l'environnement virtuel Ansible
+make ansible-delete
+```
+
+### 1.4.2 SMTP
+
+``` bash
+make smtp-full-install
+make smtp-full-update
+make smtp-full-upgrade
+```
+
+### 1.4.3 Debian
+
+``` bash
+make smtp-debian-install
+make smtp-debian-update
+make smtp-debian-upgrade
+```
+
+### 1.4.4 Antivirus
+
+``` bash
+make smtp-antivirus-install
+make smtp-antivirus-update
+```
+
+#### 1.4.4.1 Amavis
+
+``` bash
+make smtp-amavis-install
+make smtp-amavis-update
+```
+
+#### 1.4.4.2 Clamav
+
+``` bash
+make smtp-clamav-install
+make smtp-clamav-update
+```
+
+### 1.4.5 MemcacheD
+
+``` bash
+make smtp-memcached-install
+make smtp-memcached-update
+```
+
+### 1.4.6 Postfix
+
+``` bash
+make smtp-postfix-data
+make smtp-postfix-install
+make smtp-postfix-update
+```
+
+### 1.4.7 RSpamD
+
+``` bash
+make smtp-rspamd-install
+make smtp-rspamd-update
+```
+
+### 1.4.8 SaslauthD
+
+``` bash
+make smtp-saslauthd-install
+make smtp-saslauthd-update
+```
