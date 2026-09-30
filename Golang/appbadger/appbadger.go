@@ -12,6 +12,9 @@ const (
 	ERR_LOGIN
 	ERR_ARGS
 
+	PASSWD_MIN_SIZE uint = 8
+	PASSWD_MAX_SIZE uint = 256
+
 	DEFAULT_PATH string = "/etc/file.js"
 )
 
@@ -22,16 +25,15 @@ func main() {
 		os.Exit(OK)
 	}
 
-	//epoch := time.Now().Unix()
-
 	switch arg := strings.TrimSpace(os.Args[1]); arg {
 
 	case "login":
-		err := login(os.Args[2:])
+		l, err := login(os.Args[2:])
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(ERR_ARGS)
 		}
+		fmt.Println(l)
 
 	case "help":
 		printHelp()

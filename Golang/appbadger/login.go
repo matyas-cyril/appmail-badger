@@ -9,13 +9,15 @@ import (
 	"syscall"
 	"time"
 
+	pkgLogin "appbadger/login"
+
 	"golang.org/x/term"
 )
 
-func login(args []string) error {
+func login(args []string) (*pkgLogin.LOGIN, error) {
 
 	if len(args) == 0 {
-		return fmt.Errorf("command login is empty")
+		return nil, fmt.Errorf("command login is empty")
 	}
 
 	epoch := time.Now().Unix()
@@ -25,9 +27,9 @@ func login(args []string) error {
 	case "add":
 
 		var (
-			login, file       string
-			nbf, exp          int64
-			enable, passStdin bool
+			login, file, passwd string
+			nbf, exp            int64
+			enable, passStdin   bool
 		)
 
 		addFs := flag.NewFlagSet("add", flag.ExitOnError)
@@ -40,11 +42,19 @@ func login(args []string) error {
 		addFs.StringVar(&file, "file", DEFAULT_PATH, "file db")
 
 		if err := addFs.Parse(args[1:]); err != nil {
-			return err
+			return nil, err
 		}
 
 		if len(addFs.Args()) > 0 {
-			return fmt.Errorf("unexpected arg : %q", addFs.Args()[0])
+			return nil, fmt.Errorf("unexpected arg : %q", addFs.Args()[0])
+		}
+
+		if nbf < epoch {
+			return nil, fmt.Errorf("nbf must be greater than or equal to %d", epoch)
+		}
+
+		if exp != 0 && exp <= nbf {
+			return nil, fmt.Errorf("exp must be greater than or equal to nbf -> %d", epoch)
 		}
 
 		login = strings.TrimSpace(login)
@@ -52,17 +62,26 @@ func login(args []string) error {
 		// Vérification des args obligatoires
 		if strings.TrimSpace(login) == "" || !passStdin {
 			addFs.Usage()
-			return fmt.Errorf("error: -user and -P are required")
+			return nil, fmt.Errorf("error: -user and -P are required")
 		}
 
 		if passStdin {
-			pass, err := password()
+			var err error
+			passwd, err = password()
 			if err != nil {
-				return err
+				return nil, err
 			}
-
-			fmt.Println(pass)
 		}
+
+		return &pkgLogin.LOGIN{
+			Cmd:      "ADD",
+			Login:    login,
+			Password: passwd,
+			Nbf:      nbf,
+			Exp:      exp,
+			Enable:   enable,
+			File:     file,
+		}, nil
 
 	case "del":
 
@@ -77,29 +96,28 @@ func login(args []string) error {
 
 	}
 
-	return nil
+	return nil, nil
 }
 
 func password() (string, error) {
-	// Traitement pour saisir le mot de passe
 
+	// Traitement pour saisir le mot de passe
 	fmt.Print("Password : ")
 	pwd, ctrl, err := readPwdWithMask()
 	if err != nil {
 		return "", fmt.Errorf("input password error : %s\n", err.Error())
 	}
-
 	fmt.Println("")
 	if ctrl {
 		os.Exit(ERR_ARGS)
 	}
-	/*
-		_, err = authdb.CheckPassword(pwd, authdb.PASSWD_MIN_SIZE, authdb.PASSWD_MAX_SIZE)
-		if err != nil {
-			fmt.Fprintf(os.Stdout, "%s\n", err.Error())
-			os.Exit(ERR_ARGS)
-		}
-	*/
+
+	// Vérifier la taille min et max du mot de passe
+	pwd = strings.TrimSpace(pwd)
+	if len(pwd) < int(PASSWD_MIN_SIZE) || len(pwd) > int(PASSWD_MAX_SIZE) {
+		return "", fmt.Errorf("password length invalid - valid lenght size min: %d - max: %d characters", PASSWD_MIN_SIZE, PASSWD_MAX_SIZE)
+	}
+
 	fmt.Print("Confirm  : ")
 	confirmPwd, ctrl, err := readPwdWithMask()
 	fmt.Println("")
@@ -165,7 +183,6 @@ func readPwdWithMask() (string, bool, error) {
 			}
 
 		} else {
-			fmt.Println(r)
 			continue
 		}
 
