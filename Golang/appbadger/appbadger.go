@@ -12,9 +12,6 @@ const (
 	ERR_LOGIN
 	ERR_ARGS
 
-	PASSWD_MIN_SIZE uint = 8
-	PASSWD_MAX_SIZE uint = 256
-
 	DEFAULT_PATH string = "/etc/file.js"
 )
 
