@@ -58,9 +58,12 @@ func login(args []string) (*pkgLogin.LOGIN, error) {
 		}
 
 		login = strings.TrimSpace(login)
+		if err := pkgLogin.IsValidLogin(login); err != nil {
+			return nil, err
+		}
 
 		// Vérification des args obligatoires
-		if strings.TrimSpace(login) == "" || !passStdin {
+		if login == "" || !passStdin {
 			addFs.Usage()
 			return nil, fmt.Errorf("error: -user and -P are required")
 		}
@@ -85,7 +88,25 @@ func login(args []string) (*pkgLogin.LOGIN, error) {
 
 	case "del":
 
-	case "info":
+	case "get":
+
+		var (
+			login, file string
+			all         bool
+		)
+
+		getFs := flag.NewFlagSet("get", flag.ExitOnError)
+		getFs.StringVar(&login, "name", "", "username for login")
+		getFs.BoolVar(&all, "all", false, "get all logins")
+		getFs.StringVar(&file, "file", DEFAULT_PATH, "file db")
+
+		if err := getFs.Parse(args[1:]); err != nil {
+			return nil, err
+		}
+
+		if len(getFs.Args()) > 0 {
+			return nil, fmt.Errorf("unexpected arg : %q", getFs.Args()[0])
+		}
 
 	case "check": // Vérifier l'authentification
 
@@ -114,8 +135,8 @@ func password() (string, error) {
 
 	// Vérifier la taille min et max du mot de passe
 	pwd = strings.TrimSpace(pwd)
-	if len(pwd) < int(PASSWD_MIN_SIZE) || len(pwd) > int(PASSWD_MAX_SIZE) {
-		return "", fmt.Errorf("password length invalid - valid lenght size min: %d - max: %d characters", PASSWD_MIN_SIZE, PASSWD_MAX_SIZE)
+	if err := pkgLogin.IsValidPassword(pwd); err != nil {
+		return "", err
 	}
 
 	fmt.Print("Confirm  : ")
@@ -170,8 +191,8 @@ func readPwdWithMask() (string, bool, error) {
 		}
 
 		// Caractères que l'on va autoriser à sasir
-		if r > 32 && r < 127 {
-
+		//if r > 32 && r < 127 {
+		if pkgLogin.IsValidPasswordRune(r) {
 			password += string(r)
 			fmt.Print("*")
 
