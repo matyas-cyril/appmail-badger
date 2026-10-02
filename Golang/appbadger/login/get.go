@@ -46,14 +46,14 @@ func GetLoginByUUID(uuid string, config pkgConfig.Config) error {
 	}
 	defer cnx.ClosePG()
 
-	queries := db.New(cnx.Cnx)
-
 	pgUUID, err := StringToPgUUID(uuid)
 	if err != nil {
 		return err
 	}
 
-	rslt, err := queries.GetLoginByUUID(cnx.Ctx, pgUUID)
+	dbx := db.New(cnx.Cnx)
+
+	rslt, err := dbx.GetLoginByUUID(cnx.Ctx, pgUUID)
 	if err != nil {
 		return err
 	}

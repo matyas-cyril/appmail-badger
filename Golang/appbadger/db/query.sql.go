@@ -51,6 +51,42 @@ func (q *Queries) AddLogin(ctx context.Context, arg AddLoginParams) (User, error
 	return i, err
 }
 
+const deleteLogin = `-- name: DeleteLogin :one
+DELETE FROM users
+WHERE username = $1
+RETURNING id_user, username
+`
+
+type DeleteLoginRow struct {
+	IDUser   pgtype.UUID `json:"id_user"`
+	Username string      `json:"username"`
+}
+
+func (q *Queries) DeleteLogin(ctx context.Context, username string) (DeleteLoginRow, error) {
+	row := q.db.QueryRow(ctx, deleteLogin, username)
+	var i DeleteLoginRow
+	err := row.Scan(&i.IDUser, &i.Username)
+	return i, err
+}
+
+const deleteUuid = `-- name: DeleteUuid :one
+DELETE FROM users
+WHERE id_user = $1
+RETURNING id_user, username
+`
+
+type DeleteUuidRow struct {
+	IDUser   pgtype.UUID `json:"id_user"`
+	Username string      `json:"username"`
+}
+
+func (q *Queries) DeleteUuid(ctx context.Context, idUser pgtype.UUID) (DeleteUuidRow, error) {
+	row := q.db.QueryRow(ctx, deleteUuid, idUser)
+	var i DeleteUuidRow
+	err := row.Scan(&i.IDUser, &i.Username)
+	return i, err
+}
+
 const getLogin = `-- name: GetLogin :one
 SELECT id_user AS uuid, username AS login, 
     COALESCE(FLOOR(EXTRACT(EPOCH FROM not_before))::BIGINT, 0) AS nbf, 

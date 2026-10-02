@@ -35,3 +35,13 @@ INSERT INTO users (
     $1, $2, $3, $4, $5, $6
 )
 RETURNING *;
+
+-- name: DeleteLogin :one
+DELETE FROM users
+WHERE username = $1
+RETURNING id_user, username;
+
+-- name: DeleteUuid :one
+DELETE FROM users
+WHERE id_user = $1
+RETURNING id_user, username;

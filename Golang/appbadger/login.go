@@ -95,6 +95,46 @@ func login(args []string) error {
 
 	case "del":
 
+		var (
+			login, confFile, uuid string
+		)
+
+		delFs := flag.NewFlagSet("add", flag.ExitOnError)
+		delFs.StringVar(&login, "login", "", "username for login")
+		delFs.StringVar(&uuid, "uuid", "", "UUID for login")
+		delFs.StringVar(&confFile, "conf", DEFAULT_CONFIG_FILE, "json configuration file")
+
+		if err := delFs.Parse(args[1:]); err != nil {
+			return err
+		}
+
+		if len(delFs.Args()) > 0 {
+			return fmt.Errorf("unexpected arg : %q", delFs.Args()[0])
+		}
+
+		// Vérification des args
+		if (login == "" && uuid == "") || (login != "" && uuid != "") {
+			delFs.Usage()
+			return fmt.Errorf("error: -login OR -uuid must defined")
+		}
+
+		// Charger la conf
+		cfg, err := pkgConfig.Load(confFile)
+		if err != nil {
+			return err
+		}
+
+		if uuid != "" {
+			return pkgLogin.DelLoginByUUID(uuid, *cfg)
+		}
+
+		login = strings.TrimSpace(login)
+		if err := pkgLogin.IsValidLogin(login); err != nil {
+			return err
+		}
+
+		return pkgLogin.DelLogin(login, *cfg)
+
 	case "get":
 
 		var (
