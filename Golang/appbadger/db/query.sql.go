@@ -11,6 +11,46 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const addLogin = `-- name: AddLogin :one
+INSERT INTO users (
+    username, password, not_before, expiration, disabled, description
+) VALUES (
+    $1, $2, $3, $4, $5, $6
+)
+RETURNING id_user, username, password, not_before, expiration, disabled, description
+`
+
+type AddLoginParams struct {
+	Username    string             `json:"username"`
+	Password    string             `json:"password"`
+	NotBefore   pgtype.Timestamptz `json:"not_before"`
+	Expiration  pgtype.Timestamptz `json:"expiration"`
+	Disabled    bool               `json:"disabled"`
+	Description pgtype.Text        `json:"description"`
+}
+
+func (q *Queries) AddLogin(ctx context.Context, arg AddLoginParams) (User, error) {
+	row := q.db.QueryRow(ctx, addLogin,
+		arg.Username,
+		arg.Password,
+		arg.NotBefore,
+		arg.Expiration,
+		arg.Disabled,
+		arg.Description,
+	)
+	var i User
+	err := row.Scan(
+		&i.IDUser,
+		&i.Username,
+		&i.Password,
+		&i.NotBefore,
+		&i.Expiration,
+		&i.Disabled,
+		&i.Description,
+	)
+	return i, err
+}
+
 const getLogin = `-- name: GetLogin :one
 SELECT id_user AS uuid, username AS login, 
     COALESCE(FLOOR(EXTRACT(EPOCH FROM not_before))::BIGINT, 0) AS nbf, 

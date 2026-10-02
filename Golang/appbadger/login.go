@@ -12,6 +12,7 @@ import (
 	pkgConfig "appbadger/config"
 	pkgLogin "appbadger/login"
 
+	"github.com/matyas-cyril/argon2id"
 	"golang.org/x/term"
 )
 
@@ -28,9 +29,9 @@ func login(args []string) error {
 	case "add":
 
 		var (
-			login, file, passwd string
-			nbf, exp            int64
-			enable, passStdin   bool
+			login, confFile, passwd, description string
+			nbf, exp                             int64
+			enable, passStdin                    bool
 		)
 
 		addFs := flag.NewFlagSet("add", flag.ExitOnError)
@@ -40,7 +41,8 @@ func login(args []string) error {
 		addFs.Int64Var(&nbf, "nbf", epoch, "not before")
 		addFs.Int64Var(&exp, "exp", 0, "expiration")
 		addFs.BoolVar(&enable, "enable", false, "enable")
-		addFs.StringVar(&file, "file", DEFAULT_CONFIG_FILE, "file db")
+		addFs.StringVar(&login, "description", "", "description")
+		addFs.StringVar(&confFile, "conf", DEFAULT_CONFIG_FILE, "json configuration file")
 
 		if err := addFs.Parse(args[1:]); err != nil {
 			return err
@@ -48,6 +50,12 @@ func login(args []string) error {
 
 		if len(addFs.Args()) > 0 {
 			return fmt.Errorf("unexpected arg : %q", addFs.Args()[0])
+		}
+
+		// Charger la conf
+		cfg, err := pkgConfig.Load(confFile)
+		if err != nil {
+			return err
 		}
 
 		if nbf < epoch {
@@ -66,19 +74,24 @@ func login(args []string) error {
 		// Vérification des args obligatoires
 		if login == "" || !passStdin {
 			addFs.Usage()
-			return fmt.Errorf("error: -login and -P are required")
+			return fmt.Errorf("error: -login and -P are required at least")
 		}
 
 		if passStdin {
 			var err error
 			passwd, err = password()
 			if err != nil {
-				fmt.Println(passwd)
 				return err
 			}
 		}
 
-		return nil
+		// Générer le mot de passe
+		pwdByte, err := argon2id.Hash(passwd, argon2id.DefaultParams())
+		if err != nil {
+			return err
+		}
+
+		return pkgLogin.AddLogin(login, string(pwdByte), strings.TrimSpace(description), nbf, exp, !enable, *cfg)
 
 	case "del":
 

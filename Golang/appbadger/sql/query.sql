@@ -27,3 +27,11 @@ SELECT id_user AS uuid, username AS login,
     description
 FROM users
 ORDER BY username;
+
+-- name: AddLogin :one
+INSERT INTO users (
+    username, password, not_before, expiration, disabled, description
+) VALUES (
+    $1, $2, $3, $4, $5, $6
+)
+RETURNING *;
