@@ -200,3 +200,17 @@ func (q *Queries) GetLogins(ctx context.Context) ([]GetLoginsRow, error) {
 	}
 	return items, nil
 }
+
+const getPassword = `-- name: GetPassword :one
+SELECT password_hash
+FROM v_logins
+WHERE username = $1
+LIMIT 1
+`
+
+func (q *Queries) GetPassword(ctx context.Context, username string) (string, error) {
+	row := q.db.QueryRow(ctx, getPassword, username)
+	var password_hash string
+	err := row.Scan(&password_hash)
+	return password_hash, err
+}

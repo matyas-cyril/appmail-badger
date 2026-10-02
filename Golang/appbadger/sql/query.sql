@@ -45,3 +45,9 @@ RETURNING id_user, username;
 DELETE FROM users
 WHERE id_user = $1
 RETURNING id_user, username;
+
+-- name: GetPassword :one
+SELECT password_hash
+FROM v_logins
+WHERE username = $1
+LIMIT 1;

@@ -179,6 +179,46 @@ func login(args []string) error {
 
 	case "check": // Vérifier l'authentification
 
+		var (
+			login, passwd, confFile string
+		)
+
+		checkFs := flag.NewFlagSet("add", flag.ExitOnError)
+		checkFs.StringVar(&login, "login", "", "username for login")
+		checkFs.StringVar(&confFile, "conf", DEFAULT_CONFIG_FILE, "json configuration file")
+
+		if err := checkFs.Parse(args[1:]); err != nil {
+			return err
+		}
+
+		if len(checkFs.Args()) > 0 {
+			return fmt.Errorf("unexpected arg : %q", checkFs.Args()[0])
+		}
+
+		// Charger la conf
+		cfg, err := pkgConfig.Load(confFile)
+		if err != nil {
+			return err
+		}
+
+		login = strings.TrimSpace(login)
+		if err := pkgLogin.IsValidLogin(login); err != nil {
+			return err
+		}
+
+		// Saisir le mot de passe
+		fmt.Print("Password : ")
+		passwd, ctrl, err := readPwdWithMask()
+		if err != nil {
+			return fmt.Errorf("input password error : %s", err.Error())
+		}
+		fmt.Println("")
+		if ctrl {
+			os.Exit(ERR_ARGS)
+		}
+
+		return pkgLogin.Check(login, passwd, *cfg)
+
 	case "enable", "disable":
 
 	default:
