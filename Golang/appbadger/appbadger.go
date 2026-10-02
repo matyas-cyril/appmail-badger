@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -12,32 +13,48 @@ const (
 	ERR_LOGIN
 	ERR_ARGS
 
-	DEFAULT_PATH string = "/etc/file.js"
+	DEFAULT_CONFIG_FILE string = "appbadger.json"
 )
+
+type ErrorResponse struct {
+	Err string `json:"err"`
+}
+
+func stdoutErrToJSON(err error) {
+
+	if err == nil {
+		return
+	}
+
+	// Écriture du json sur stdout
+	json.NewEncoder(os.Stdout).Encode(ErrorResponse{
+		Err: err.Error(),
+	})
+}
 
 func main() {
 
 	if len(os.Args) < 2 {
 		fmt.Fprintf(os.Stdout, "Use: %s [login|help] {...options}\n", filepath.Base(os.Args[0]))
-		os.Exit(OK)
+		os.Exit(ERR_ARGS)
 	}
 
 	switch arg := strings.TrimSpace(os.Args[1]); arg {
 
 	case "login":
-		l, err := login(os.Args[2:])
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(ERR_ARGS)
+
+		if err := login(os.Args[2:]); err != nil {
+			stdoutErrToJSON(err)
+			os.Exit(ERR_LOGIN)
 		}
-		fmt.Println(l)
 
 	case "help":
 		printHelp()
 
 	default:
 		fmt.Fprintf(os.Stdout, "command %s not exits\n", arg)
+		os.Exit(ERR_ARGS)
 
 	}
-
+	os.Exit(OK)
 }

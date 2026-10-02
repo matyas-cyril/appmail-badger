@@ -9,15 +9,16 @@ import (
 	"syscall"
 	"time"
 
+	pkgConfig "appbadger/config"
 	pkgLogin "appbadger/login"
 
 	"golang.org/x/term"
 )
 
-func login(args []string) (*pkgLogin.LOGIN, error) {
+func login(args []string) error {
 
 	if len(args) == 0 {
-		return nil, fmt.Errorf("command login is empty")
+		return fmt.Errorf("command login is empty")
 	}
 
 	epoch := time.Now().Unix()
@@ -33,80 +34,95 @@ func login(args []string) (*pkgLogin.LOGIN, error) {
 		)
 
 		addFs := flag.NewFlagSet("add", flag.ExitOnError)
-		addFs.StringVar(&login, "name", "", "username for login")
+		addFs.StringVar(&login, "login", "", "username for login")
 		addFs.BoolVar(&passStdin, "P", false, "input password")
 
 		addFs.Int64Var(&nbf, "nbf", epoch, "not before")
 		addFs.Int64Var(&exp, "exp", 0, "expiration")
 		addFs.BoolVar(&enable, "enable", false, "enable")
-		addFs.StringVar(&file, "file", DEFAULT_PATH, "file db")
+		addFs.StringVar(&file, "file", DEFAULT_CONFIG_FILE, "file db")
 
 		if err := addFs.Parse(args[1:]); err != nil {
-			return nil, err
+			return err
 		}
 
 		if len(addFs.Args()) > 0 {
-			return nil, fmt.Errorf("unexpected arg : %q", addFs.Args()[0])
+			return fmt.Errorf("unexpected arg : %q", addFs.Args()[0])
 		}
 
 		if nbf < epoch {
-			return nil, fmt.Errorf("nbf must be greater than or equal to %d", epoch)
+			return fmt.Errorf("nbf must be greater than or equal to %d", epoch)
 		}
 
 		if exp != 0 && exp <= nbf {
-			return nil, fmt.Errorf("exp must be greater than or equal to nbf -> %d", epoch)
+			return fmt.Errorf("exp must be greater than or equal to nbf -> %d", epoch)
 		}
 
 		login = strings.TrimSpace(login)
 		if err := pkgLogin.IsValidLogin(login); err != nil {
-			return nil, err
+			return err
 		}
 
 		// Vérification des args obligatoires
 		if login == "" || !passStdin {
 			addFs.Usage()
-			return nil, fmt.Errorf("error: -user and -P are required")
+			return fmt.Errorf("error: -login and -P are required")
 		}
 
 		if passStdin {
 			var err error
 			passwd, err = password()
 			if err != nil {
-				return nil, err
+				fmt.Println(passwd)
+				return err
 			}
 		}
 
-		return &pkgLogin.LOGIN{
-			Cmd:      "ADD",
-			Login:    login,
-			Password: passwd,
-			Nbf:      nbf,
-			Exp:      exp,
-			Enable:   enable,
-			File:     file,
-		}, nil
+		return nil
 
 	case "del":
 
 	case "get":
 
 		var (
-			login, file string
-			all         bool
+			login, confFile, uuid string
+			all                   bool
 		)
 
 		getFs := flag.NewFlagSet("get", flag.ExitOnError)
-		getFs.StringVar(&login, "name", "", "username for login")
+		getFs.StringVar(&login, "login", "", "username for login")
+		getFs.StringVar(&uuid, "uuid", "", "uuid for login")
 		getFs.BoolVar(&all, "all", false, "get all logins")
-		getFs.StringVar(&file, "file", DEFAULT_PATH, "file db")
+		getFs.StringVar(&confFile, "conf", DEFAULT_CONFIG_FILE, "json configuration file")
 
 		if err := getFs.Parse(args[1:]); err != nil {
-			return nil, err
+			return err
 		}
 
 		if len(getFs.Args()) > 0 {
-			return nil, fmt.Errorf("unexpected arg : %q", getFs.Args()[0])
+			return fmt.Errorf("unexpected arg : %q", getFs.Args()[0])
 		}
+
+		// Charger la conf
+		cfg, err := pkgConfig.Load(confFile)
+		if err != nil {
+			return err
+		}
+
+		if all {
+			return pkgLogin.GetLogins(*cfg)
+		}
+
+		if login != "" {
+			return pkgLogin.GetLogin(login, *cfg)
+		}
+
+		if uuid != "" {
+			return pkgLogin.GetLoginByUUID(uuid, *cfg)
+		}
+
+		getFs.Usage()
+		return fmt.Errorf("error: -all  or -login or -uuid must defined")
 
 	case "check": // Vérifier l'authentification
 
@@ -117,7 +133,7 @@ func login(args []string) (*pkgLogin.LOGIN, error) {
 
 	}
 
-	return nil, nil
+	return nil
 }
 
 func password() (string, error) {

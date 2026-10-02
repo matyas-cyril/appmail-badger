@@ -1,0 +1,9 @@
+{
+  "host": "postgres",
+  "port": 5432,
+  "db_name": "AppMail",
+  "user": "Badger",
+  "password": "Password",
+  "sslmode": false,
+  "timeout": 3
+}
