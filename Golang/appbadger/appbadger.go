@@ -52,7 +52,7 @@ func main() {
 		printHelp()
 
 	default:
-		fmt.Fprintf(os.Stdout, "command %s not exits\n", arg)
+		stdoutErrToJSON(fmt.Errorf("command '%s' not exist", arg))
 		os.Exit(ERR_ARGS)
 
 	}
