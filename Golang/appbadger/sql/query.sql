@@ -51,3 +51,15 @@ SELECT password_hash
 FROM v_logins
 WHERE username = $1
 LIMIT 1;
+
+-- name: EnableLogin :one
+UPDATE users
+SET disabled = '0'
+WHERE username = $1
+RETURNING id_user, username, disabled;
+
+-- name: DisableLogin :one
+UPDATE users
+SET disabled = '1' 
+WHERE username = $1
+RETURNING id_user, username, disabled;

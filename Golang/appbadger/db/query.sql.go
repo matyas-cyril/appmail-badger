@@ -87,6 +87,46 @@ func (q *Queries) DeleteUuid(ctx context.Context, idUser pgtype.UUID) (DeleteUui
 	return i, err
 }
 
+const disableLogin = `-- name: DisableLogin :one
+UPDATE users
+SET disabled = '1' 
+WHERE username = $1
+RETURNING id_user, username, disabled
+`
+
+type DisableLoginRow struct {
+	IDUser   pgtype.UUID `json:"id_user"`
+	Username string      `json:"username"`
+	Disabled bool        `json:"disabled"`
+}
+
+func (q *Queries) DisableLogin(ctx context.Context, username string) (DisableLoginRow, error) {
+	row := q.db.QueryRow(ctx, disableLogin, username)
+	var i DisableLoginRow
+	err := row.Scan(&i.IDUser, &i.Username, &i.Disabled)
+	return i, err
+}
+
+const enableLogin = `-- name: EnableLogin :one
+UPDATE users
+SET disabled = '0'
+WHERE username = $1
+RETURNING id_user, username, disabled
+`
+
+type EnableLoginRow struct {
+	IDUser   pgtype.UUID `json:"id_user"`
+	Username string      `json:"username"`
+	Disabled bool        `json:"disabled"`
+}
+
+func (q *Queries) EnableLogin(ctx context.Context, username string) (EnableLoginRow, error) {
+	row := q.db.QueryRow(ctx, enableLogin, username)
+	var i EnableLoginRow
+	err := row.Scan(&i.IDUser, &i.Username, &i.Disabled)
+	return i, err
+}
+
 const getLogin = `-- name: GetLogin :one
 SELECT id_user AS uuid, username AS login, 
     COALESCE(FLOOR(EXTRACT(EPOCH FROM not_before))::BIGINT, 0) AS nbf, 
