@@ -8,6 +8,7 @@ FROM ${PRIVATE_REGISTRY}golang:${GOLANG_VERSION}-${DEBIAN_VERSION}
 ENV DIR_GOLANG_CODE=/go/src/ \
     GOPATH=/go \
     USER=golang \
+    GROUP=golang \
     UID=1000 \
     GID=1000
  
@@ -18,14 +19,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
             git gcc openssh-client make pandoc sudo strace inetutils-ping \
             btop jq inetutils-ping telnet tcptraceroute
 
+COPY --chmod=0755 entrypoint.sh /usr/local/bin/entrypoint
+
 RUN addgroup "${USER}" && \
     adduser --disabled-password --home "/home/${USER}" --ingroup "${USER}" --uid "${UID}" "${USER}"
 
-RUN chown -R "${USER}:${USER}" ${GOPATH}
+RUN chown -R "${USER}:${GROUP}" ${GOPATH}
 
-COPY --chown="${USER}:${USER}" --chmod="0644" bashrc.sh /home/${USER}/.bashrc
+COPY --chown="${USER}:${GROUP}" --chmod="0644" bashrc.sh /home/${USER}/.bashrc
 
 RUN echo 'golang   ALL=NOPASSWD:ALL' > /etc/sudoers.d/golang && chmod 440 /etc/sudoers.d/golang
+
+USER ${USER}:${GROUP}
 
 RUN /usr/local/go/bin/go install -v github.com/ramya-rao-a/go-outline@latest \
  && /usr/local/go/bin/go install -v golang.org/x/tools/gopls@latest \
@@ -33,9 +38,6 @@ RUN /usr/local/go/bin/go install -v github.com/ramya-rao-a/go-outline@latest \
  && /usr/local/go/bin/go install -v honnef.co/go/tools/cmd/staticcheck@latest \
  && /usr/local/go/bin/go install -v github.com/sqlc-dev/sqlc/cmd/sqlc@latest
 
-COPY --chmod=0755 entrypoint.sh /usr/local/bin/entrypoint
-
 WORKDIR ${DIR_GOLANG_CODE}
-USER ${USER}
 
 ENTRYPOINT ["/usr/local/bin/entrypoint"]
