@@ -161,7 +161,7 @@ services:
         DEBIAN_VERSION: ${DEBIAN_VERSION:-trixie}
 
     restart: unless-stopped
-    hostname: adminer
+    hostname: golang
     user: "1000:1000"
 
     networks:
