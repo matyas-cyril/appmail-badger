@@ -5,9 +5,11 @@ import (
 	db "appbadger/db"
 	"encoding/json"
 	"os"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
-func DelLogin(login string, config pkgConfig.Config) error {
+func DelLogin[T string | pgtype.UUID](user T, config pkgConfig.Config) error {
 
 	cnx, err := db.NewPG(db.PGServer{
 		Host:     config.Host,
@@ -23,7 +25,17 @@ func DelLogin(login string, config pkgConfig.Config) error {
 
 	dbx := db.New(cnx.Cnx)
 
-	rslt, err := dbx.DeleteLogin(cnx.Ctx, login)
+	// On test uniquement le type pgtype.UUID, car après uniquement string
+	if value, ok := any(user).(pgtype.UUID); ok {
+		rslt, err := dbx.DeleteLoginByUUID(cnx.Ctx, value)
+		if err != nil {
+			return err
+		}
+		return json.NewEncoder(os.Stdout).Encode(rslt)
+	}
+
+	// On a forcément un string
+	rslt, err := dbx.DeleteLogin(cnx.Ctx, any(user).(string))
 	if err != nil {
 		return err
 	}
@@ -33,31 +45,9 @@ func DelLogin(login string, config pkgConfig.Config) error {
 }
 
 func DelLoginByUUID(uuid string, config pkgConfig.Config) error {
-
-	cnx, err := db.NewPG(db.PGServer{
-		Host:     config.Host,
-		Database: config.DBName,
-		User:     config.User,
-		Password: config.Password,
-		Port:     config.Port,
-	})
-	if err != nil {
-		return err
-	}
-	defer cnx.ClosePG()
-
 	pgUUID, err := StringToPgUUID(uuid)
 	if err != nil {
 		return err
 	}
-
-	dbx := db.New(cnx.Cnx)
-
-	rslt, err := dbx.DeleteUuid(cnx.Ctx, pgUUID)
-	if err != nil {
-		return err
-	}
-
-	return json.NewEncoder(os.Stdout).Encode(rslt)
-
+	return DelLogin(pgUUID, config)
 }

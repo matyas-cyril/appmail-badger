@@ -41,7 +41,7 @@ DELETE FROM users
 WHERE username = $1
 RETURNING id_user, username;
 
--- name: DeleteUuid :one
+-- name: DeleteLoginByUUID :one
 DELETE FROM users
 WHERE id_user = $1
 RETURNING id_user, username;

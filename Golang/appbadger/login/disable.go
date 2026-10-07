@@ -23,11 +23,11 @@ func DisableLogin[T string | pgtype.UUID](user T, config pkgConfig.Config) error
 	}
 	defer cnx.ClosePG()
 
-	queries := db.New(cnx.Cnx)
+	dbx := db.New(cnx.Cnx)
 
 	// On test uniquement le type pgtype.UUID, car après uniquement string
 	if value, ok := any(user).(pgtype.UUID); ok {
-		rslt, err := queries.DisableLoginByUUID(cnx.Ctx, value)
+		rslt, err := dbx.DisableLoginByUUID(cnx.Ctx, value)
 		if err != nil {
 			return err
 		}
@@ -35,7 +35,7 @@ func DisableLogin[T string | pgtype.UUID](user T, config pkgConfig.Config) error
 	}
 
 	// On a forcément un string
-	rslt, err := queries.DisableLogin(cnx.Ctx, any(user).(string))
+	rslt, err := dbx.DisableLogin(cnx.Ctx, any(user).(string))
 	if err != nil {
 		return err
 	}
@@ -66,11 +66,11 @@ func EnableLogin[T string | pgtype.UUID](user T, config pkgConfig.Config) error 
 	}
 	defer cnx.ClosePG()
 
-	queries := db.New(cnx.Cnx)
+	dbx := db.New(cnx.Cnx)
 
 	// On test uniquement le type pgtype.UUID, car après uniquement string
 	if value, ok := any(user).(pgtype.UUID); ok {
-		rslt, err := queries.EnableLoginByUUID(cnx.Ctx, value)
+		rslt, err := dbx.EnableLoginByUUID(cnx.Ctx, value)
 		if err != nil {
 			return err
 		}
@@ -78,7 +78,7 @@ func EnableLogin[T string | pgtype.UUID](user T, config pkgConfig.Config) error 
 	}
 
 	// On a forcément un string
-	rslt, err := queries.EnableLogin(cnx.Ctx, any(user).(string))
+	rslt, err := dbx.EnableLogin(cnx.Ctx, any(user).(string))
 	if err != nil {
 		return err
 	}
