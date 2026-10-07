@@ -5,18 +5,27 @@ ARG DEBIAN_VERSION="trixie"
 
 FROM ${PRIVATE_REGISTRY}golang:${GOLANG_VERSION}-${DEBIAN_VERSION}
 
-ENV DIR_GOLANG_CODE=/go/src/
-ENV USER=golang
-ENV UID=1000
-ENV GID=1000
-
+ENV DIR_GOLANG_CODE=/go/src/ \
+    GOPATH=/go \
+    USER=golang \
+    UID=1000 \
+    GID=1000
+ 
 # %COPY_SRC_CMD%
 # %COPY_GPG_CMD%
 
-RUN apt-get update
-RUN apt-get install -y --no-install-recommends git gcc \
-            openssh-client make pandoc sudo strace inetutils-ping \
+RUN apt-get update && apt-get install -y --no-install-recommends \ 
+            git gcc openssh-client make pandoc sudo strace inetutils-ping \
             btop jq inetutils-ping telnet tcptraceroute
+
+RUN addgroup "${USER}" && \
+    adduser --disabled-password --home "/home/${USER}" --ingroup "${USER}" --uid "${UID}" "${USER}"
+
+RUN chown -R "${USER}:${USER}" ${GOPATH}
+
+COPY --chown="${USER}:${USER}" --chmod="0644" bashrc.sh /home/${USER}/.bashrc
+
+RUN echo 'golang   ALL=NOPASSWD:ALL' > /etc/sudoers.d/golang && chmod 440 /etc/sudoers.d/golang
 
 RUN /usr/local/go/bin/go install -v github.com/ramya-rao-a/go-outline@latest \
  && /usr/local/go/bin/go install -v golang.org/x/tools/gopls@latest \
@@ -24,19 +33,9 @@ RUN /usr/local/go/bin/go install -v github.com/ramya-rao-a/go-outline@latest \
  && /usr/local/go/bin/go install -v honnef.co/go/tools/cmd/staticcheck@latest \
  && /usr/local/go/bin/go install -v github.com/sqlc-dev/sqlc/cmd/sqlc@latest
 
-RUN addgroup "${USER}" && \
-    adduser --disabled-password --home "/home/${USER}" --ingroup "${USER}" --uid "${UID}" "${USER}"
+COPY --chmod=0755 entrypoint.sh /usr/local/bin/entrypoint
 
-RUN chown -R "${USER}:${USER}" /go
+WORKDIR ${DIR_GOLANG_CODE}
+USER ${USER}
 
-COPY --chown="${USER}:${USER}" --chmod="0644" bashrc.sh /home/${USER}/.bashrc
-
-RUN echo 'while [ 1 ]; do sleep 1 ;done;' > /loop_inf.sh && chmod +x /loop_inf.sh
-
-RUN echo 'golang   ALL=NOPASSWD:ALL' > /etc/sudoers.d/golang && chmod 440 /etc/sudoers.d/golang
-
-WORKDIR $DIR_GOLANG_CODE
-
-CMD ln -s /tmp/.ssh "/home/${USER}/.ssh" && \
-    ln -s /tmp/.gitconfig "/home/${USER}/.gitconfig"; \
-    /loop_inf.sh
+ENTRYPOINT ["/usr/local/bin/entrypoint"]
