@@ -67,14 +67,15 @@ func login(args []string) error {
 		}
 
 		login = strings.TrimSpace(login)
-		if err := pkgLogin.IsValidLogin(login); err != nil {
-			return err
-		}
 
 		// Vérification des args obligatoires
 		if login == "" || !passStdin {
 			addFs.Usage()
 			return fmt.Errorf("error: -login and -P are required at least")
+		}
+
+		if err := pkgLogin.IsValidLogin(login); err != nil {
+			return err
 		}
 
 		if passStdin {
