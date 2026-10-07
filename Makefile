@@ -14,7 +14,7 @@ PROJECT_NAME ?= appmail-badger
 PG_USER ?= Badger
 
 BDD ?= AppMail
-SQL_INIT ?= Data/SQL/init.sql
+SQL_INIT ?= Data/SQL/schema.sql
 SQL_DROP ?= Data/SQL/drop.sql
 SQL_DATA ?= Data/SQL/data.sql
 
