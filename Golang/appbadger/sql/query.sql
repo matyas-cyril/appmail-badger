@@ -58,8 +58,20 @@ SET disabled = '0'
 WHERE username = $1
 RETURNING id_user, username, disabled;
 
+-- name: EnableLoginByUUID :one
+UPDATE users
+SET disabled = '0'
+WHERE id_user = $1
+RETURNING id_user, username, disabled;
+
 -- name: DisableLogin :one
 UPDATE users
 SET disabled = '1' 
 WHERE username = $1
+RETURNING id_user, username, disabled;
+
+-- name: DisableLoginByUUID :one
+UPDATE users
+SET disabled = '1' 
+WHERE id_user = $1
 RETURNING id_user, username, disabled;

@@ -107,6 +107,26 @@ func (q *Queries) DisableLogin(ctx context.Context, username string) (DisableLog
 	return i, err
 }
 
+const disableLoginByUUID = `-- name: DisableLoginByUUID :one
+UPDATE users
+SET disabled = '1' 
+WHERE id_user = $1
+RETURNING id_user, username, disabled
+`
+
+type DisableLoginByUUIDRow struct {
+	IDUser   pgtype.UUID `json:"id_user"`
+	Username string      `json:"username"`
+	Disabled bool        `json:"disabled"`
+}
+
+func (q *Queries) DisableLoginByUUID(ctx context.Context, idUser pgtype.UUID) (DisableLoginByUUIDRow, error) {
+	row := q.db.QueryRow(ctx, disableLoginByUUID, idUser)
+	var i DisableLoginByUUIDRow
+	err := row.Scan(&i.IDUser, &i.Username, &i.Disabled)
+	return i, err
+}
+
 const enableLogin = `-- name: EnableLogin :one
 UPDATE users
 SET disabled = '0'
@@ -123,6 +143,26 @@ type EnableLoginRow struct {
 func (q *Queries) EnableLogin(ctx context.Context, username string) (EnableLoginRow, error) {
 	row := q.db.QueryRow(ctx, enableLogin, username)
 	var i EnableLoginRow
+	err := row.Scan(&i.IDUser, &i.Username, &i.Disabled)
+	return i, err
+}
+
+const enableLoginByUUID = `-- name: EnableLoginByUUID :one
+UPDATE users
+SET disabled = '0'
+WHERE id_user = $1
+RETURNING id_user, username, disabled
+`
+
+type EnableLoginByUUIDRow struct {
+	IDUser   pgtype.UUID `json:"id_user"`
+	Username string      `json:"username"`
+	Disabled bool        `json:"disabled"`
+}
+
+func (q *Queries) EnableLoginByUUID(ctx context.Context, idUser pgtype.UUID) (EnableLoginByUUIDRow, error) {
+	row := q.db.QueryRow(ctx, enableLoginByUUID, idUser)
+	var i EnableLoginByUUIDRow
 	err := row.Scan(&i.IDUser, &i.Username, &i.Disabled)
 	return i, err
 }

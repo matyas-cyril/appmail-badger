@@ -222,6 +222,47 @@ func login(args []string) error {
 
 	case "enable", "disable":
 
+		var (
+			login, confFile, uuid string
+		)
+
+		statusFs := flag.NewFlagSet("status", flag.ExitOnError)
+		statusFs.StringVar(&login, "login", "", "username for login")
+		statusFs.StringVar(&uuid, "uuid", "", "uuid for login")
+		statusFs.StringVar(&confFile, "conf", DEFAULT_CONFIG_FILE, "json configuration file")
+
+		if err := statusFs.Parse(args[1:]); err != nil {
+			return err
+		}
+
+		if len(statusFs.Args()) > 0 {
+			return fmt.Errorf("unexpected arg : %q", statusFs.Args()[0])
+		}
+
+		// Charger la conf
+		cfg, err := pkgConfig.Load(confFile)
+		if err != nil {
+			return err
+		}
+
+		if login != "" {
+			if arg == "enable" {
+				fmt.Println("teub")
+				return pkgLogin.EnableLogin(login, *cfg)
+			}
+			return pkgLogin.DisableLogin(login, *cfg)
+		}
+
+		if uuid != "" {
+			if arg == "enable" {
+				return pkgLogin.EnableLoginByUUID(uuid, *cfg)
+			}
+			return pkgLogin.DisableLoginByUUID(uuid, *cfg)
+		}
+
+		statusFs.Usage()
+		return fmt.Errorf("error: -all  or -login or -uuid must defined")
+
 	default:
 		fmt.Fprintf(os.Stdout, "command %s not exits\n", arg)
 
