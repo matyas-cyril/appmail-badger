@@ -1,0 +1,100 @@
+{{define "full_help" -}}
+# appbadger CLI
+
+**Usage:** `appbadger <commande> [options]`
+
+## Commandes disponibles
+* `login`: Gestion des connexions
+* `help`: Affiche l'aide
+
+{{template "login" .}}
+{{template "login_add" .}}
+{{template "login_del" .}}
+{{template "login_get" .}}
+{{template "login_check" .}}
+{{template "login_enable" .}}
+{{template "login_disable" .}}
+{{- end}}
+
+{{define "login" -}}
+## Commande `login`
+
+Sous-commandes disponibles :
+* `login add`
+* `login del`
+* `login get`
+* `login check`
+* `login enable`
+* `login disable`
+{{- end}}
+
+{{define "login_add" -}}
+### `login add`
+
+| Option | Description |
+|---|---|
+| `-login` | Identifiant de connexion |
+| `-P` ou `-pass` | Mot de passe |
+| `-nbf` | Date ou heure à partir de laquelle la connexion est valide |
+| `-exp` | Date ou heure d’expiration |
+| `-enable` | Active la connexion |
+| `-description` | Description de la connexion |
+| `-conf` | Fichier de configuration |
+{{- end}}
+
+{{define "login_del" -}}
+### `login del`
+
+| Option | Description |
+|---|---------|
+| `-login`| Identifiant de connexion |
+| `-uuid`| UUID de la connexion |
+| `-conf`| Fichier de configuration |
+{{- end}}
+
+{{define "login_get" -}}
+### `login get`
+
+| Option | Description |
+|---|---|
+| `-login` | Identifiant de connexion |
+| `-uuid` | UUID de la connexion |
+| `-all` | Récupère toutes les connexions |
+| `-conf` | Fichier de configuration |
+{{- end}}
+
+{{define "login_check" -}}
+### `login check`
+
+| Option | Description |
+|---|---|
+| `-login` | Identifiant de connexion |
+| `-conf` | Fichier de configuration |
+{{- end}}
+
+{{define "login_enable"}}
+### `login enable`
+
+| Option | Description |
+|---|---|
+| `-login` | Identifiant de connexion |
+| `-uuid` | UUID de la connexion |
+| `-conf` | Fichier de configuration |
+{{- end}}
+
+{{define "login_disable" -}}
+### `login disable`
+
+| Option | Description |
+|---|---|
+| `-login` | Identifiant de connexion |
+| `-uuid` | UUID de la connexion |
+| `-conf` | Fichier de configuration |
+{{- end}}
+
+{{define "erreur_404" -}}
+# Erreur 404 ;-)
+
+Help not available !!!
+
+{{- end}}
