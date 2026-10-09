@@ -49,7 +49,7 @@ func main() {
 		}
 
 	case "help":
-		printHelp()
+		printHelp("full_help")
 
 	default:
 		stdoutErrToJSON(fmt.Errorf("command %s not exist", arg))
