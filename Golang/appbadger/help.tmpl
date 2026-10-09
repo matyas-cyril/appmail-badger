@@ -31,65 +31,66 @@ Sous-commandes disponibles :
 {{define "login_add" -}}
 ### `login add`
 
-| Option | Description |
-|---|---|
-| `-login` | Identifiant de connexion |
-| `-P` ou `-pass` | Mot de passe |
-| `-nbf` | Date ou heure à partir de laquelle la connexion est valide |
-| `-exp` | Date ou heure d’expiration |
-| `-enable` | Active la connexion |
-| `-description` | Description de la connexion |
-| `-conf` | Fichier de configuration |
+| Option | Type | Défaut | Description |
+|---|:---:|---|---|
+| `-login` | string | | Identifiant de connexion |
+| `-P` ou `-pass` | string | | Mot de passe |
+| `-nbf` | int | {{ .Epoch }} | Date ou heure à partir de laquelle la connexion est valide |
+| `-exp` | int | | Date ou heure d’expiration |
+| `-enable` | bool | false | Active la connexion |
+| `-description` | string | | Description de la connexion |
+| `-conf` | string | {{ .Conf }} | Fichier de configuration |
 {{- end}}
 
 {{define "login_del" -}}
 ### `login del`
 
-| Option | Description |
-|---|---------|
-| `-login`| Identifiant de connexion |
-| `-uuid`| UUID de la connexion |
-| `-conf`| Fichier de configuration |
+| Option | Type | Défaut | Description |
+|---|:---:|---|---|
+| `-login` | string | | Identifiant de connexion |
+| `-uuid` | string | | UUID de la connexion |
+| `-conf` | string | {{ .Conf }} | Fichier de configuration |
 {{- end}}
 
 {{define "login_get" -}}
 ### `login get`
 
-| Option | Description |
-|---|---|
-| `-login` | Identifiant de connexion |
-| `-uuid` | UUID de la connexion |
-| `-all` | Récupère toutes les connexions |
-| `-conf` | Fichier de configuration |
+| Option | Type | Défaut | Description |
+|---|:---:|---|---|
+| `-login` | string | | Identifiant de connexion |
+| `-uuid` | string | | UUID de la connexion |
+| `-all` | bool | false | Récupère toutes les connexions |
+| `-conf` | string | {{ .Conf }} | Fichier de configuration |
 {{- end}}
 
 {{define "login_check" -}}
 ### `login check`
 
-| Option | Description |
-|---|---|
-| `-login` | Identifiant de connexion |
-| `-conf` | Fichier de configuration |
+| Option | Type | Défaut | Description |
+|---|:---:|---|---|
+| `-login` | string | | Identifiant de connexion |
+| `-P` ou `-pass` | string | | Mot de passe |
+| `-conf` | string | {{ .Conf }} | Fichier de configuration |
 {{- end}}
 
 {{define "login_enable"}}
 ### `login enable`
 
-| Option | Description |
-|---|---|
-| `-login` | Identifiant de connexion |
-| `-uuid` | UUID de la connexion |
-| `-conf` | Fichier de configuration |
+| Option | Type | Défaut | Description |
+|---|:---:|---|---|
+| `-login` | string | | Identifiant de connexion |
+| `-uuid` | string | | UUID de la connexion |
+| `-conf` | string | {{ .Conf }} | Fichier de configuration |
 {{- end}}
 
 {{define "login_disable" -}}
 ### `login disable`
 
-| Option | Description |
-|---|---|
-| `-login` | Identifiant de connexion |
-| `-uuid` | UUID de la connexion |
-| `-conf` | Fichier de configuration |
+| Option | Type | Défaut | Description |
+|---|:---:|---|---|
+| `-login` | string | | Identifiant de connexion |
+| `-uuid` | string | | UUID de la connexion |
+| `-conf` | string | {{ .Conf }} | Fichier de configuration |
 {{- end}}
 
 {{define "erreur_404" -}}

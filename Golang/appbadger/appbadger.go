@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -10,27 +9,14 @@ import (
 
 const (
 	OK int = iota
-	ERR_LOGIN
 	ERR_ARGS
+	ERR_CONF_FILE
+	ERR_TMPL
+	ERR_LOGIN
+	ERR_PASSWORD
 
 	DEFAULT_CONFIG_FILE string = "appbadger.json"
 )
-
-type ErrorResponse struct {
-	Err string `json:"err"`
-}
-
-func stdoutErrToJSON(err error) {
-
-	if err == nil {
-		return
-	}
-
-	// Écriture du json sur stdout
-	json.NewEncoder(os.Stdout).Encode(ErrorResponse{
-		Err: err.Error(),
-	})
-}
 
 func main() {
 
@@ -43,16 +29,20 @@ func main() {
 
 	case "login":
 
-		if err := login(os.Args[2:]); err != nil {
-			stdoutErrToJSON(err)
-			os.Exit(ERR_LOGIN)
+		codeRetour, err := login(os.Args[2:])
+		if err != nil {
+			fmt.Fprintf(os.Stdout, "%s\n", err)
 		}
+		os.Exit(codeRetour)
 
 	case "help":
-		printHelp("full_help")
+		if err := printHelp("full_help"); err != nil {
+			fmt.Fprintf(os.Stdout, "%s\n", err)
+			os.Exit(ERR_TMPL)
+		}
 
 	default:
-		stdoutErrToJSON(fmt.Errorf("command %s not exist", arg))
+		fmt.Fprintf(os.Stdout, "command '%s' not exist\n", arg)
 		os.Exit(ERR_ARGS)
 
 	}

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"text/template"
+	"time"
 
 	"charm.land/glamour/v2"
 )
@@ -15,10 +16,15 @@ var helpTemplate string
 
 const (
 	glamourStyle string = "dracula"
-	glamourWidth int    = 80
+	glamourWidth int    = 150
 )
 
 func printHelp(block string) error {
+
+	type Tmpl struct {
+		Conf  string
+		Epoch int64
+	}
 
 	tmpl, err := template.New("help").Parse(helpTemplate)
 	if err != nil {
@@ -30,9 +36,14 @@ func printHelp(block string) error {
 		block = "erreur_404"
 	}
 
+	data := Tmpl{
+		Conf:  DEFAULT_CONFIG_FILE,
+		Epoch: time.Now().Unix(),
+	}
+
 	// Évaluer le template en mémoire
 	var rawBuffer bytes.Buffer
-	err = tmpl.ExecuteTemplate(&rawBuffer, block, nil)
+	err = tmpl.ExecuteTemplate(&rawBuffer, block, data)
 	if err != nil {
 		return fmt.Errorf("failed to execute template : %v", err)
 	}
