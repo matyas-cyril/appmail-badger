@@ -350,6 +350,83 @@ func login(args []string) (int, error) {
 			}
 		}
 
+	case "modify":
+
+		var (
+			login, passwd, confFile, description string
+			nbf, exp                             int64
+			passStdin, help                      bool
+		)
+
+		modFs := flag.NewFlagSet("status", flag.ExitOnError)
+		modFs.StringVar(&login, "login", "", "username for login")
+		modFs.BoolVar(&passStdin, "P", false, "stdin input password")
+		modFs.StringVar(&passwd, "pass", "", "input password")
+		modFs.Int64Var(&nbf, "nbf", 0, "not before")
+		modFs.Int64Var(&exp, "exp", 0, "expiration")
+		modFs.StringVar(&description, "description", "", "description")
+		modFs.StringVar(&confFile, "conf", DEFAULT_CONFIG_FILE, "json configuration file")
+		modFs.BoolVar(&help, "help", false, "help me !!!")
+
+		if err := modFs.Parse(args[1:]); err != nil {
+			return ERR_ARGS, err
+		}
+
+		if help {
+			printHelp("login_modify")
+			return OK, nil
+		}
+
+		if len(modFs.Args()) > 0 {
+			return ERR_ARGS, fmt.Errorf("unexpected arg : %q", modFs.Args()[0])
+		}
+
+		// Charger la conf
+		cfg, err := pkgConfig.Load(confFile)
+		if err != nil {
+			return ERR_CONF_FILE, err
+		}
+
+		login = strings.TrimSpace(login)
+		if err := pkgLogin.IsValidLogin(login); err != nil {
+			return ERR_ARGS, err
+		}
+
+		if nbf != 0 && nbf < epoch {
+			return ERR_ARGS, fmt.Errorf("nbf must be greater than or equal to %d", epoch)
+		}
+
+		if exp != 0 && exp <= epoch {
+			return ERR_ARGS, fmt.Errorf("exp must be greater than or equal to nbf -> %d", epoch)
+		}
+
+		if passStdin && passwd != "" {
+			return ERR_ARGS, fmt.Errorf("error: -P or -pass are required")
+		}
+
+		if passStdin {
+			var err error
+			passwd, err = password()
+			if err != nil {
+				return ERR_ARGS, err
+			}
+		}
+
+		var PassHash []byte
+		if passwd != "" {
+			// Générer le mot de passe
+			PassHash, err = argon2id.Hash(strings.TrimSpace(passwd), argon2id.DefaultParams())
+			if err != nil {
+				return ERR_PASSWORD, err
+			}
+		}
+
+		if err := pkgLogin.ModifyLogin(login, string(PassHash), strings.TrimSpace(description), nbf, exp, *cfg); err != nil {
+			return ERR_LOGIN, err
+		}
+
+		return OK, nil
+
 	default:
 		fmt.Fprintf(os.Stdout, "command %s not exits\n", arg)
 
