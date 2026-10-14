@@ -294,3 +294,43 @@ func (q *Queries) GetPassword(ctx context.Context, username string) (string, err
 	err := row.Scan(&password_hash)
 	return password_hash, err
 }
+
+const modifyLogin = `-- name: ModifyLogin :one
+UPDATE users
+SET
+    password = COALESCE($1, password),
+    not_before = COALESCE($2, nbf),
+    expiration = COALESCE($3, exp),
+    description = COALESCE($4, description)
+WHERE username = $5
+RETURNING id_user, username, password, not_before, expiration, disabled, description
+`
+
+type ModifyLoginParams struct {
+	Password    pgtype.Text        `json:"Password"`
+	NotBefore   pgtype.Timestamptz `json:"NotBefore"`
+	Expiration  pgtype.Timestamptz `json:"Expiration"`
+	Description pgtype.Text        `json:"Description"`
+	Login       string             `json:"login"`
+}
+
+func (q *Queries) ModifyLogin(ctx context.Context, arg ModifyLoginParams) (User, error) {
+	row := q.db.QueryRow(ctx, modifyLogin,
+		arg.Password,
+		arg.NotBefore,
+		arg.Expiration,
+		arg.Description,
+		arg.Login,
+	)
+	var i User
+	err := row.Scan(
+		&i.IDUser,
+		&i.Username,
+		&i.Password,
+		&i.NotBefore,
+		&i.Expiration,
+		&i.Disabled,
+		&i.Description,
+	)
+	return i, err
+}

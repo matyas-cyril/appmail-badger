@@ -75,3 +75,13 @@ UPDATE users
 SET disabled = '1' 
 WHERE id_user = $1
 RETURNING id_user, username, disabled;
+
+-- name: ModifyLogin :one
+UPDATE users
+SET
+    password = COALESCE(sqlc.narg('Password'), password),
+    not_before = COALESCE(sqlc.narg('NotBefore'), nbf),
+    expiration = COALESCE(sqlc.narg('Expiration'), exp),
+    description = COALESCE(sqlc.narg('Description'), description)
+WHERE username = sqlc.arg('login')
+RETURNING *;
