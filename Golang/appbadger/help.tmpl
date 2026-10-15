@@ -5,6 +5,7 @@
 
 ## Commandes disponibles
 * `user`: Gestion des connexions
+* `date`: Gestion du système de date
 * `help`: Affiche l'aide
 
 {{template "user" .}}
@@ -114,4 +115,11 @@ Sous-commandes disponibles :
 
 Help not available !!!
 
+{{- end}}
+
+{{define "date" -}}
+## Commande `date`
+
+Sous-commandes disponibles :
+* `date epoch`
 {{- end}}

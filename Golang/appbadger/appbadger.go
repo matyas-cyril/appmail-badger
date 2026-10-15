@@ -14,6 +14,7 @@ const (
 	ERR_TMPL
 	ERR_LOGIN
 	ERR_PASSWORD
+	ERR_EPOCH
 
 	DEFAULT_CONFIG_FILE string = "appbadger.json"
 )
@@ -21,7 +22,7 @@ const (
 func main() {
 
 	if len(os.Args) < 2 {
-		fmt.Fprintf(os.Stdout, "Use: %s [user|help] {...options}\n", filepath.Base(os.Args[0]))
+		fmt.Fprintf(os.Stdout, "Use: %s [user|date|help] {...options}\n", filepath.Base(os.Args[0]))
 		os.Exit(ERR_ARGS)
 	}
 
@@ -30,6 +31,13 @@ func main() {
 	case "user":
 
 		codeRetour, err := user(os.Args[2:])
+		if err != nil {
+			fmt.Fprintf(os.Stdout, "%s\n", err)
+		}
+		os.Exit(codeRetour)
+
+	case "date":
+		codeRetour, err := date(os.Args[2:])
 		if err != nil {
 			fmt.Fprintf(os.Stdout, "%s\n", err)
 		}
