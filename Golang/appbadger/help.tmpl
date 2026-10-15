@@ -4,33 +4,34 @@
 **Usage:** `appbadger <commande> [options]`
 
 ## Commandes disponibles
-* `login`: Gestion des connexions
+* `user`: Gestion des connexions
 * `help`: Affiche l'aide
 
-{{template "login" .}}
-{{template "login_add" .}}
-{{template "login_del" .}}
-{{template "login_get" .}}
-{{template "login_modify" .}}
-{{template "login_check" .}}
-{{template "login_enable" .}}
-{{template "login_disable" .}}
+{{template "user" .}}
+{{template "user_add" .}}
+{{template "user_del" .}}
+{{template "user_get" .}}
+{{template "user_modify" .}}
+{{template "user_check" .}}
+{{template "user_enable" .}}
+{{template "user_disable" .}}
 {{- end}}
 
-{{define "login" -}}
-## Commande `login`
+{{define "user" -}}
+## Commande `user`
 
 Sous-commandes disponibles :
-* `login add`
-* `login del`
-* `login get`
-* `login check`
-* `login enable`
-* `login disable`
+* `user add`
+* `user del`
+* `user get`
+* `user check`
+* `user modify`
+* `user enable`
+* `user disable`
 {{- end}}
 
-{{define "login_add" -}}
-### `login add`
+{{define "user_add" -}}
+### `user add`
 
 | Option | Type | Défaut | Description |
 |---|:---:|---|---|
@@ -43,8 +44,8 @@ Sous-commandes disponibles :
 | `-conf` | string | {{ .Conf }} | Fichier de configuration |
 {{- end}}
 
-{{define "login_del" -}}
-### `login del`
+{{define "user_del" -}}
+### `user del`
 
 | Option | Type | Défaut | Description |
 |---|:---:|---|---|
@@ -53,8 +54,8 @@ Sous-commandes disponibles :
 | `-conf` | string | {{ .Conf }} | Fichier de configuration |
 {{- end}}
 
-{{define "login_get" -}}
-### `login get`
+{{define "user_get" -}}
+### `user get`
 
 | Option | Type | Défaut | Description |
 |---|:---:|---|---|
@@ -64,8 +65,8 @@ Sous-commandes disponibles :
 | `-conf` | string | {{ .Conf }} | Fichier de configuration |
 {{- end}}
 
-{{define "login_check" -}}
-### `login check`
+{{define "user_check" -}}
+### `user check`
 
 | Option | Type | Défaut | Description |
 |---|:---:|---|---|
@@ -74,8 +75,8 @@ Sous-commandes disponibles :
 | `-conf` | string | {{ .Conf }} | Fichier de configuration |
 {{- end}}
 
-{{define "login_enable"}}
-### `login enable`
+{{define "user_enable"}}
+### `user enable`
 
 | Option | Type | Défaut | Description |
 |---|:---:|---|---|
@@ -84,8 +85,8 @@ Sous-commandes disponibles :
 | `-conf` | string | {{ .Conf }} | Fichier de configuration |
 {{- end}}
 
-{{define "login_disable" -}}
-### `login disable`
+{{define "user_disable" -}}
+### `user disable`
 
 | Option | Type | Défaut | Description |
 |---|:---:|---|---|
@@ -94,8 +95,8 @@ Sous-commandes disponibles :
 | `-conf` | string | {{ .Conf }} | Fichier de configuration |
 {{- end}}
 
-{{define "login_modify" -}}
-### `login disable`
+{{define "user_modify" -}}
+### `user disable`
 
 | Option | Type | Défaut | Description |
 |---|:---:|---|---|

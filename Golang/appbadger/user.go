@@ -10,16 +10,16 @@ import (
 	"time"
 
 	pkgConfig "appbadger/config"
-	pkgLogin "appbadger/login"
+	pkgUser "appbadger/user"
 
 	"github.com/matyas-cyril/argon2id"
 	"golang.org/x/term"
 )
 
-func login(args []string) (int, error) {
+func user(args []string) (int, error) {
 
 	if len(args) == 0 {
-		printHelp("login")
+		printHelp("user")
 		return ERR_ARGS, nil
 	}
 
@@ -52,7 +52,7 @@ func login(args []string) (int, error) {
 		}
 
 		if help {
-			printHelp("login_add")
+			printHelp("user_add")
 			return OK, nil
 		}
 
@@ -86,7 +86,7 @@ func login(args []string) (int, error) {
 			return ERR_ARGS, fmt.Errorf("error: -login and -P or -pass are required at least")
 		}
 
-		if err := pkgLogin.IsValidLogin(login); err != nil {
+		if err := pkgUser.IsValidLogin(login); err != nil {
 			return ERR_ARGS, err
 		}
 
@@ -104,7 +104,7 @@ func login(args []string) (int, error) {
 			return ERR_PASSWORD, err
 		}
 
-		if err := pkgLogin.AddLogin(login, string(pwdByte), strings.TrimSpace(description), nbf, exp, !enable, *cfg); err != nil {
+		if err := pkgUser.AddLogin(login, string(pwdByte), strings.TrimSpace(description), nbf, exp, !enable, *cfg); err != nil {
 			return ERR_LOGIN, err
 		}
 
@@ -128,7 +128,7 @@ func login(args []string) (int, error) {
 		}
 
 		if help {
-			printHelp("login_del")
+			printHelp("user_del")
 			return OK, nil
 		}
 
@@ -149,15 +149,15 @@ func login(args []string) (int, error) {
 		}
 
 		if uuid != "" {
-			return ERR_ARGS, pkgLogin.DelLoginByUUID(uuid, *cfg)
+			return ERR_ARGS, pkgUser.DelLoginByUUID(uuid, *cfg)
 		}
 
 		login = strings.TrimSpace(login)
-		if err := pkgLogin.IsValidLogin(login); err != nil {
+		if err := pkgUser.IsValidLogin(login); err != nil {
 			return ERR_ARGS, err
 		}
 
-		if err := pkgLogin.DelLogin(login, *cfg); err != nil {
+		if err := pkgUser.DelLogin(login, *cfg); err != nil {
 			return ERR_LOGIN, err
 		}
 
@@ -182,7 +182,7 @@ func login(args []string) (int, error) {
 		}
 
 		if help {
-			printHelp("login_get")
+			printHelp("user_get")
 			return OK, nil
 		}
 
@@ -197,21 +197,21 @@ func login(args []string) (int, error) {
 		}
 
 		if all {
-			if err := pkgLogin.GetLogins(*cfg); err != nil {
+			if err := pkgUser.GetLogins(*cfg); err != nil {
 				return ERR_LOGIN, err
 			}
 			return OK, nil
 		}
 
 		if login != "" {
-			if err := pkgLogin.GetLogin(login, *cfg); err != nil {
+			if err := pkgUser.GetLogin(login, *cfg); err != nil {
 				return ERR_LOGIN, err
 			}
 			return OK, nil
 		}
 
 		if uuid != "" {
-			if err := pkgLogin.GetLoginByUUID(uuid, *cfg); err != nil {
+			if err := pkgUser.GetLoginByUUID(uuid, *cfg); err != nil {
 				return ERR_LOGIN, err
 			}
 			return OK, nil
@@ -239,7 +239,7 @@ func login(args []string) (int, error) {
 		}
 
 		if help {
-			printHelp("login_get")
+			printHelp("user_get")
 			return OK, nil
 		}
 
@@ -265,7 +265,7 @@ func login(args []string) (int, error) {
 			return ERR_ARGS, fmt.Errorf("error: -login and -P or -pass are required at least")
 		}
 
-		if err := pkgLogin.IsValidLogin(login); err != nil {
+		if err := pkgUser.IsValidLogin(login); err != nil {
 			return ERR_LOGIN, err
 		}
 
@@ -283,7 +283,7 @@ func login(args []string) (int, error) {
 			}
 		}
 
-		if err := pkgLogin.Check(login, passwd, *cfg); err != nil {
+		if err := pkgUser.Check(login, passwd, *cfg); err != nil {
 			return ERR_LOGIN, err
 		}
 
@@ -307,7 +307,7 @@ func login(args []string) (int, error) {
 		}
 
 		if help {
-			printHelp("login_add")
+			printHelp("user_add")
 			return OK, nil
 		}
 
@@ -329,9 +329,9 @@ func login(args []string) (int, error) {
 		if login != "" {
 			var errLogin error = nil
 			if arg == "enable" {
-				errLogin = pkgLogin.EnableLogin(login, *cfg)
+				errLogin = pkgUser.EnableLogin(login, *cfg)
 			} else {
-				errLogin = pkgLogin.DisableLogin(login, *cfg)
+				errLogin = pkgUser.DisableLogin(login, *cfg)
 			}
 			if errLogin != nil {
 				return ERR_LOGIN, errLogin
@@ -341,9 +341,9 @@ func login(args []string) (int, error) {
 		if uuid != "" {
 			var errUUID error = nil
 			if arg == "enable" {
-				errUUID = pkgLogin.EnableLoginByUUID(uuid, *cfg)
+				errUUID = pkgUser.EnableLoginByUUID(uuid, *cfg)
 			} else {
-				errUUID = pkgLogin.DisableLoginByUUID(uuid, *cfg)
+				errUUID = pkgUser.DisableLoginByUUID(uuid, *cfg)
 			}
 			if errUUID != nil {
 				return ERR_LOGIN, errUUID
@@ -374,7 +374,7 @@ func login(args []string) (int, error) {
 		}
 
 		if help {
-			printHelp("login_modify")
+			printHelp("user_modify")
 			return OK, nil
 		}
 
@@ -396,7 +396,7 @@ func login(args []string) (int, error) {
 		}
 
 		if login != "" { // Login défini
-			if err := pkgLogin.IsValidLogin(login); err != nil {
+			if err := pkgUser.IsValidLogin(login); err != nil {
 				return ERR_ARGS, err
 			}
 		}
@@ -430,7 +430,7 @@ func login(args []string) (int, error) {
 			}
 		}
 
-		if err := pkgLogin.ModifyLogin(login, uuid, string(PassHash), strings.TrimSpace(description), nbf, exp, *cfg); err != nil {
+		if err := pkgUser.ModifyLogin(login, uuid, string(PassHash), strings.TrimSpace(description), nbf, exp, *cfg); err != nil {
 			return ERR_LOGIN, err
 		}
 
@@ -459,7 +459,7 @@ func password() (string, error) {
 
 	// Vérifier la taille min et max du mot de passe
 	pwd = strings.TrimSpace(pwd)
-	if err := pkgLogin.IsValidPassword(pwd); err != nil {
+	if err := pkgUser.IsValidPassword(pwd); err != nil {
 		return "", err
 	}
 
@@ -516,7 +516,7 @@ func readPwdWithMask() (string, bool, error) {
 
 		// Caractères que l'on va autoriser à sasir
 		//if r > 32 && r < 127 {
-		if pkgLogin.IsValidPasswordRune(r) {
+		if pkgUser.IsValidPasswordRune(r) {
 			password += string(r)
 			fmt.Print("*")
 

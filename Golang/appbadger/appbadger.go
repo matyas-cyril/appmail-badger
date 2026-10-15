@@ -21,15 +21,15 @@ const (
 func main() {
 
 	if len(os.Args) < 2 {
-		fmt.Fprintf(os.Stdout, "Use: %s [login|help] {...options}\n", filepath.Base(os.Args[0]))
+		fmt.Fprintf(os.Stdout, "Use: %s [user|help] {...options}\n", filepath.Base(os.Args[0]))
 		os.Exit(ERR_ARGS)
 	}
 
 	switch arg := strings.TrimSpace(os.Args[1]); arg {
 
-	case "login":
+	case "user":
 
-		codeRetour, err := login(os.Args[2:])
+		codeRetour, err := user(os.Args[2:])
 		if err != nil {
 			fmt.Fprintf(os.Stdout, "%s\n", err)
 		}
