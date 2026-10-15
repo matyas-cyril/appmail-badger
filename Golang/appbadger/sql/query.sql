@@ -1,4 +1,17 @@
 
+-- name: AddLogin :one
+INSERT INTO Users (
+    username, password, not_before, expiration, disabled, description
+) VALUES (
+    sqlc.arg('Login'),
+    sqlc.arg('Password'),
+    sqlc.narg('NotBefore'),
+    sqlc.narg('Expiration'),
+    sqlc.narg('Disabled'),
+    sqlc.narg('Description')
+)
+RETURNING *;
+
 -- name: GetLogin :one
 SELECT id_user AS uuid, username AS login, 
     COALESCE(FLOOR(EXTRACT(EPOCH FROM not_before))::BIGINT, 0) AS nbf, 
@@ -27,14 +40,6 @@ SELECT id_user AS uuid, username AS login,
     description
 FROM users
 ORDER BY username;
-
--- name: AddLogin :one
-INSERT INTO users (
-    username, password, not_before, expiration, disabled, description
-) VALUES (
-    $1, $2, $3, $4, $5, $6
-)
-RETURNING *;
 
 -- name: DeleteLogin :one
 DELETE FROM users

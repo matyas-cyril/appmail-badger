@@ -39,7 +39,6 @@ func user(args []string) (int, error) {
 		addFs.StringVar(&login, "login", "", "username for login")
 		addFs.BoolVar(&passStdin, "P", false, "stdin input password")
 		addFs.StringVar(&passwd, "pass", "", "input password")
-
 		addFs.Int64Var(&nbf, "nbf", epoch, "not before")
 		addFs.Int64Var(&exp, "exp", 0, "expiration")
 		addFs.BoolVar(&enable, "enable", false, "enable")
@@ -92,7 +91,7 @@ func user(args []string) (int, error) {
 
 		if passStdin {
 			var err error
-			passwd, err = password()
+			passwd, err = InputPassword()
 			if err != nil {
 				return ERR_ARGS, err
 			}
@@ -104,7 +103,7 @@ func user(args []string) (int, error) {
 			return ERR_PASSWORD, err
 		}
 
-		if err := pkgUser.AddLogin(login, string(pwdByte), strings.TrimSpace(description), nbf, exp, !enable, *cfg); err != nil {
+		if err := pkgUser.AddLogin(login, string(pwdByte), strings.TrimSpace(description), nbf, exp, enable, *cfg); err != nil {
 			return ERR_LOGIN, err
 		}
 
@@ -415,7 +414,7 @@ func user(args []string) (int, error) {
 
 		if passStdin {
 			var err error
-			passwd, err = password()
+			passwd, err = InputPassword()
 			if err != nil {
 				return ERR_ARGS, err
 			}
@@ -444,17 +443,17 @@ func user(args []string) (int, error) {
 	return OK, nil
 }
 
-func password() (string, error) {
+func InputPassword() (string, error) {
 
 	// Traitement pour saisir le mot de passe
 	fmt.Print("Password : ")
 	pwd, ctrl, err := readPwdWithMask()
 	if err != nil {
-		return "", fmt.Errorf("input password error : %s\n", err.Error())
+		return "", fmt.Errorf("input password error : %s", err.Error())
 	}
 	fmt.Println("")
 	if ctrl {
-		os.Exit(ERR_ARGS)
+		return "", fmt.Errorf("input password canceled")
 	}
 
 	// Vérifier la taille min et max du mot de passe
@@ -465,21 +464,19 @@ func password() (string, error) {
 
 	fmt.Print("Confirm  : ")
 	confirmPwd, ctrl, err := readPwdWithMask()
+	if err != nil {
+		return "", fmt.Errorf("confirm password error : %s", err.Error())
+	}
 	fmt.Println("")
 	if ctrl {
-		os.Exit(ERR_ARGS)
-	}
-	if err != nil {
-		fmt.Fprintf(os.Stdout, "confirm password error : %s\n", err.Error())
-		os.Exit(ERR_ARGS)
+		return "", fmt.Errorf("input confirm password canceled")
 	}
 
 	if strings.Compare(pwd, confirmPwd) != 0 {
-		fmt.Println("Password mismatch")
+		return "", fmt.Errorf("input and confirm password mismatch")
 	}
 
 	return pwd, nil
-
 }
 
 func readPwdWithMask() (string, bool, error) {

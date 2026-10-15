@@ -12,26 +12,31 @@ import (
 )
 
 const addLogin = `-- name: AddLogin :one
-INSERT INTO users (
+INSERT INTO Users (
     username, password, not_before, expiration, disabled, description
 ) VALUES (
-    $1, $2, $3, $4, $5, $6
+    $1,
+    $2,
+    $3,
+    $4,
+    $5,
+    $6
 )
 RETURNING id_user, username, password, not_before, expiration, disabled, description
 `
 
 type AddLoginParams struct {
-	Username    string             `json:"username"`
-	Password    string             `json:"password"`
-	NotBefore   pgtype.Timestamptz `json:"not_before"`
-	Expiration  pgtype.Timestamptz `json:"expiration"`
-	Disabled    bool               `json:"disabled"`
-	Description pgtype.Text        `json:"description"`
+	Login       string             `json:"Login"`
+	Password    string             `json:"Password"`
+	NotBefore   pgtype.Timestamptz `json:"NotBefore"`
+	Expiration  pgtype.Timestamptz `json:"Expiration"`
+	Disabled    pgtype.Bool        `json:"Disabled"`
+	Description pgtype.Text        `json:"Description"`
 }
 
 func (q *Queries) AddLogin(ctx context.Context, arg AddLoginParams) (User, error) {
 	row := q.db.QueryRow(ctx, addLogin,
-		arg.Username,
+		arg.Login,
 		arg.Password,
 		arg.NotBefore,
 		arg.Expiration,

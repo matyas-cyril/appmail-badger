@@ -4,13 +4,18 @@ import (
 	pkgConfig "appbadger/config"
 	db "appbadger/db"
 	"encoding/json"
+	"fmt"
 	"os"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-func AddLogin(login, password, description string, nbf, exp int64, disable bool, config pkgConfig.Config) error {
+func AddLogin(login, passHash, description string, nbf, exp int64, enable bool, config pkgConfig.Config) error {
+
+	if login == "" || passHash == "" {
+		return fmt.Errorf("login or password must defined")
+	}
 
 	cnx, err := db.NewPG(db.PGServer{
 		Host:     config.Host,
@@ -27,10 +32,15 @@ func AddLogin(login, password, description string, nbf, exp int64, disable bool,
 	dbx := db.New(cnx.Cnx)
 
 	args := db.AddLoginParams{
+		Login:       login,
+		Password:    passHash,
 		NotBefore:   pgtype.Timestamptz{Valid: false},
 		Expiration:  pgtype.Timestamptz{Valid: false},
 		Description: pgtype.Text{Valid: false},
-	}
+		Disabled: pgtype.Bool{
+			Bool:  !enable,
+			Valid: true,
+		}}
 
 	if exp > 0 {
 		time.Unix(exp, 0)
@@ -54,10 +64,6 @@ func AddLogin(login, password, description string, nbf, exp int64, disable bool,
 			Valid:  true,
 		}
 	}
-
-	args.Username = login
-	args.Password = password
-	args.Disabled = disable
 
 	rslt, err := dbx.AddLogin(cnx.Ctx, args)
 	if err != nil {
