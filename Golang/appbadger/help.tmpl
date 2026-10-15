@@ -11,6 +11,7 @@
 {{template "login_add" .}}
 {{template "login_del" .}}
 {{template "login_get" .}}
+{{template "login_modify" .}}
 {{template "login_check" .}}
 {{template "login_enable" .}}
 {{template "login_disable" .}}
@@ -90,6 +91,20 @@ Sous-commandes disponibles :
 |---|:---:|---|---|
 | `-login` | string | | Identifiant de connexion |
 | `-uuid` | string | | UUID de la connexion |
+| `-conf` | string | {{ .Conf }} | Fichier de configuration |
+{{- end}}
+
+{{define "login_modify" -}}
+### `login disable`
+
+| Option | Type | Défaut | Description |
+|---|:---:|---|---|
+| `-login` | string | | Identifiant de connexion |
+| `-uuid` | string | | UUID de la connexion |
+| `-P` ou `-pass` | string | | Mot de passe |
+| `-nbf` | int |  | Date ou heure à partir de laquelle la connexion est valide |
+| `-exp` | int |  | Date ou heure d’expiration |
+| `-description` | string | | Description de la connexion |
 | `-conf` | string | {{ .Conf }} | Fichier de configuration |
 {{- end}}
 
