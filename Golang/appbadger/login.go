@@ -353,13 +353,14 @@ func login(args []string) (int, error) {
 	case "modify":
 
 		var (
-			login, passwd, confFile, description string
-			nbf, exp                             int64
-			passStdin, help                      bool
+			login, uuid, passwd, confFile, description string
+			nbf, exp                                   int64
+			passStdin, help                            bool
 		)
 
 		modFs := flag.NewFlagSet("status", flag.ExitOnError)
 		modFs.StringVar(&login, "login", "", "username for login")
+		modFs.StringVar(&uuid, "uuid", "", "uuid for login")
 		modFs.BoolVar(&passStdin, "P", false, "stdin input password")
 		modFs.StringVar(&passwd, "pass", "", "input password")
 		modFs.Int64Var(&nbf, "nbf", 0, "not before")
@@ -387,9 +388,17 @@ func login(args []string) (int, error) {
 			return ERR_CONF_FILE, err
 		}
 
+		uuid = strings.TrimSpace(uuid)
 		login = strings.TrimSpace(login)
-		if err := pkgLogin.IsValidLogin(login); err != nil {
-			return ERR_ARGS, err
+
+		if (uuid != "" && login != "") || (uuid == "" && login == "") {
+			return ERR_ARGS, fmt.Errorf("error: -login or -uuid are required")
+		}
+
+		if login != "" { // Login défini
+			if err := pkgLogin.IsValidLogin(login); err != nil {
+				return ERR_ARGS, err
+			}
 		}
 
 		if nbf != 0 && nbf < epoch {
@@ -421,7 +430,7 @@ func login(args []string) (int, error) {
 			}
 		}
 
-		if err := pkgLogin.ModifyLogin(login, string(PassHash), strings.TrimSpace(description), nbf, exp, *cfg); err != nil {
+		if err := pkgLogin.ModifyLogin(login, uuid, string(PassHash), strings.TrimSpace(description), nbf, exp, *cfg); err != nil {
 			return ERR_LOGIN, err
 		}
 

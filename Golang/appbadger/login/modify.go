@@ -11,12 +11,24 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-func ModifyLogin(login, password, description string, nbf, exp int64, config pkgConfig.Config) error {
+func ModifyLogin(login, uuid, password, description string, nbf, exp int64, config pkgConfig.Config) error {
 
-	if login == "" {
-		return fmt.Errorf("login must defined")
+	if (uuid != "" && login != "") || (uuid == "" && login == "") {
+		return fmt.Errorf("login or uuid must defined to modify")
 
 	}
+	var (
+		pgUUID pgtype.UUID
+		err    error
+	)
+
+	if uuid != "" {
+		pgUUID, err = StringToPgUUID(uuid)
+		if err != nil {
+			return err
+		}
+	}
+
 	cnx, err := db.NewPG(db.PGServer{
 		Host:     config.Host,
 		Database: config.DBName,
@@ -37,6 +49,8 @@ func ModifyLogin(login, password, description string, nbf, exp int64, config pkg
 		NotBefore:   pgtype.Timestamptz{Valid: false},
 		Expiration:  pgtype.Timestamptz{Valid: false},
 		Description: pgtype.Text{Valid: false},
+		Login:       login,
+		UUID:        pgUUID,
 	}
 
 	if exp > 0 {
@@ -69,6 +83,8 @@ func ModifyLogin(login, password, description string, nbf, exp int64, config pkg
 		}
 	}
 
+	fmt.Println(description)
+
 	rslt, err := dbx.ModifyLogin(cnx.Ctx, args)
 	if err != nil {
 		return err
@@ -76,11 +92,3 @@ func ModifyLogin(login, password, description string, nbf, exp int64, config pkg
 
 	return json.NewEncoder(os.Stdout).Encode(rslt)
 }
-
-/*
-
-J'utilise SQLC avec Golang 1.27
-Peut on générer une SQL de type update de façon dynamique.
-Exemple si je veux changer le nom et le prénom d'une personne si ils sont définis, ou laors que le nom si défini ou alors que le prénom....
-
-*/
