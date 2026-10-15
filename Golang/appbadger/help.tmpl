@@ -122,4 +122,26 @@ Help not available !!!
 
 Sous-commandes disponibles :
 * `date epoch`
+* `date conv`
+{{- end}}
+
+{{define "date_epoch" -}}
+### `date epoch`
+
+| Option | Type | Défaut | Description |
+|---|:---:|---|---|
+| `-value` | int64 | | Donnée Epoch à convertir |
+| `-utc` | bool | false | Horaire UTC, par défaut Local |
+
+{{- end}}
+
+{{define "date_conv" -}}
+### `date conv`
+
+| Option | Type | Défaut | Description |
+|---|:---:|---|---|
+| `-day` | string | | Jour au format YYYY/MM/DD |
+| `-hour` | string | 00:00:00 | Heure au format HH:MM:SS |
+| `-utc` | bool | false | Horaire UTC, par défaut Local |
+
 {{- end}}
