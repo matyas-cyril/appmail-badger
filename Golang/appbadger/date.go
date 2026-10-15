@@ -24,7 +24,7 @@ func date(args []string) (int, error) {
 			utc, help bool
 		)
 		epochFs := flag.NewFlagSet("epoch", flag.ExitOnError)
-		epochFs.Int64Var(&value, "value", 0, "heure au format epoch")
+		epochFs.Int64Var(&value, "value", -1, "heure au format epoch")
 		epochFs.BoolVar(&utc, "utc", false, "heure UTC")
 		epochFs.BoolVar(&help, "help", false, "help me !!!")
 
@@ -39,6 +39,10 @@ func date(args []string) (int, error) {
 
 		if len(epochFs.Args()) > 0 {
 			return ERR_ARGS, fmt.Errorf("unexpected arg : %q", epochFs.Args()[0])
+		}
+
+		if value < 0 {
+			return ERR_ARGS, fmt.Errorf("error: -value is required")
 		}
 
 		if err := pkgDate.Epoch(value, utc); err != nil {
