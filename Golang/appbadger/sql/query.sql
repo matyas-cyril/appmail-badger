@@ -80,8 +80,8 @@ RETURNING id_user, username, disabled;
 UPDATE users
 SET
     password = COALESCE(sqlc.narg('Password'), password),
-    not_before = COALESCE(sqlc.narg('NotBefore'), nbf),
-    expiration = COALESCE(sqlc.narg('Expiration'), exp),
+    not_before = COALESCE(sqlc.narg('NotBefore'), not_before),
+    expiration = COALESCE(sqlc.narg('Expiration'), expiration),
     description = COALESCE(sqlc.narg('Description'), description)
-WHERE username = sqlc.arg('login')
+WHERE username = sqlc.arg('Login') OR id_user = sqlc.arg('UUID')
 RETURNING *;

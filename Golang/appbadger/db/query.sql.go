@@ -299,10 +299,10 @@ const modifyLogin = `-- name: ModifyLogin :one
 UPDATE users
 SET
     password = COALESCE($1, password),
-    not_before = COALESCE($2, nbf),
-    expiration = COALESCE($3, exp),
+    not_before = COALESCE($2, not_before),
+    expiration = COALESCE($3, expiration),
     description = COALESCE($4, description)
-WHERE username = $5
+WHERE username = $5 OR id_user = $6
 RETURNING id_user, username, password, not_before, expiration, disabled, description
 `
 
@@ -311,7 +311,8 @@ type ModifyLoginParams struct {
 	NotBefore   pgtype.Timestamptz `json:"NotBefore"`
 	Expiration  pgtype.Timestamptz `json:"Expiration"`
 	Description pgtype.Text        `json:"Description"`
-	Login       string             `json:"login"`
+	Login       string             `json:"Login"`
+	UUID        pgtype.UUID        `json:"UUID"`
 }
 
 func (q *Queries) ModifyLogin(ctx context.Context, arg ModifyLoginParams) (User, error) {
@@ -321,6 +322,7 @@ func (q *Queries) ModifyLogin(ctx context.Context, arg ModifyLoginParams) (User,
 		arg.Expiration,
 		arg.Description,
 		arg.Login,
+		arg.UUID,
 	)
 	var i User
 	err := row.Scan(
