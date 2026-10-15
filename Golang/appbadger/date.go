@@ -56,7 +56,7 @@ func date(args []string) (int, error) {
 
 		convFs := flag.NewFlagSet("conv", flag.ExitOnError)
 		convFs.StringVar(&day, "day", "", "jour au format YYYY/MM/DD")
-		convFs.StringVar(&hour, "hour", "00:00:00", "jour au format HH:MM:SS")
+		convFs.StringVar(&hour, "hour", "00:00:00", "heure au format HH:MM:SS")
 		convFs.BoolVar(&utc, "utc", false, "heure UTC")
 		convFs.BoolVar(&help, "help", false, "help me !!!")
 
