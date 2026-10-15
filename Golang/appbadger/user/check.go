@@ -39,7 +39,7 @@ func Check(login, password string, config pkgConfig.Config) error {
 		return json.NewEncoder(os.Stdout).Encode(
 			map[string]any{
 				"login":  login,
-				"check":  "valid password",
+				"check":  "authentication success",
 				"status": 1,
 			},
 		)
@@ -48,7 +48,7 @@ func Check(login, password string, config pkgConfig.Config) error {
 	return json.NewEncoder(os.Stdout).Encode(
 		map[string]any{
 			"login":  login,
-			"check":  "invalid, inactive, or expired password",
+			"check":  "authentication failure",
 			"status": 0,
 		},
 	)
