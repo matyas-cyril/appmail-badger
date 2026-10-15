@@ -77,6 +77,10 @@ func date(args []string) (int, error) {
 			return ERR_ARGS, fmt.Errorf("unexpected arg : %q", convFs.Args()[0])
 		}
 
+		if day == "" {
+			return ERR_ARGS, fmt.Errorf("error: -day is required")
+		}
+
 		if err := pkgDate.Conv(day, hour, utc); err != nil {
 			return ERR_EPOCH, err
 		}

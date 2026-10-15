@@ -10,6 +10,16 @@ import (
 
 func Conv(day, hour string, utc bool) error {
 
+	// Vérifier la syntaxe de day
+	if _, err := time.Parse("2006/01/02", day); err != nil {
+		return err
+	}
+
+	// Vérifier la syntaxe de heure
+	if _, err := time.Parse("15:04:05", hour); err != nil {
+		return err
+	}
+
 	location := time.Local
 	offset := OffSetUTC()
 
