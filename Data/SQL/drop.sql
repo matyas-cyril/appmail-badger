@@ -18,3 +18,5 @@ DROP TABLE IF EXISTS Users;
 DROP TABLE IF EXISTS Groups;
 
 DROP FUNCTION IF EXISTS enforce_ip_host_format;
+
+DROP TRIGGER IF EXISTS users_set_modified ON Users;

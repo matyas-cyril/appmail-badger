@@ -40,6 +40,7 @@ CREATE TABLE IF NOT EXISTS Users (
 	password VARCHAR(256) NOT NULL CHECK (password ~ '^\$argon2id\$v=\d+\$m=\d+,t=\d+,p=\d+\$[A-Za-z0-9+/=]+\$[A-Za-z0-9+/=]+$'),
 	not_before TIMESTAMPTZ NOT NULL DEFAULT now(),
 	expiration TIMESTAMPTZ,
+    modified TIMESTAMPTZ NOT NULL DEFAULT now(),
 	disabled BOOLEAN NOT NULL DEFAULT false,
 	description TEXT,
 	
@@ -98,19 +99,34 @@ CREATE TABLE IF NOT EXISTS ProjectsDomains (
 
 ----- Fonctions ------
 CREATE OR REPLACE FUNCTION enforce_ip_host_format()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER
+LANGUAGE plpgsql AS $$
 BEGIN
 	-- Convertir l'IP en format d'hôte
 	NEW.ip := host(NEW.ip);
 	RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$;
+
+CREATE OR REPLACE FUNCTION set_users_modified()
+RETURNS trigger
+LANGUAGE plpgsql AS $$
+BEGIN
+    NEW.modified := now();
+    RETURN NEW;
+END;
+$$;
 
 ----- Triggers -----
 CREATE TRIGGER enforce_ip_host
 	BEFORE INSERT OR UPDATE ON Servers
 	FOR EACH ROW
 	EXECUTE FUNCTION enforce_ip_host_format();
+
+CREATE TRIGGER users_set_modified
+    BEFORE INSERT OR UPDATE ON users
+    FOR EACH ROW
+    EXECUTE FUNCTION set_users_modified();
 
 ----- View -----
 
