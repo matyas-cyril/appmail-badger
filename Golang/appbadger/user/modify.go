@@ -11,7 +11,7 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-func ModifyLogin(login, uuid, password, description string, nbf, exp int64, config pkgConfig.Config) error {
+func ModifyLogin(login, uuid, password, description string, nbf, exp int64, disable int8, config pkgConfig.Config) error {
 
 	if (uuid != "" && login != "") || (uuid == "" && login == "") {
 		return fmt.Errorf("login or uuid must defined to modify")
@@ -48,6 +48,7 @@ func ModifyLogin(login, uuid, password, description string, nbf, exp int64, conf
 		Password:    pgtype.Text{Valid: false},
 		NotBefore:   pgtype.Timestamptz{Valid: false},
 		Expiration:  pgtype.Timestamptz{Valid: false},
+		Disable:     pgtype.Bool{Valid: false},
 		Description: pgtype.Text{Valid: false},
 		Login:       login,
 		UUID:        pgUUID,
@@ -83,7 +84,21 @@ func ModifyLogin(login, uuid, password, description string, nbf, exp int64, conf
 		}
 	}
 
-	fmt.Println(description)
+	if disable != 0 {
+
+		if disable == 1 {
+			args.Disable = pgtype.Bool{
+				Bool:  true,
+				Valid: true,
+			}
+		} else {
+			args.Disable = pgtype.Bool{
+				Bool:  false,
+				Valid: true,
+			}
+		}
+
+	}
 
 	rslt, err := dbx.ModifyLogin(cnx.Ctx, args)
 	if err != nil {
