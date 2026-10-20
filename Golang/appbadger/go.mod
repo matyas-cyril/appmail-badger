@@ -6,7 +6,7 @@ require (
 	charm.land/glamour/v2 v2.0.1
 	github.com/jackc/pgx/v5 v5.11.0
 	github.com/matyas-cyril/argon2id v1.0.0
-	golang.org/x/term v0.46.0
+	golang.org/x/term v0.47.0
 )
 
 require (
@@ -37,6 +37,6 @@ require (
 	golang.org/x/crypto v0.47.0 // indirect
 	golang.org/x/net v0.48.0 // indirect
 	golang.org/x/sync v0.19.0 // indirect
-	golang.org/x/sys v0.48.0 // indirect
+	golang.org/x/sys v0.49.0 // indirect
 	golang.org/x/text v0.33.0 // indirect
 )
