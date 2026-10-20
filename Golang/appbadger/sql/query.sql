@@ -87,6 +87,21 @@ SET
     password = COALESCE(sqlc.narg('Password'), password),
     not_before = COALESCE(sqlc.narg('NotBefore'), not_before),
     expiration = COALESCE(sqlc.narg('Expiration'), expiration),
+    disabled = COALESCE(sqlc.narg('Disable'), disabled),
     description = COALESCE(sqlc.narg('Description'), description)
+WHERE username = sqlc.arg('Login') OR id_user = sqlc.arg('UUID')
+RETURNING *;
+
+-- name: SetExpiration :one
+UPDATE Users
+SET
+    expiration = COALESCE(sqlc.narg('Expiration'), expiration)
+WHERE username = sqlc.arg('Login') OR id_user = sqlc.arg('UUID')
+RETURNING *;
+
+-- name: ClearExpiration :one
+UPDATE Users
+SET 
+    expiration = NULL
 WHERE username = sqlc.arg('Login') OR id_user = sqlc.arg('UUID')
 RETURNING *;

@@ -70,6 +70,7 @@ type User struct {
 	Password    string             `json:"password"`
 	NotBefore   pgtype.Timestamptz `json:"not_before"`
 	Expiration  pgtype.Timestamptz `json:"expiration"`
+	Modified    pgtype.Timestamptz `json:"modified"`
 	Disabled    bool               `json:"disabled"`
 	Description pgtype.Text        `json:"description"`
 }
