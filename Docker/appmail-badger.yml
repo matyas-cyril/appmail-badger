@@ -150,13 +150,13 @@ services:
 
   golang:
 
-    container_name: go_appbadger_${GOLANG_VERSION:-1.27.1}
+    container_name: go_appbadger_${GOLANG_VERSION:-1.27.3}
 
     build:
       context: ./GOLANG
       dockerfile: Dockerfile
       args:
-        GOLANG_VERSION: ${GOLANG_VERSION:-1.27.1}
+        GOLANG_VERSION: ${GOLANG_VERSION:-1.27.3}
         DEBIAN_VERSION: ${DEBIAN_VERSION:-trixie}
 
     restart: unless-stopped
