@@ -43,7 +43,7 @@ func ExpLogin(login, uuid string, epoch int64, remove bool, config pkgConfig.Con
 
 	dbx := db.New(cnx.Cnx)
 
-	var rslt db.User
+	var rslt any
 
 	if epoch > 0 {
 
