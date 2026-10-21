@@ -10,7 +10,7 @@ INSERT INTO Users (
     sqlc.narg('Disabled'),
     sqlc.narg('Description')
 )
-RETURNING id_user, username, not_before, expiration, modified, disabled, description;
+RETURNING id_user AS uuid, username AS login, not_before AS nbf, expiration AS exp, modified AS mod, disabled, description;
 
 -- name: GetLogin :one
 SELECT id_user AS uuid, username AS login, 
@@ -18,7 +18,7 @@ SELECT id_user AS uuid, username AS login,
     COALESCE(FLOOR(EXTRACT(EPOCH FROM expiration))::BIGINT, 0) AS exp, 
     disabled, 
     description
-FROM users
+FROM Users
 WHERE username = $1
 LIMIT 1;
 
@@ -38,18 +38,18 @@ SELECT id_user AS uuid, username AS login,
     COALESCE(FLOOR(EXTRACT(EPOCH FROM expiration))::BIGINT, 0) AS exp, 
     disabled, 
     description
-FROM users
+FROM Users
 ORDER BY username;
 
 -- name: DeleteLogin :one
-DELETE FROM users
+DELETE FROM Users
 WHERE username = $1
-RETURNING id_user, username;
+RETURNING id_user AS uuid, username AS login;
 
 -- name: DeleteLoginByUUID :one
-DELETE FROM users
+DELETE FROM Users
 WHERE id_user = $1
-RETURNING id_user, username;
+RETURNING id_user AS uuid, username AS login;
 
 -- name: GetPassword :one
 SELECT password_hash
@@ -58,31 +58,31 @@ WHERE username = $1
 LIMIT 1;
 
 -- name: EnableLogin :one
-UPDATE users
+UPDATE Users
 SET disabled = '0'
 WHERE username = $1
-RETURNING id_user, username, disabled;
+RETURNING id_user AS uuid, username AS login, disabled;
 
 -- name: EnableLoginByUUID :one
-UPDATE users
+UPDATE Users
 SET disabled = '0'
 WHERE id_user = $1
-RETURNING id_user, username, disabled;
+RETURNING id_user AS uuid, username AS login, disabled;
 
 -- name: DisableLogin :one
-UPDATE users
+UPDATE Users
 SET disabled = '1' 
 WHERE username = $1
-RETURNING id_user, username, disabled;
+RETURNING id_user AS uuid, username AS login, disabled;
 
 -- name: DisableLoginByUUID :one
-UPDATE users
+UPDATE Users
 SET disabled = '1' 
 WHERE id_user = $1
-RETURNING id_user, username, disabled;
+RETURNING id_user AS uuid, username AS login, disabled;
 
 -- name: ModifyLogin :one
-UPDATE users
+UPDATE Users
 SET
     password = COALESCE(sqlc.narg('Password'), password),
     not_before = COALESCE(sqlc.narg('NotBefore'), not_before),
@@ -90,18 +90,18 @@ SET
     disabled = COALESCE(sqlc.narg('Disable'), disabled),
     description = COALESCE(sqlc.narg('Description'), description)
 WHERE username = sqlc.arg('Login') OR id_user = sqlc.arg('UUID')
-RETURNING id_user, username, not_before, expiration, modified, disabled, description;
+RETURNING id_user AS uuid, username AS login, not_before AS nbf, expiration AS exp, modified AS mod, disabled, description;
 
 -- name: SetExpiration :one
 UPDATE Users
 SET
     expiration = COALESCE(sqlc.narg('Expiration'), expiration)
 WHERE username = sqlc.arg('Login') OR id_user = sqlc.arg('UUID')
-RETURNING *;
+RETURNING id_user AS uuid, username AS login, expiration AS exp;
 
 -- name: ClearExpiration :one
 UPDATE Users
 SET 
     expiration = NULL
 WHERE username = sqlc.arg('Login') OR id_user = sqlc.arg('UUID')
-RETURNING *;
+RETURNING id_user AS uuid, username AS login, expiration AS exp;

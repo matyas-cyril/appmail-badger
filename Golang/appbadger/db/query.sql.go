@@ -22,7 +22,7 @@ INSERT INTO Users (
     $5,
     $6
 )
-RETURNING id_user, username, not_before, expiration, modified, disabled, description
+RETURNING id_user AS uuid, username AS login, not_before AS nbf, expiration AS exp, modified AS mod, disabled, description
 `
 
 type AddLoginParams struct {
@@ -35,11 +35,11 @@ type AddLoginParams struct {
 }
 
 type AddLoginRow struct {
-	IDUser      pgtype.UUID        `json:"id_user"`
-	Username    string             `json:"username"`
-	NotBefore   pgtype.Timestamptz `json:"not_before"`
-	Expiration  pgtype.Timestamptz `json:"expiration"`
-	Modified    pgtype.Timestamptz `json:"modified"`
+	Uuid        pgtype.UUID        `json:"uuid"`
+	Login       string             `json:"login"`
+	Nbf         pgtype.Timestamptz `json:"nbf"`
+	Exp         pgtype.Timestamptz `json:"exp"`
+	Mod         pgtype.Timestamptz `json:"mod"`
 	Disabled    bool               `json:"disabled"`
 	Description pgtype.Text        `json:"description"`
 }
@@ -55,11 +55,11 @@ func (q *Queries) AddLogin(ctx context.Context, arg AddLoginParams) (AddLoginRow
 	)
 	var i AddLoginRow
 	err := row.Scan(
-		&i.IDUser,
-		&i.Username,
-		&i.NotBefore,
-		&i.Expiration,
-		&i.Modified,
+		&i.Uuid,
+		&i.Login,
+		&i.Nbf,
+		&i.Exp,
+		&i.Mod,
 		&i.Disabled,
 		&i.Description,
 	)
@@ -71,7 +71,7 @@ UPDATE Users
 SET 
     expiration = NULL
 WHERE username = $1 OR id_user = $2
-RETURNING id_user, username, password, not_before, expiration, modified, disabled, description
+RETURNING id_user AS uuid, username AS login, expiration AS exp
 `
 
 type ClearExpirationParams struct {
@@ -79,135 +79,132 @@ type ClearExpirationParams struct {
 	UUID  pgtype.UUID `json:"UUID"`
 }
 
-func (q *Queries) ClearExpiration(ctx context.Context, arg ClearExpirationParams) (User, error) {
+type ClearExpirationRow struct {
+	Uuid  pgtype.UUID        `json:"uuid"`
+	Login string             `json:"login"`
+	Exp   pgtype.Timestamptz `json:"exp"`
+}
+
+func (q *Queries) ClearExpiration(ctx context.Context, arg ClearExpirationParams) (ClearExpirationRow, error) {
 	row := q.db.QueryRow(ctx, clearExpiration, arg.Login, arg.UUID)
-	var i User
-	err := row.Scan(
-		&i.IDUser,
-		&i.Username,
-		&i.Password,
-		&i.NotBefore,
-		&i.Expiration,
-		&i.Modified,
-		&i.Disabled,
-		&i.Description,
-	)
+	var i ClearExpirationRow
+	err := row.Scan(&i.Uuid, &i.Login, &i.Exp)
 	return i, err
 }
 
 const deleteLogin = `-- name: DeleteLogin :one
-DELETE FROM users
+DELETE FROM Users
 WHERE username = $1
-RETURNING id_user, username
+RETURNING id_user AS uuid, username AS login
 `
 
 type DeleteLoginRow struct {
-	IDUser   pgtype.UUID `json:"id_user"`
-	Username string      `json:"username"`
+	Uuid  pgtype.UUID `json:"uuid"`
+	Login string      `json:"login"`
 }
 
 func (q *Queries) DeleteLogin(ctx context.Context, username string) (DeleteLoginRow, error) {
 	row := q.db.QueryRow(ctx, deleteLogin, username)
 	var i DeleteLoginRow
-	err := row.Scan(&i.IDUser, &i.Username)
+	err := row.Scan(&i.Uuid, &i.Login)
 	return i, err
 }
 
 const deleteLoginByUUID = `-- name: DeleteLoginByUUID :one
-DELETE FROM users
+DELETE FROM Users
 WHERE id_user = $1
-RETURNING id_user, username
+RETURNING id_user AS uuid, username AS login
 `
 
 type DeleteLoginByUUIDRow struct {
-	IDUser   pgtype.UUID `json:"id_user"`
-	Username string      `json:"username"`
+	Uuid  pgtype.UUID `json:"uuid"`
+	Login string      `json:"login"`
 }
 
 func (q *Queries) DeleteLoginByUUID(ctx context.Context, idUser pgtype.UUID) (DeleteLoginByUUIDRow, error) {
 	row := q.db.QueryRow(ctx, deleteLoginByUUID, idUser)
 	var i DeleteLoginByUUIDRow
-	err := row.Scan(&i.IDUser, &i.Username)
+	err := row.Scan(&i.Uuid, &i.Login)
 	return i, err
 }
 
 const disableLogin = `-- name: DisableLogin :one
-UPDATE users
+UPDATE Users
 SET disabled = '1' 
 WHERE username = $1
-RETURNING id_user, username, disabled
+RETURNING id_user AS uuid, username AS login, disabled
 `
 
 type DisableLoginRow struct {
-	IDUser   pgtype.UUID `json:"id_user"`
-	Username string      `json:"username"`
+	Uuid     pgtype.UUID `json:"uuid"`
+	Login    string      `json:"login"`
 	Disabled bool        `json:"disabled"`
 }
 
 func (q *Queries) DisableLogin(ctx context.Context, username string) (DisableLoginRow, error) {
 	row := q.db.QueryRow(ctx, disableLogin, username)
 	var i DisableLoginRow
-	err := row.Scan(&i.IDUser, &i.Username, &i.Disabled)
+	err := row.Scan(&i.Uuid, &i.Login, &i.Disabled)
 	return i, err
 }
 
 const disableLoginByUUID = `-- name: DisableLoginByUUID :one
-UPDATE users
+UPDATE Users
 SET disabled = '1' 
 WHERE id_user = $1
-RETURNING id_user, username, disabled
+RETURNING id_user AS uuid, username AS login, disabled
 `
 
 type DisableLoginByUUIDRow struct {
-	IDUser   pgtype.UUID `json:"id_user"`
-	Username string      `json:"username"`
+	Uuid     pgtype.UUID `json:"uuid"`
+	Login    string      `json:"login"`
 	Disabled bool        `json:"disabled"`
 }
 
 func (q *Queries) DisableLoginByUUID(ctx context.Context, idUser pgtype.UUID) (DisableLoginByUUIDRow, error) {
 	row := q.db.QueryRow(ctx, disableLoginByUUID, idUser)
 	var i DisableLoginByUUIDRow
-	err := row.Scan(&i.IDUser, &i.Username, &i.Disabled)
+	err := row.Scan(&i.Uuid, &i.Login, &i.Disabled)
 	return i, err
 }
 
 const enableLogin = `-- name: EnableLogin :one
-UPDATE users
+UPDATE Users
 SET disabled = '0'
 WHERE username = $1
-RETURNING id_user, username, disabled
+RETURNING id_user AS uuid, username AS login, disabled
 `
 
 type EnableLoginRow struct {
-	IDUser   pgtype.UUID `json:"id_user"`
-	Username string      `json:"username"`
+	Uuid     pgtype.UUID `json:"uuid"`
+	Login    string      `json:"login"`
 	Disabled bool        `json:"disabled"`
 }
 
 func (q *Queries) EnableLogin(ctx context.Context, username string) (EnableLoginRow, error) {
 	row := q.db.QueryRow(ctx, enableLogin, username)
 	var i EnableLoginRow
-	err := row.Scan(&i.IDUser, &i.Username, &i.Disabled)
+	err := row.Scan(&i.Uuid, &i.Login, &i.Disabled)
 	return i, err
 }
 
 const enableLoginByUUID = `-- name: EnableLoginByUUID :one
-UPDATE users
+UPDATE Users
 SET disabled = '0'
 WHERE id_user = $1
-RETURNING id_user, username, disabled
+RETURNING id_user AS uuid, username AS login, disabled
 `
 
 type EnableLoginByUUIDRow struct {
-	IDUser   pgtype.UUID `json:"id_user"`
-	Username string      `json:"username"`
+	Uuid     pgtype.UUID `json:"uuid"`
+	Login    string      `json:"login"`
 	Disabled bool        `json:"disabled"`
 }
 
 func (q *Queries) EnableLoginByUUID(ctx context.Context, idUser pgtype.UUID) (EnableLoginByUUIDRow, error) {
 	row := q.db.QueryRow(ctx, enableLoginByUUID, idUser)
 	var i EnableLoginByUUIDRow
-	err := row.Scan(&i.IDUser, &i.Username, &i.Disabled)
+	err := row.Scan(&i.Uuid, &i.Login, &i.Disabled)
 	return i, err
 }
 
@@ -217,7 +214,7 @@ SELECT id_user AS uuid, username AS login,
     COALESCE(FLOOR(EXTRACT(EPOCH FROM expiration))::BIGINT, 0) AS exp, 
     disabled, 
     description
-FROM users
+FROM Users
 WHERE username = $1
 LIMIT 1
 `
@@ -285,7 +282,7 @@ SELECT id_user AS uuid, username AS login,
     COALESCE(FLOOR(EXTRACT(EPOCH FROM expiration))::BIGINT, 0) AS exp, 
     disabled, 
     description
-FROM users
+FROM Users
 ORDER BY username
 `
 
@@ -340,7 +337,7 @@ func (q *Queries) GetPassword(ctx context.Context, username string) (string, err
 }
 
 const modifyLogin = `-- name: ModifyLogin :one
-UPDATE users
+UPDATE Users
 SET
     password = COALESCE($1, password),
     not_before = COALESCE($2, not_before),
@@ -348,7 +345,7 @@ SET
     disabled = COALESCE($4, disabled),
     description = COALESCE($5, description)
 WHERE username = $6 OR id_user = $7
-RETURNING id_user, username, not_before, expiration, modified, disabled, description
+RETURNING id_user AS uuid, username AS login, not_before AS nbf, expiration AS exp, modified AS mod, disabled, description
 `
 
 type ModifyLoginParams struct {
@@ -362,11 +359,11 @@ type ModifyLoginParams struct {
 }
 
 type ModifyLoginRow struct {
-	IDUser      pgtype.UUID        `json:"id_user"`
-	Username    string             `json:"username"`
-	NotBefore   pgtype.Timestamptz `json:"not_before"`
-	Expiration  pgtype.Timestamptz `json:"expiration"`
-	Modified    pgtype.Timestamptz `json:"modified"`
+	Uuid        pgtype.UUID        `json:"uuid"`
+	Login       string             `json:"login"`
+	Nbf         pgtype.Timestamptz `json:"nbf"`
+	Exp         pgtype.Timestamptz `json:"exp"`
+	Mod         pgtype.Timestamptz `json:"mod"`
 	Disabled    bool               `json:"disabled"`
 	Description pgtype.Text        `json:"description"`
 }
@@ -383,11 +380,11 @@ func (q *Queries) ModifyLogin(ctx context.Context, arg ModifyLoginParams) (Modif
 	)
 	var i ModifyLoginRow
 	err := row.Scan(
-		&i.IDUser,
-		&i.Username,
-		&i.NotBefore,
-		&i.Expiration,
-		&i.Modified,
+		&i.Uuid,
+		&i.Login,
+		&i.Nbf,
+		&i.Exp,
+		&i.Mod,
 		&i.Disabled,
 		&i.Description,
 	)
@@ -399,7 +396,7 @@ UPDATE Users
 SET
     expiration = COALESCE($1, expiration)
 WHERE username = $2 OR id_user = $3
-RETURNING id_user, username, password, not_before, expiration, modified, disabled, description
+RETURNING id_user AS uuid, username AS login, expiration AS exp
 `
 
 type SetExpirationParams struct {
@@ -408,18 +405,15 @@ type SetExpirationParams struct {
 	UUID       pgtype.UUID        `json:"UUID"`
 }
 
-func (q *Queries) SetExpiration(ctx context.Context, arg SetExpirationParams) (User, error) {
+type SetExpirationRow struct {
+	Uuid  pgtype.UUID        `json:"uuid"`
+	Login string             `json:"login"`
+	Exp   pgtype.Timestamptz `json:"exp"`
+}
+
+func (q *Queries) SetExpiration(ctx context.Context, arg SetExpirationParams) (SetExpirationRow, error) {
 	row := q.db.QueryRow(ctx, setExpiration, arg.Expiration, arg.Login, arg.UUID)
-	var i User
-	err := row.Scan(
-		&i.IDUser,
-		&i.Username,
-		&i.Password,
-		&i.NotBefore,
-		&i.Expiration,
-		&i.Modified,
-		&i.Disabled,
-		&i.Description,
-	)
+	var i SetExpirationRow
+	err := row.Scan(&i.Uuid, &i.Login, &i.Exp)
 	return i, err
 }
