@@ -16,6 +16,7 @@
 {{template "user_check" .}}
 {{template "user_enable" .}}
 {{template "user_disable" .}}
+{{template "user_expiration" .}}
 {{- end}}
 
 {{define "user" -}}
@@ -29,6 +30,7 @@ Sous-commandes disponibles :
 * `user modify`
 * `user enable`
 * `user disable`
+* `user expiration`
 {{- end}}
 
 {{define "user_add" -}}
@@ -107,6 +109,20 @@ Sous-commandes disponibles :
 | `-nbf` | int |  | Date ou heure à partir de laquelle la connexion est valide |
 | `-exp` | int |  | Date ou heure d’expiration |
 | `-description` | string | | Description de la connexion |
+| `-conf` | string | {{ .Conf }} | Fichier de configuration |
+{{- end}}
+
+{{define "user_expiration" -}}
+### `user expiration`
+
+| Option | Type | Défaut | Description |
+|---|:---:|---|---|
+| `-login` | string | | Identifiant de connexion |
+| `-uuid` | string | | UUID de la connexion |
+| `-now` | int | {{ .Epoch }} | Date ou heure à partir de laquelle la connexion est expirée |
+| `-exp` | int |  | Définir la date ou heure d’expiration |
+| `-remove` | bool | false | Supprimer la date d'expiration |
+| `-utc` | bool | false | Horaire UTC, par défaut Local |
 | `-conf` | string | {{ .Conf }} | Fichier de configuration |
 {{- end}}
 
