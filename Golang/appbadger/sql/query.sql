@@ -10,7 +10,7 @@ INSERT INTO Users (
     sqlc.narg('Disabled'),
     sqlc.narg('Description')
 )
-RETURNING *;
+RETURNING id_user, username, not_before, expiration, modified, disabled, description;
 
 -- name: GetLogin :one
 SELECT id_user AS uuid, username AS login, 
@@ -90,7 +90,7 @@ SET
     disabled = COALESCE(sqlc.narg('Disable'), disabled),
     description = COALESCE(sqlc.narg('Description'), description)
 WHERE username = sqlc.arg('Login') OR id_user = sqlc.arg('UUID')
-RETURNING *;
+RETURNING id_user, username, not_before, expiration, modified, disabled, description;
 
 -- name: SetExpiration :one
 UPDATE Users

@@ -22,7 +22,7 @@ INSERT INTO Users (
     $5,
     $6
 )
-RETURNING id_user, username, password, not_before, expiration, modified, disabled, description
+RETURNING id_user, username, not_before, expiration, modified, disabled, description
 `
 
 type AddLoginParams struct {
@@ -34,7 +34,17 @@ type AddLoginParams struct {
 	Description pgtype.Text        `json:"Description"`
 }
 
-func (q *Queries) AddLogin(ctx context.Context, arg AddLoginParams) (User, error) {
+type AddLoginRow struct {
+	IDUser      pgtype.UUID        `json:"id_user"`
+	Username    string             `json:"username"`
+	NotBefore   pgtype.Timestamptz `json:"not_before"`
+	Expiration  pgtype.Timestamptz `json:"expiration"`
+	Modified    pgtype.Timestamptz `json:"modified"`
+	Disabled    bool               `json:"disabled"`
+	Description pgtype.Text        `json:"description"`
+}
+
+func (q *Queries) AddLogin(ctx context.Context, arg AddLoginParams) (AddLoginRow, error) {
 	row := q.db.QueryRow(ctx, addLogin,
 		arg.Login,
 		arg.Password,
@@ -43,11 +53,10 @@ func (q *Queries) AddLogin(ctx context.Context, arg AddLoginParams) (User, error
 		arg.Disabled,
 		arg.Description,
 	)
-	var i User
+	var i AddLoginRow
 	err := row.Scan(
 		&i.IDUser,
 		&i.Username,
-		&i.Password,
 		&i.NotBefore,
 		&i.Expiration,
 		&i.Modified,
@@ -339,7 +348,7 @@ SET
     disabled = COALESCE($4, disabled),
     description = COALESCE($5, description)
 WHERE username = $6 OR id_user = $7
-RETURNING id_user, username, password, not_before, expiration, modified, disabled, description
+RETURNING id_user, username, not_before, expiration, modified, disabled, description
 `
 
 type ModifyLoginParams struct {
@@ -352,7 +361,17 @@ type ModifyLoginParams struct {
 	UUID        pgtype.UUID        `json:"UUID"`
 }
 
-func (q *Queries) ModifyLogin(ctx context.Context, arg ModifyLoginParams) (User, error) {
+type ModifyLoginRow struct {
+	IDUser      pgtype.UUID        `json:"id_user"`
+	Username    string             `json:"username"`
+	NotBefore   pgtype.Timestamptz `json:"not_before"`
+	Expiration  pgtype.Timestamptz `json:"expiration"`
+	Modified    pgtype.Timestamptz `json:"modified"`
+	Disabled    bool               `json:"disabled"`
+	Description pgtype.Text        `json:"description"`
+}
+
+func (q *Queries) ModifyLogin(ctx context.Context, arg ModifyLoginParams) (ModifyLoginRow, error) {
 	row := q.db.QueryRow(ctx, modifyLogin,
 		arg.Password,
 		arg.NotBefore,
@@ -362,11 +381,10 @@ func (q *Queries) ModifyLogin(ctx context.Context, arg ModifyLoginParams) (User,
 		arg.Login,
 		arg.UUID,
 	)
-	var i User
+	var i ModifyLoginRow
 	err := row.Scan(
 		&i.IDUser,
 		&i.Username,
-		&i.Password,
 		&i.NotBefore,
 		&i.Expiration,
 		&i.Modified,
