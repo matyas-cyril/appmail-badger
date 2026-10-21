@@ -22,8 +22,9 @@ const (
 func printHelp(block string) error {
 
 	type Tmpl struct {
-		Conf  string
-		Epoch int64
+		Conf       string
+		Epoch      int64
+		Build_Date string
 	}
 
 	tmpl, err := template.New("help").Parse(helpTemplate)

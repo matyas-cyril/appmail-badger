@@ -7,6 +7,10 @@ import (
 	"strings"
 )
 
+var (
+	BUILD_DATE string
+)
+
 const (
 	OK int = iota
 	ERR_ARGS
