@@ -51,8 +51,6 @@ func ExpLogin(login, uuid string, epoch int64, remove bool, config pkgConfig.Con
 
 	dbx := db.New(cnx.Cnx)
 
-	var rslt any
-
 	if epoch > 0 {
 
 		args := db.SetExpirationParams{
@@ -67,27 +65,93 @@ func ExpLogin(login, uuid string, epoch int64, remove bool, config pkgConfig.Con
 			Valid: true,
 		}
 
-		rslt, err = dbx.SetExpiration(cnx.Ctx, args)
+		rslt, err := dbx.SetExpiration(cnx.Ctx, args)
 		if err != nil {
-			return err
+
+			if login != "" {
+
+				return json.NewEncoder(os.Stdout).Encode(struct {
+					Login  string
+					Status bool
+					Error  string
+				}{
+					Login:  login,
+					Status: false,
+					Error:  err.Error(),
+				})
+
+			}
+
+			return json.NewEncoder(os.Stdout).Encode(struct {
+				UUID   string
+				Status bool
+				Error  string
+			}{
+				UUID:   uuid,
+				Status: false,
+				Error:  err.Error(),
+			})
+
 		}
+
+		return json.NewEncoder(os.Stdout).Encode(struct {
+			UUID   string
+			Login  string
+			Epoch  int64
+			Status bool
+		}{
+			UUID:   rslt.Login,
+			Login:  rslt.Login,
+			Epoch:  rslt.Exp.Time.Unix(),
+			Status: true,
+		})
 
 	}
 
-	if remove {
+	// Remove
 
-		args := db.ClearExpirationParams{
-			Login: login,
-			UUID:  pgUUID,
+	args := db.ClearExpirationParams{
+		Login: login,
+		UUID:  pgUUID,
+	}
+
+	rslt, err := dbx.ClearExpiration(cnx.Ctx, args)
+	if err != nil {
+
+		if login != "" {
+
+			return json.NewEncoder(os.Stdout).Encode(struct {
+				Login  string
+				Status bool
+				Error  string
+			}{
+				Login:  login,
+				Status: false,
+				Error:  err.Error(),
+			})
+
 		}
 
-		rslt, err = dbx.ClearExpiration(cnx.Ctx, args)
-		if err != nil {
-			return err
-		}
+		return json.NewEncoder(os.Stdout).Encode(struct {
+			UUID   string
+			Status bool
+			Error  string
+		}{
+			UUID:   uuid,
+			Status: false,
+			Error:  err.Error(),
+		})
 
 	}
 
-	return json.NewEncoder(os.Stdout).Encode(rslt)
+	return json.NewEncoder(os.Stdout).Encode(struct {
+		UUID   string
+		Login  string
+		Status bool
+	}{
+		UUID:   rslt.Login,
+		Login:  rslt.Login,
+		Status: true,
+	})
 
 }
