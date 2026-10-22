@@ -12,12 +12,24 @@ func Conv(day, hour string, utc bool) error {
 
 	// Vérifier la syntaxe de day
 	if _, err := time.Parse("2006/01/02", day); err != nil {
-		return err
+		return json.NewEncoder(os.Stdout).Encode(struct {
+			Error  string
+			Status bool
+		}{
+			Error:  err.Error(),
+			Status: false,
+		})
 	}
 
 	// Vérifier la syntaxe de heure
 	if _, err := time.Parse("15:04:05", hour); err != nil {
-		return err
+		return json.NewEncoder(os.Stdout).Encode(struct {
+			Error  string
+			Status bool
+		}{
+			Error:  err.Error(),
+			Status: false,
+		})
 	}
 
 	location := time.Local
@@ -32,7 +44,13 @@ func Conv(day, hour string, utc bool) error {
 
 	t, err := time.ParseInLocation("2006/01/02 15:04:05", date, location)
 	if err != nil {
-		return err
+		return json.NewEncoder(os.Stdout).Encode(struct {
+			Error  string
+			Status bool
+		}{
+			Error:  err.Error(),
+			Status: false,
+		})
 	}
 
 	return json.NewEncoder(os.Stdout).Encode(struct {
@@ -40,11 +58,13 @@ func Conv(day, hour string, utc bool) error {
 		Date     string
 		Location string
 		Offset   string
+		Status   bool
 	}{
 		Epoch:    t.Unix(),
 		Date:     date,
 		Location: location.String(),
 		Offset:   offset,
+		Status:   true,
 	})
 
 }

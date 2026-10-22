@@ -22,7 +22,7 @@ INSERT INTO Users (
     $5,
     $6
 )
-RETURNING id_user AS uuid, username AS login, not_before AS nbf, expiration AS exp, modified AS mod, disabled, description
+RETURNING id_user AS uuid, username AS login, not_before AS nbf, expiration AS exp, disabled, description
 `
 
 type AddLoginParams struct {
@@ -39,7 +39,6 @@ type AddLoginRow struct {
 	Login       string             `json:"login"`
 	Nbf         pgtype.Timestamptz `json:"nbf"`
 	Exp         pgtype.Timestamptz `json:"exp"`
-	Mod         pgtype.Timestamptz `json:"mod"`
 	Disabled    bool               `json:"disabled"`
 	Description pgtype.Text        `json:"description"`
 }
@@ -59,7 +58,6 @@ func (q *Queries) AddLogin(ctx context.Context, arg AddLoginParams) (AddLoginRow
 		&i.Login,
 		&i.Nbf,
 		&i.Exp,
-		&i.Mod,
 		&i.Disabled,
 		&i.Description,
 	)

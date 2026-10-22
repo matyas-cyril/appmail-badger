@@ -10,7 +10,7 @@ INSERT INTO Users (
     sqlc.narg('Disabled'),
     sqlc.narg('Description')
 )
-RETURNING id_user AS uuid, username AS login, not_before AS nbf, expiration AS exp, modified AS mod, disabled, description;
+RETURNING id_user AS uuid, username AS login, not_before AS nbf, expiration AS exp, disabled, description;
 
 -- name: GetLogin :one
 SELECT id_user AS uuid, username AS login, 

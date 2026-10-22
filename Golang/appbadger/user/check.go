@@ -27,30 +27,50 @@ func Check(login, password string, config pkgConfig.Config) error {
 
 	rslt, err := dbx.GetPassword(cnx.Ctx, login)
 	if err != nil {
-		return err
+		return json.NewEncoder(os.Stdout).Encode(struct {
+			Login  string
+			Status bool
+			Error  string
+		}{
+			Login:  login,
+			Status: false,
+			Error:  err.Error(),
+		})
 	}
 
 	check, err := argon2id.Check(password, rslt)
 	if err != nil {
-		return err
+		return json.NewEncoder(os.Stdout).Encode(struct {
+			Login  string
+			Status bool
+			Error  string
+		}{
+			Login:  login,
+			Status: false,
+			Error:  err.Error(),
+		})
 	}
 
 	if check {
-		return json.NewEncoder(os.Stdout).Encode(
-			map[string]any{
-				"login":  login,
-				"check":  "authentication success",
-				"status": 1,
-			},
-		)
+		return json.NewEncoder(os.Stdout).Encode(struct {
+			Login  string
+			Auth   string
+			Status bool
+		}{
+			Login:  login,
+			Auth:   "authentication success",
+			Status: true,
+		})
 	}
 
-	return json.NewEncoder(os.Stdout).Encode(
-		map[string]any{
-			"login":  login,
-			"check":  "authentication failure",
-			"status": 0,
-		},
-	)
+	return json.NewEncoder(os.Stdout).Encode(struct {
+		Login  string
+		Auth   string
+		Status bool
+	}{
+		Login:  login,
+		Auth:   "authentication failed",
+		Status: false,
+	})
 
 }

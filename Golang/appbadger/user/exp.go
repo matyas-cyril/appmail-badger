@@ -25,7 +25,15 @@ func ExpLogin(login, uuid string, epoch int64, remove bool, config pkgConfig.Con
 	if uuid != "" {
 		pgUUID, err = StringToPgUUID(uuid)
 		if err != nil {
-			return err
+			return json.NewEncoder(os.Stdout).Encode(struct {
+				UUID   string
+				Status bool
+				Error  string
+			}{
+				UUID:   uuid,
+				Status: false,
+				Error:  err.Error(),
+			})
 		}
 	}
 

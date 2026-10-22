@@ -67,9 +67,43 @@ func AddLogin(login, passHash, description string, nbf, exp int64, enable bool, 
 
 	rslt, err := dbx.AddLogin(cnx.Ctx, args)
 	if err != nil {
-		return err
+		return json.NewEncoder(os.Stdout).Encode(struct {
+			Login  string
+			Status bool
+			Error  string
+		}{
+			Login:  login,
+			Status: false,
+			Error:  err.Error(),
+		})
 	}
 
-	return json.NewEncoder(os.Stdout).Encode(rslt)
+	var (
+		rsltNbf int64 = 0
+		rsltExp int64 = 0
+	)
 
+	if rslt.Nbf.Valid && rslt.Nbf.Time.Unix() > 0 {
+		rsltNbf = rslt.Nbf.Time.Unix()
+	}
+
+	if rslt.Exp.Valid && rslt.Exp.Time.Unix() > 0 {
+		rsltExp = rslt.Exp.Time.Unix()
+	}
+
+	return json.NewEncoder(os.Stdout).Encode(struct {
+		UUID   string
+		Login  string
+		Enable bool
+		Nbf    int64
+		Exp    int64
+		Status bool
+	}{
+		UUID:   rslt.Uuid.String(),
+		Login:  rslt.Login,
+		Enable: !rslt.Disabled,
+		Nbf:    rsltNbf,
+		Exp:    rsltExp,
+		Status: true,
+	})
 }

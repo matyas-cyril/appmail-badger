@@ -2,7 +2,6 @@ package date
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
 	"time"
 )
@@ -18,7 +17,13 @@ func Epoch(value int64, utc bool) error {
 	}
 
 	if value < 0 {
-		return fmt.Errorf("epoch value must be a positive integer")
+		return json.NewEncoder(os.Stdout).Encode(struct {
+			Error  string
+			Status bool
+		}{
+			Error:  "epoch value must be a positive integer",
+			Status: false,
+		})
 	}
 
 	var strDate string

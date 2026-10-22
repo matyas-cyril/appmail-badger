@@ -29,25 +29,67 @@ func DelLogin[T string | pgtype.UUID](user T, config pkgConfig.Config) error {
 	if value, ok := any(user).(pgtype.UUID); ok {
 		rslt, err := dbx.DeleteLoginByUUID(cnx.Ctx, value)
 		if err != nil {
-			return err
+			return json.NewEncoder(os.Stdout).Encode(struct {
+				UUID   string
+				Status bool
+				Error  string
+			}{
+				UUID:   value.String(),
+				Status: false,
+				Error:  err.Error(),
+			})
 		}
-		return json.NewEncoder(os.Stdout).Encode(rslt)
+
+		return json.NewEncoder(os.Stdout).Encode(struct {
+			UUID   string
+			Login  string
+			Status bool
+		}{
+			UUID:   rslt.Uuid.String(),
+			Login:  rslt.Login,
+			Status: true,
+		})
+
 	}
 
 	// On a forcément un string
 	rslt, err := dbx.DeleteLogin(cnx.Ctx, any(user).(string))
 	if err != nil {
-		return err
+		return json.NewEncoder(os.Stdout).Encode(struct {
+			Login  string
+			Status bool
+			Error  string
+		}{
+			Login:  any(user).(string),
+			Status: false,
+			Error:  err.Error(),
+		})
 	}
 
-	return json.NewEncoder(os.Stdout).Encode(rslt)
+	return json.NewEncoder(os.Stdout).Encode(struct {
+		UUID   string
+		Login  string
+		Status bool
+	}{
+		UUID:   rslt.Uuid.String(),
+		Login:  rslt.Login,
+		Status: true,
+	})
 
 }
 
 func DelLoginByUUID(uuid string, config pkgConfig.Config) error {
 	pgUUID, err := StringToPgUUID(uuid)
 	if err != nil {
-		return err
+		return json.NewEncoder(os.Stdout).Encode(struct {
+			UUID   string
+			Status bool
+			Error  string
+		}{
+			UUID:   uuid,
+			Status: false,
+			Error:  err.Error(),
+		})
 	}
 	return DelLogin(pgUUID, config)
 }
