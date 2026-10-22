@@ -13,13 +13,26 @@ const addDomain = `-- name: AddDomain :one
 INSERT INTO Domains (
    domain
 ) VALUES (
-    lower($1)
+    lower(trim($1))
 )
 RETURNING domain AS Dom
 `
 
 func (q *Queries) AddDomain(ctx context.Context, domain string) (string, error) {
 	row := q.db.QueryRow(ctx, addDomain, domain)
+	var dom string
+	err := row.Scan(&dom)
+	return dom, err
+}
+
+const delDomain = `-- name: DelDomain :one
+DELETE FROM Domains
+WHERE domain = lower(trim($1))
+RETURNING domain AS Dom
+`
+
+func (q *Queries) DelDomain(ctx context.Context, domain string) (string, error) {
+	row := q.db.QueryRow(ctx, delDomain, domain)
 	var dom string
 	err := row.Scan(&dom)
 	return dom, err

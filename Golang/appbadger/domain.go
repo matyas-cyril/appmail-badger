@@ -64,6 +64,48 @@ func domain(args []string) (int, error) {
 
 	case "del":
 
+		var (
+			domain, confFile string
+			help             bool
+		)
+
+		delDom := flag.NewFlagSet(arg, flag.ExitOnError)
+		delDom.StringVar(&domain, "dom", "", "define a new domain")
+		delDom.StringVar(&confFile, "conf", DEFAULT_CONFIG_FILE, "json configuration file")
+		delDom.BoolVar(&help, "help", false, "help me !!!")
+
+		if err := delDom.Parse(args[1:]); err != nil {
+			return ERR_ARGS, err
+		}
+
+		if help {
+			printHelp("domain_add")
+			return OK, nil
+		}
+
+		if len(delDom.Args()) > 0 {
+			return ERR_ARGS, fmt.Errorf("unexpected arg : %q", delDom.Args()[0])
+		}
+
+		// Charger la conf
+		cfg, err := pkgConfig.Load(confFile)
+		if err != nil {
+			return ERR_CONF_FILE, err
+		}
+
+		domain = strings.TrimSpace(domain)
+		// Vérification des args obligatoires
+		if domain == "" {
+			delDom.Usage()
+			return ERR_ARGS, fmt.Errorf("error: -domain is required")
+		}
+
+		if err := pkgDomain.DelDomain(domain, *cfg); err != nil {
+			return ERR_LOGIN, err
+		}
+
+		return OK, nil
+
 	case "get":
 
 	case "modify":
