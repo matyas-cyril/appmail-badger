@@ -79,7 +79,7 @@ func domain(args []string) (int, error) {
 		}
 
 		if help {
-			printHelp("domain_add")
+			printHelp("domain_del")
 			return OK, nil
 		}
 
@@ -107,6 +107,56 @@ func domain(args []string) (int, error) {
 		return OK, nil
 
 	case "get":
+
+		var (
+			domain, confFile string
+			help, all        bool
+		)
+
+		getDom := flag.NewFlagSet(arg, flag.ExitOnError)
+		getDom.StringVar(&domain, "dom", "", "define a new domain")
+		getDom.BoolVar(&all, "all", false, "get all domains")
+		getDom.StringVar(&confFile, "conf", DEFAULT_CONFIG_FILE, "json configuration file")
+		getDom.BoolVar(&help, "help", false, "help me !!!")
+
+		if err := getDom.Parse(args[1:]); err != nil {
+			return ERR_ARGS, err
+		}
+
+		if help {
+			printHelp("domain_get")
+			return OK, nil
+		}
+
+		if len(getDom.Args()) > 0 {
+			return ERR_ARGS, fmt.Errorf("unexpected arg : %q", getDom.Args()[0])
+		}
+
+		// Charger la conf
+		cfg, err := pkgConfig.Load(confFile)
+		if err != nil {
+			return ERR_CONF_FILE, err
+		}
+
+		if all {
+			if err := pkgDomain.GetDomains(*cfg); err != nil {
+				return ERR_LOGIN, err
+			}
+			return OK, nil
+		}
+
+		domain = strings.TrimSpace(domain)
+		// Vérification des args obligatoires
+		if domain == "" {
+			getDom.Usage()
+			return ERR_ARGS, fmt.Errorf("error: -domain is required")
+		}
+
+		if err := pkgDomain.GetDomain(domain, *cfg); err != nil {
+			return ERR_DOM, err
+		}
+
+		return OK, nil
 
 	case "modify":
 

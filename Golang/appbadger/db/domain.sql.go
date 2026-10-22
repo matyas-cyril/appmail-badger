@@ -37,3 +37,43 @@ func (q *Queries) DelDomain(ctx context.Context, domain string) (string, error) 
 	err := row.Scan(&dom)
 	return dom, err
 }
+
+const getDomain = `-- name: GetDomain :one
+SELECT domain AS Dom
+FROM Domains
+WHERE domain = lower(trim($1))
+LIMIT 1
+`
+
+func (q *Queries) GetDomain(ctx context.Context, domain string) (string, error) {
+	row := q.db.QueryRow(ctx, getDomain, domain)
+	var dom string
+	err := row.Scan(&dom)
+	return dom, err
+}
+
+const getDomains = `-- name: GetDomains :many
+SELECT domain AS Dom
+FROM Domains
+ORDER BY domain ASC
+`
+
+func (q *Queries) GetDomains(ctx context.Context) ([]string, error) {
+	rows, err := q.db.Query(ctx, getDomains)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []string
+	for rows.Next() {
+		var dom string
+		if err := rows.Scan(&dom); err != nil {
+			return nil, err
+		}
+		items = append(items, dom)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
