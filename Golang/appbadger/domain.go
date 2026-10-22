@@ -101,7 +101,7 @@ func domain(args []string) (int, error) {
 		}
 
 		if err := pkgDomain.DelDomain(domain, *cfg); err != nil {
-			return ERR_LOGIN, err
+			return ERR_DOM, err
 		}
 
 		return OK, nil

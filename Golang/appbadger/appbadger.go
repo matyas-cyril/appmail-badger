@@ -22,6 +22,7 @@ const (
 	ERR_LOGIN
 	ERR_PASSWORD
 	ERR_EPOCH
+	ERR_DOM
 
 	DEFAULT_CONFIG_FILE string = "appbadger.json"
 )
