@@ -31,7 +31,7 @@ func main() {
 	initBuildVar()
 
 	if len(os.Args) < 2 {
-		fmt.Fprintf(os.Stdout, "Use: %s [user|date|help] {...options}\n", filepath.Base(os.Args[0]))
+		fmt.Fprintf(os.Stdout, "Use: %s [user|domain|date|help] {...options}\n", filepath.Base(os.Args[0]))
 		os.Exit(ERR_ARGS)
 	}
 
@@ -47,6 +47,13 @@ func main() {
 
 	case "date":
 		codeRetour, err := date(os.Args[2:])
+		if err != nil {
+			fmt.Fprintf(os.Stdout, "%s\n", err)
+		}
+		os.Exit(codeRetour)
+
+	case "domain":
+		codeRetour, err := domain(os.Args[2:])
 		if err != nil {
 			fmt.Fprintf(os.Stdout, "%s\n", err)
 		}
