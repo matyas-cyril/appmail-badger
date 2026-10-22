@@ -21,3 +21,10 @@ LIMIT 1;
 SELECT domain AS Dom
 FROM Domains
 ORDER BY domain ASC;
+
+-- name: ModifyDomain :one
+UPDATE Domains
+SET
+    domain = COALESCE(lower(trim(sqlc.arg('New'))), domain)
+WHERE domain = lower(trim(sqlc.arg('Old')))
+RETURNING 1;

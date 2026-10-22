@@ -60,8 +60,6 @@ func domain(args []string) (int, error) {
 			return ERR_LOGIN, err
 		}
 
-		return OK, nil
-
 	case "del":
 
 		var (
@@ -140,7 +138,7 @@ func domain(args []string) (int, error) {
 
 		if all {
 			if err := pkgDomain.GetDomains(*cfg); err != nil {
-				return ERR_LOGIN, err
+				return ERR_DOM, err
 			}
 			return OK, nil
 		}
@@ -156,9 +154,55 @@ func domain(args []string) (int, error) {
 			return ERR_DOM, err
 		}
 
-		return OK, nil
-
 	case "modify":
+
+		var (
+			old, new, confFile string
+			help               bool
+		)
+
+		modDom := flag.NewFlagSet(arg, flag.ExitOnError)
+		modDom.StringVar(&new, "new", "", "input the new name domain")
+		modDom.StringVar(&old, "old", "", "input the old name domain")
+		modDom.StringVar(&confFile, "conf", DEFAULT_CONFIG_FILE, "json configuration file")
+		modDom.BoolVar(&help, "help", false, "help me !!!")
+
+		if err := modDom.Parse(args[1:]); err != nil {
+			return ERR_ARGS, err
+		}
+
+		if help {
+			printHelp("domain_get")
+			return OK, nil
+		}
+
+		if len(modDom.Args()) > 0 {
+			return ERR_ARGS, fmt.Errorf("unexpected arg : %q", modDom.Args()[0])
+		}
+
+		// Charger la conf
+		cfg, err := pkgConfig.Load(confFile)
+		if err != nil {
+			return ERR_CONF_FILE, err
+		}
+
+		old = strings.TrimSpace(old)
+		new = strings.TrimSpace(new)
+
+		// Vérification des args obligatoires
+		if old == "" || new == "" {
+			modDom.Usage()
+			return ERR_ARGS, fmt.Errorf("error: -old AND -new must defined")
+		}
+
+		if old == new {
+			modDom.Usage()
+			return ERR_ARGS, fmt.Errorf("error: -old AND -new value must different")
+		}
+
+		if err := pkgDomain.ModifyDomain(old, new, *cfg); err != nil {
+			return ERR_DOM, err
+		}
 
 	default:
 		fmt.Fprintf(os.Stdout, "command '%s' not exits\n", arg)

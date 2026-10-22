@@ -77,3 +77,23 @@ func (q *Queries) GetDomains(ctx context.Context) ([]string, error) {
 	}
 	return items, nil
 }
+
+const modifyDomain = `-- name: ModifyDomain :one
+UPDATE Domains
+SET
+    domain = COALESCE(lower(trim($1)), domain)
+WHERE domain = lower(trim($2))
+RETURNING 1
+`
+
+type ModifyDomainParams struct {
+	New string `json:"New"`
+	Old string `json:"Old"`
+}
+
+func (q *Queries) ModifyDomain(ctx context.Context, arg ModifyDomainParams) (int32, error) {
+	row := q.db.QueryRow(ctx, modifyDomain, arg.New, arg.Old)
+	var column_1 int32
+	err := row.Scan(&column_1)
+	return column_1, err
+}
