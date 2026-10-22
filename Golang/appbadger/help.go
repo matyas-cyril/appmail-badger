@@ -38,13 +38,6 @@ func printHelp(block string) error {
 		block = "erreur_404"
 	}
 
-	if BUILD_DATE == "" {
-		BUILD_DATE = time.Now().Format("2006-01-02")
-	}
-	if BUILD_TIME == "" {
-		BUILD_TIME = time.Now().Format("15:04:05")
-	}
-
 	data := Tmpl{
 		Conf:          DEFAULT_CONFIG_FILE,
 		Epoch:         time.Now().Unix(),
