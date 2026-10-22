@@ -22,9 +22,10 @@ const (
 func printHelp(block string) error {
 
 	type Tmpl struct {
-		Conf       string
-		Epoch      int64
-		Build_Date string
+		Conf          string
+		Epoch         int64
+		Build_Date    string
+		Build_Version string
 	}
 
 	tmpl, err := template.New("help").Parse(helpTemplate)
@@ -37,9 +38,18 @@ func printHelp(block string) error {
 		block = "erreur_404"
 	}
 
+	if BUILD_DATE == "" {
+		BUILD_DATE = time.Now().Format("2006-01-02")
+	}
+	if BUILD_TIME == "" {
+		BUILD_TIME = time.Now().Format("15:04:05")
+	}
+
 	data := Tmpl{
-		Conf:  DEFAULT_CONFIG_FILE,
-		Epoch: time.Now().Unix(),
+		Conf:          DEFAULT_CONFIG_FILE,
+		Epoch:         time.Now().Unix(),
+		Build_Date:    fmt.Sprintf("%s %s", BUILD_DATE, BUILD_TIME),
+		Build_Version: BUILD_VERSION,
 	}
 
 	// Évaluer le template en mémoire

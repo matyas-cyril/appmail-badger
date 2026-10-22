@@ -5,10 +5,13 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 var (
-	BUILD_DATE string
+	BUILD_DATE    string
+	BUILD_TIME    string
+	BUILD_VERSION string
 )
 
 const (
@@ -24,6 +27,8 @@ const (
 )
 
 func main() {
+
+	initBuildVar()
 
 	if len(os.Args) < 2 {
 		fmt.Fprintf(os.Stdout, "Use: %s [user|date|help] {...options}\n", filepath.Base(os.Args[0]))
@@ -59,4 +64,19 @@ func main() {
 
 	}
 	os.Exit(OK)
+}
+
+func initBuildVar() {
+	if strings.TrimSpace(BUILD_DATE) == "" {
+		BUILD_DATE = time.Now().Format("2006-01-02")
+	}
+
+	if strings.TrimSpace(BUILD_TIME) == "" {
+		BUILD_TIME = time.Now().Format("15:04:05")
+	}
+
+	if strings.TrimSpace(BUILD_VERSION) == "" {
+		BUILD_VERSION = "0.0.0"
+	}
+
 }

@@ -17,6 +17,16 @@
 {{template "user_enable" .}}
 {{template "user_disable" .}}
 {{template "user_expiration" .}}
+{{template "footer" .}}
+{{- end}}
+
+{{define "footer" -}}
+## Info
+
+**Build :** appbadger-cli v{{ .Build_Version }}{{ "\n" }}
+**Build date :** {{ .Build_Date }}{{ "\n" }}
+**Author :** matyas-cyril
+
 {{- end}}
 
 {{define "user" -}}
