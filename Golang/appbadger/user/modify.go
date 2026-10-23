@@ -141,6 +141,17 @@ func ModifyLogin(login, uuid, password, description string, nbf, exp int64, disa
 
 	}
 
+	rsltNbf := rslt.Nbf.Time.Unix()
+	rsltExp := rslt.Exp.Time.Unix()
+
+	if rsltNbf < 0 {
+		rsltNbf = 0
+	}
+
+	if rsltExp < 0 {
+		rsltExp = 0
+	}
+
 	return json.NewEncoder(os.Stdout).Encode(struct {
 		UUID        string
 		Login       string
@@ -153,8 +164,8 @@ func ModifyLogin(login, uuid, password, description string, nbf, exp int64, disa
 		UUID:        rslt.Uuid.String(),
 		Login:       rslt.Login,
 		Enable:      !rslt.Disabled,
-		Nbf:         rslt.Nbf.Time.Unix(),
-		Exp:         rslt.Exp.Time.Unix(),
+		Nbf:         rsltNbf,
+		Exp:         rsltExp,
 		Description: rslt.Description.String,
 		Status:      true,
 	})

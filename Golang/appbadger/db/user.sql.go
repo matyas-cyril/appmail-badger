@@ -113,82 +113,28 @@ func (q *Queries) DeleteLogin(ctx context.Context, arg DeleteLoginParams) (Delet
 	return i, err
 }
 
-const disableLogin = `-- name: DisableLogin :one
+const enableOrDisableLogin = `-- name: EnableOrDisableLogin :one
 UPDATE Users
-SET disabled = '1' 
-WHERE username = $1
+SET disabled = $1
+WHERE username = $2 OR id_user = $3
 RETURNING id_user AS uuid, username AS login, disabled
 `
 
-type DisableLoginRow struct {
+type EnableOrDisableLoginParams struct {
+	Disabled bool        `json:"Disabled"`
+	Login    string      `json:"Login"`
+	UUID     pgtype.UUID `json:"UUID"`
+}
+
+type EnableOrDisableLoginRow struct {
 	Uuid     pgtype.UUID `json:"uuid"`
 	Login    string      `json:"login"`
 	Disabled bool        `json:"disabled"`
 }
 
-func (q *Queries) DisableLogin(ctx context.Context, username string) (DisableLoginRow, error) {
-	row := q.db.QueryRow(ctx, disableLogin, username)
-	var i DisableLoginRow
-	err := row.Scan(&i.Uuid, &i.Login, &i.Disabled)
-	return i, err
-}
-
-const disableLoginByUUID = `-- name: DisableLoginByUUID :one
-UPDATE Users
-SET disabled = '1' 
-WHERE id_user = $1
-RETURNING id_user AS uuid, username AS login, disabled
-`
-
-type DisableLoginByUUIDRow struct {
-	Uuid     pgtype.UUID `json:"uuid"`
-	Login    string      `json:"login"`
-	Disabled bool        `json:"disabled"`
-}
-
-func (q *Queries) DisableLoginByUUID(ctx context.Context, idUser pgtype.UUID) (DisableLoginByUUIDRow, error) {
-	row := q.db.QueryRow(ctx, disableLoginByUUID, idUser)
-	var i DisableLoginByUUIDRow
-	err := row.Scan(&i.Uuid, &i.Login, &i.Disabled)
-	return i, err
-}
-
-const enableLogin = `-- name: EnableLogin :one
-UPDATE Users
-SET disabled = '0'
-WHERE username = $1
-RETURNING id_user AS uuid, username AS login, disabled
-`
-
-type EnableLoginRow struct {
-	Uuid     pgtype.UUID `json:"uuid"`
-	Login    string      `json:"login"`
-	Disabled bool        `json:"disabled"`
-}
-
-func (q *Queries) EnableLogin(ctx context.Context, username string) (EnableLoginRow, error) {
-	row := q.db.QueryRow(ctx, enableLogin, username)
-	var i EnableLoginRow
-	err := row.Scan(&i.Uuid, &i.Login, &i.Disabled)
-	return i, err
-}
-
-const enableLoginByUUID = `-- name: EnableLoginByUUID :one
-UPDATE Users
-SET disabled = '0'
-WHERE id_user = $1
-RETURNING id_user AS uuid, username AS login, disabled
-`
-
-type EnableLoginByUUIDRow struct {
-	Uuid     pgtype.UUID `json:"uuid"`
-	Login    string      `json:"login"`
-	Disabled bool        `json:"disabled"`
-}
-
-func (q *Queries) EnableLoginByUUID(ctx context.Context, idUser pgtype.UUID) (EnableLoginByUUIDRow, error) {
-	row := q.db.QueryRow(ctx, enableLoginByUUID, idUser)
-	var i EnableLoginByUUIDRow
+func (q *Queries) EnableOrDisableLogin(ctx context.Context, arg EnableOrDisableLoginParams) (EnableOrDisableLoginRow, error) {
+	row := q.db.QueryRow(ctx, enableOrDisableLogin, arg.Disabled, arg.Login, arg.UUID)
+	var i EnableOrDisableLoginRow
 	err := row.Scan(&i.Uuid, &i.Login, &i.Disabled)
 	return i, err
 }
@@ -363,8 +309,8 @@ WHERE username = $1
 LIMIT 1
 `
 
-func (q *Queries) GetPassword(ctx context.Context, username string) (string, error) {
-	row := q.db.QueryRow(ctx, getPassword, username)
+func (q *Queries) GetPassword(ctx context.Context, login string) (string, error) {
+	row := q.db.QueryRow(ctx, getPassword, login)
 	var password_hash string
 	err := row.Scan(&password_hash)
 	return password_hash, err

@@ -39,31 +39,13 @@ RETURNING id_user AS uuid, username AS login;
 -- name: GetPassword :one
 SELECT password_hash
 FROM v_logins
-WHERE username = $1
+WHERE username = sqlc.arg('Login')
 LIMIT 1;
 
--- name: EnableLogin :one
+-- name: EnableOrDisableLogin :one
 UPDATE Users
-SET disabled = '0'
-WHERE username = $1
-RETURNING id_user AS uuid, username AS login, disabled;
-
--- name: EnableLoginByUUID :one
-UPDATE Users
-SET disabled = '0'
-WHERE id_user = $1
-RETURNING id_user AS uuid, username AS login, disabled;
-
--- name: DisableLogin :one
-UPDATE Users
-SET disabled = '1' 
-WHERE username = $1
-RETURNING id_user AS uuid, username AS login, disabled;
-
--- name: DisableLoginByUUID :one
-UPDATE Users
-SET disabled = '1' 
-WHERE id_user = $1
+SET disabled = sqlc.arg('Disabled')
+WHERE username = sqlc.arg('Login') OR id_user = sqlc.arg('UUID')
 RETURNING id_user AS uuid, username AS login, disabled;
 
 -- name: ModifyLogin :one

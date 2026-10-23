@@ -352,28 +352,29 @@ func user(args []string) (int, error) {
 			return ERR_ARGS, fmt.Errorf("error: -login or -uuid must defined")
 		}
 
+		id := ""
+
 		if login != "" {
+			id = login
+		} else if uuid != "" {
+			id = uuid
+		}
+
+		if id != "" {
+
 			var errLogin error = nil
 			if arg == "enable" {
-				errLogin = pkgUser.EnableLogin(login, *cfg)
+				errLogin = pkgUser.EnableLogin(id, *cfg)
+
 			} else {
-				errLogin = pkgUser.DisableLogin(login, *cfg)
+				errLogin = pkgUser.DisableLogin(id, *cfg)
 			}
+
 			if errLogin != nil {
 				return ERR_LOGIN, errLogin
 			}
-		}
 
-		if uuid != "" {
-			var errUUID error = nil
-			if arg == "enable" {
-				errUUID = pkgUser.EnableLoginByUUID(uuid, *cfg)
-			} else {
-				errUUID = pkgUser.DisableLoginByUUID(uuid, *cfg)
-			}
-			if errUUID != nil {
-				return ERR_LOGIN, errUUID
-			}
+			return OK, nil
 		}
 
 	case "modify":

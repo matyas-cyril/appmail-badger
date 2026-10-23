@@ -5,11 +5,23 @@ import (
 	db "appbadger/db"
 	"encoding/json"
 	"os"
+	"strings"
 
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-func DisableLogin[T string | pgtype.UUID](user T, config pkgConfig.Config) error {
+func enableOrDisableLogin(id string, enable bool, config pkgConfig.Config) error {
+
+	id = strings.TrimSpace(id)
+	if id == "" {
+		return json.NewEncoder(os.Stdout).Encode(struct {
+			Status bool
+			Error  string
+		}{
+			Status: false,
+			Error:  "login or uuid not defined",
+		})
+	}
 
 	cnx, err := db.NewPG(db.PGServer{
 		Host:     config.Host,
@@ -25,135 +37,44 @@ func DisableLogin[T string | pgtype.UUID](user T, config pkgConfig.Config) error
 
 	dbx := db.New(cnx.Cnx)
 
-	// On test uniquement le type pgtype.UUID, car après uniquement string
-	if value, ok := any(user).(pgtype.UUID); ok {
-		rslt, err := dbx.DisableLoginByUUID(cnx.Ctx, value)
-		if err != nil {
+	args := db.EnableOrDisableLoginParams{
+		Login:    id,
+		UUID:     pgtype.UUID{Valid: false},
+		Disabled: !enable,
+	}
+
+	isSyntaxUUID := false
+
+	pgUUID, err := StringToPgUUID(id)
+	if err == nil {
+		args.Login = ""
+		args.UUID = pgUUID
+		isSyntaxUUID = true
+	}
+
+	rslt, err := dbx.EnableOrDisableLogin(cnx.Ctx, args)
+	if err != nil {
+
+		if isSyntaxUUID {
 			return json.NewEncoder(os.Stdout).Encode(struct {
 				UUID   string
 				Status bool
 				Error  string
 			}{
-				UUID:   value.String(),
+				UUID:   id,
 				Status: false,
 				Error:  err.Error(),
 			})
 		}
 
 		return json.NewEncoder(os.Stdout).Encode(struct {
-			UUID    string
-			Login   string
-			Disable bool
-			Status  bool
-		}{
-			UUID:    rslt.Uuid.String(),
-			Login:   rslt.Login,
-			Disable: rslt.Disabled,
-			Status:  true,
-		})
-
-	}
-
-	// On a forcément un string
-	rslt, err := dbx.DisableLogin(cnx.Ctx, any(user).(string))
-	if err != nil {
-		return json.NewEncoder(os.Stdout).Encode(struct {
 			Login  string
-			Error  string
-			Status bool
-		}{
-			Login:  any(user).(string),
-			Error:  err.Error(),
-			Status: false,
-		})
-	}
-
-	return json.NewEncoder(os.Stdout).Encode(struct {
-		UUID    string
-		Login   string
-		Disable bool
-		Status  bool
-	}{
-		UUID:    rslt.Uuid.String(),
-		Login:   rslt.Login,
-		Disable: rslt.Disabled,
-		Status:  true,
-	})
-
-}
-
-func DisableLoginByUUID(uuid string, config pkgConfig.Config) error {
-	pgUUID, err := StringToPgUUID(uuid)
-	if err != nil {
-		return json.NewEncoder(os.Stdout).Encode(struct {
-			UUID   string
 			Status bool
 			Error  string
 		}{
-			UUID:   uuid,
+			Login:  id,
 			Status: false,
 			Error:  err.Error(),
-		})
-	}
-	return DisableLogin(pgUUID, config)
-}
-
-func EnableLogin[T string | pgtype.UUID](user T, config pkgConfig.Config) error {
-
-	cnx, err := db.NewPG(db.PGServer{
-		Host:     config.Host,
-		Database: config.DBName,
-		User:     config.User,
-		Password: config.Password,
-		Port:     config.Port,
-	})
-	if err != nil {
-		return err
-	}
-	defer cnx.ClosePG()
-
-	dbx := db.New(cnx.Cnx)
-
-	// On test uniquement le type pgtype.UUID, car après uniquement string
-	if value, ok := any(user).(pgtype.UUID); ok {
-		rslt, err := dbx.EnableLoginByUUID(cnx.Ctx, value)
-		if err != nil {
-			return json.NewEncoder(os.Stdout).Encode(struct {
-				UUID   string
-				Status bool
-				Error  string
-			}{
-				UUID:   value.String(),
-				Status: false,
-				Error:  err.Error(),
-			})
-		}
-
-		return json.NewEncoder(os.Stdout).Encode(struct {
-			UUID   string
-			Login  string
-			Enable bool
-			Status bool
-		}{
-			UUID:   rslt.Uuid.String(),
-			Login:  rslt.Login,
-			Enable: !rslt.Disabled,
-			Status: true,
-		})
-
-	}
-
-	// On a forcément un string
-	rslt, err := dbx.EnableLogin(cnx.Ctx, any(user).(string))
-	if err != nil {
-		return json.NewEncoder(os.Stdout).Encode(struct {
-			Login  string
-			Error  string
-			Status bool
-		}{
-			Login:  any(user).(string),
-			Error:  err.Error(),
-			Status: false,
 		})
 	}
 
@@ -171,18 +92,10 @@ func EnableLogin[T string | pgtype.UUID](user T, config pkgConfig.Config) error 
 
 }
 
-func EnableLoginByUUID(uuid string, config pkgConfig.Config) error {
-	pgUUID, err := StringToPgUUID(uuid)
-	if err != nil {
-		return json.NewEncoder(os.Stdout).Encode(struct {
-			UUID   string
-			Status bool
-			Error  string
-		}{
-			UUID:   uuid,
-			Status: false,
-			Error:  err.Error(),
-		})
-	}
-	return EnableLogin(pgUUID, config)
+func DisableLogin(id string, config pkgConfig.Config) error {
+	return enableOrDisableLogin(id, false, config)
+}
+
+func EnableLogin(id string, config pkgConfig.Config) error {
+	return enableOrDisableLogin(id, true, config)
 }
