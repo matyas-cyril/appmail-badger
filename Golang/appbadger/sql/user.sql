@@ -90,7 +90,7 @@ SET
     disabled = COALESCE(sqlc.narg('Disable'), disabled),
     description = COALESCE(sqlc.narg('Description'), description)
 WHERE username = sqlc.arg('Login') OR id_user = sqlc.arg('UUID')
-RETURNING id_user AS uuid, username AS login, not_before AS nbf, expiration AS exp, modified AS mod, disabled, description;
+RETURNING id_user AS uuid, username AS login, not_before AS nbf, expiration AS exp, disabled, description;
 
 -- name: SetExpiration :one
 UPDATE Users

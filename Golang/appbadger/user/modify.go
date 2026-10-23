@@ -6,12 +6,16 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
 func ModifyLogin(login, uuid, password, description string, nbf, exp int64, disable int8, config pkgConfig.Config) error {
+
+	login = strings.TrimSpace(login)
+	uuid = strings.TrimSpace(uuid)
 
 	if (uuid != "" && login != "") || (uuid == "" && login == "") {
 		return fmt.Errorf("login or uuid must defined to modify")
@@ -25,7 +29,15 @@ func ModifyLogin(login, uuid, password, description string, nbf, exp int64, disa
 	if uuid != "" {
 		pgUUID, err = StringToPgUUID(uuid)
 		if err != nil {
-			return err
+			return json.NewEncoder(os.Stdout).Encode(struct {
+				UUID   string
+				Status bool
+				Error  string
+			}{
+				UUID:   uuid,
+				Status: false,
+				Error:  err.Error(),
+			})
 		}
 	}
 
@@ -72,7 +84,7 @@ func ModifyLogin(login, uuid, password, description string, nbf, exp int64, disa
 
 	if description != "" {
 		args.Description = pgtype.Text{
-			String: description,
+			String: strings.TrimSpace(description),
 			Valid:  true,
 		}
 	}
@@ -102,8 +114,48 @@ func ModifyLogin(login, uuid, password, description string, nbf, exp int64, disa
 
 	rslt, err := dbx.ModifyLogin(cnx.Ctx, args)
 	if err != nil {
-		return err
+
+		if login != "" {
+			return json.NewEncoder(os.Stdout).Encode(struct {
+				Login  string
+				Status bool
+				Error  string
+			}{
+				Login:  login,
+				Status: false,
+				Error:  err.Error(),
+			})
+		}
+
+		if uuid != "" {
+			return json.NewEncoder(os.Stdout).Encode(struct {
+				Login  string
+				Status bool
+				Error  string
+			}{
+				Login:  login,
+				Status: false,
+				Error:  err.Error(),
+			})
+		}
+
 	}
 
-	return json.NewEncoder(os.Stdout).Encode(rslt)
+	return json.NewEncoder(os.Stdout).Encode(struct {
+		UUID        string
+		Login       string
+		Enable      bool
+		Nbf         int64
+		Exp         int64
+		Description string
+		Status      bool
+	}{
+		UUID:        rslt.Uuid.String(),
+		Login:       rslt.Login,
+		Enable:      !rslt.Disabled,
+		Nbf:         rslt.Nbf.Time.Unix(),
+		Exp:         rslt.Exp.Time.Unix(),
+		Description: rslt.Description.String,
+		Status:      true,
+	})
 }

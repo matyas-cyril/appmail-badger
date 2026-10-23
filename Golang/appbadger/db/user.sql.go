@@ -343,7 +343,7 @@ SET
     disabled = COALESCE($4, disabled),
     description = COALESCE($5, description)
 WHERE username = $6 OR id_user = $7
-RETURNING id_user AS uuid, username AS login, not_before AS nbf, expiration AS exp, modified AS mod, disabled, description
+RETURNING id_user AS uuid, username AS login, not_before AS nbf, expiration AS exp, disabled, description
 `
 
 type ModifyLoginParams struct {
@@ -361,7 +361,6 @@ type ModifyLoginRow struct {
 	Login       string             `json:"login"`
 	Nbf         pgtype.Timestamptz `json:"nbf"`
 	Exp         pgtype.Timestamptz `json:"exp"`
-	Mod         pgtype.Timestamptz `json:"mod"`
 	Disabled    bool               `json:"disabled"`
 	Description pgtype.Text        `json:"description"`
 }
@@ -382,7 +381,6 @@ func (q *Queries) ModifyLogin(ctx context.Context, arg ModifyLoginParams) (Modif
 		&i.Login,
 		&i.Nbf,
 		&i.Exp,
-		&i.Mod,
 		&i.Disabled,
 		&i.Description,
 	)
