@@ -199,7 +199,7 @@ CREATE OR REPLACE VIEW v_sender_login_maps AS
     INNER JOIN Senders S ON S.id_sender = P.id_sender
     INNER JOIN ProjectsDomains PD ON PD.id_project = P.id_project
     INNER JOIN Domains D ON D.id_domain = PD.id_domain
-    WHERE P.enabled = true
+    WHERE P.enabled = true;
 
 --- Liste des logins non actifs
 CREATE OR REPLACE VIEW v_logins_inactive AS
@@ -208,5 +208,5 @@ CREATE OR REPLACE VIEW v_logins_inactive AS
     WHERE disabled IS TRUE OR
           expiration > NOW() OR
           not_before > NOW()
-    ORDER BY username
+    ORDER BY username;
 
