@@ -25,7 +25,15 @@ func GetLogin(login string, config pkgConfig.Config) error {
 
 	rslt, err := queries.GetLogin(cnx.Ctx, login)
 	if err != nil {
-		return err
+		return json.NewEncoder(os.Stdout).Encode(struct {
+			Login  string
+			Status bool
+			Error  string
+		}{
+			Login:  login,
+			Status: false,
+			Error:  err.Error(),
+		})
 	}
 
 	var (
@@ -35,13 +43,13 @@ func GetLogin(login string, config pkgConfig.Config) error {
 	)
 
 	rsltNbf, ok = rslt.Nbf.(int64)
-	if !ok || rsltNbf == 0 {
-		rsltNbf = -1
+	if !ok {
+		rsltNbf = 0
 	}
 
 	rsltExp, ok = rslt.Exp.(int64)
-	if !ok || rsltExp == 0 {
-		rsltExp = -1
+	if !ok {
+		rsltExp = 0
 	}
 
 	return json.NewEncoder(os.Stdout).Encode(struct {
@@ -113,13 +121,13 @@ func GetLoginByUUID(uuid string, config pkgConfig.Config) error {
 	)
 
 	rsltNbf, ok = rslt.Nbf.(int64)
-	if !ok || rsltNbf == 0 {
-		rsltNbf = -1
+	if !ok {
+		rsltNbf = 0
 	}
 
 	rsltExp, ok = rslt.Exp.(int64)
-	if !ok || rsltExp == 0 {
-		rsltExp = -1
+	if !ok {
+		rsltExp = 0
 	}
 
 	return json.NewEncoder(os.Stdout).Encode(struct {
@@ -160,9 +168,63 @@ func GetLogins(config pkgConfig.Config) error {
 
 	rslt, err := queries.GetLogins(cnx.Ctx)
 	if err != nil {
-		return err
+		return json.NewEncoder(os.Stdout).Encode(struct {
+			Status bool
+			Error  string
+		}{
+			Status: false,
+			Error:  err.Error(),
+		})
 	}
 
-	return json.NewEncoder(os.Stdout).Encode(rslt)
+	type L struct {
+		UUID        string
+		Login       string
+		Enable      bool
+		Nbf         int64
+		Exp         int64
+		Description string
+	}
+
+	logins := []L{}
+
+	for _, r := range rslt {
+
+		var (
+			rsltNbf int64
+			rsltExp int64
+			ok      bool
+		)
+
+		rsltNbf, ok = r.Nbf.(int64)
+		if !ok {
+			rsltNbf = 0
+		}
+
+		rsltExp, ok = r.Exp.(int64)
+		if !ok {
+			rsltExp = 0
+		}
+
+		l := L{
+			UUID:        r.Uuid.String(),
+			Login:       r.Login,
+			Enable:      !r.Disabled,
+			Nbf:         rsltNbf,
+			Exp:         rsltExp,
+			Description: r.Description.String,
+		}
+
+		logins = append(logins, l)
+
+	}
+
+	return json.NewEncoder(os.Stdout).Encode(struct {
+		Logins []L
+		Status bool
+	}{
+		Logins: logins,
+		Status: true,
+	})
 
 }
