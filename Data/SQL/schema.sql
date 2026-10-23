@@ -201,4 +201,12 @@ CREATE OR REPLACE VIEW v_sender_login_maps AS
     INNER JOIN Domains D ON D.id_domain = PD.id_domain
     WHERE P.enabled = true
 
+--- Liste des logins non actifs
+CREATE OR REPLACE VIEW v_logins_inactive AS
+    SELECT id_user, username, not_before, expiration, disabled
+    FROM Users
+    WHERE disabled IS TRUE OR
+          expiration > NOW() OR
+          not_before > NOW()
+    ORDER BY username
 
