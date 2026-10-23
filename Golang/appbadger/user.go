@@ -213,27 +213,28 @@ func user(args []string) (int, error) {
 			return OK, nil
 		}
 
+		var id string = ""
+
 		if login != "" {
+			id = login
+		} else if uuid != "" {
+			id = uuid
+		}
+
+		if id != "" {
 
 			if inactive {
-				if err := pkgUser.GetLoginInactive(login, *cfg); err != nil {
+				if err := pkgUser.GetLoginInactive(id, *cfg); err != nil {
 					return ERR_LOGIN, err
 				}
 
 			} else {
-				if err := pkgUser.GetLogin(login, *cfg); err != nil {
+				if err := pkgUser.GetLogin(id, *cfg); err != nil {
 					return ERR_LOGIN, err
 				}
 
 			}
 
-			return OK, nil
-		}
-
-		if uuid != "" {
-			if err := pkgUser.GetLoginByUUID(uuid, *cfg); err != nil {
-				return ERR_LOGIN, err
-			}
 			return OK, nil
 		}
 

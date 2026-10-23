@@ -206,6 +206,6 @@ CREATE OR REPLACE VIEW v_logins_inactive AS
     SELECT id_user, username, not_before, expiration, disabled
     FROM Users
     WHERE disabled IS TRUE OR
-          expiration > NOW() OR
+          expiration < NOW() OR
           not_before > NOW()
     ORDER BY username;

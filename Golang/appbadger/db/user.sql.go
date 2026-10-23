@@ -213,9 +213,14 @@ SELECT id_user AS uuid, username AS login,
     disabled, 
     description
 FROM Users
-WHERE username = $1
+WHERE username = $1 OR id_user = $2
 LIMIT 1
 `
+
+type GetLoginParams struct {
+	Login string      `json:"Login"`
+	UUID  pgtype.UUID `json:"UUID"`
+}
 
 type GetLoginRow struct {
 	Uuid        pgtype.UUID `json:"uuid"`
@@ -226,43 +231,9 @@ type GetLoginRow struct {
 	Description pgtype.Text `json:"description"`
 }
 
-func (q *Queries) GetLogin(ctx context.Context, username string) (GetLoginRow, error) {
-	row := q.db.QueryRow(ctx, getLogin, username)
+func (q *Queries) GetLogin(ctx context.Context, arg GetLoginParams) (GetLoginRow, error) {
+	row := q.db.QueryRow(ctx, getLogin, arg.Login, arg.UUID)
 	var i GetLoginRow
-	err := row.Scan(
-		&i.Uuid,
-		&i.Login,
-		&i.Nbf,
-		&i.Exp,
-		&i.Disabled,
-		&i.Description,
-	)
-	return i, err
-}
-
-const getLoginByUUID = `-- name: GetLoginByUUID :one
-SELECT id_user AS uuid, username AS login, 
-    COALESCE(FLOOR(EXTRACT(EPOCH FROM not_before))::BIGINT, 0) AS nbf, 
-    COALESCE(FLOOR(EXTRACT(EPOCH FROM expiration))::BIGINT, 0) AS exp, 
-    disabled, 
-    description
-FROM users
-WHERE id_user = $1
-LIMIT 1
-`
-
-type GetLoginByUUIDRow struct {
-	Uuid        pgtype.UUID `json:"uuid"`
-	Login       string      `json:"login"`
-	Nbf         interface{} `json:"nbf"`
-	Exp         interface{} `json:"exp"`
-	Disabled    bool        `json:"disabled"`
-	Description pgtype.Text `json:"description"`
-}
-
-func (q *Queries) GetLoginByUUID(ctx context.Context, idUser pgtype.UUID) (GetLoginByUUIDRow, error) {
-	row := q.db.QueryRow(ctx, getLoginByUUID, idUser)
-	var i GetLoginByUUIDRow
 	err := row.Scan(
 		&i.Uuid,
 		&i.Login,
