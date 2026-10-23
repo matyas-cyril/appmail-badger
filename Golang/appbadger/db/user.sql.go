@@ -280,9 +280,14 @@ SELECT id_user AS uuid, username AS login,
     COALESCE(FLOOR(EXTRACT(EPOCH FROM expiration))::BIGINT, 0) AS exp, 
     disabled
 FROM V_Logins_Inactive
-WHERE username = $1 OR id_user = $1
+WHERE username = $1 OR id_user = $2
 LIMIT 1
 `
+
+type GetLoginInactiveParams struct {
+	Login string      `json:"Login"`
+	UUID  pgtype.UUID `json:"UUID"`
+}
 
 type GetLoginInactiveRow struct {
 	Uuid     pgtype.UUID `json:"uuid"`
@@ -292,8 +297,8 @@ type GetLoginInactiveRow struct {
 	Disabled bool        `json:"disabled"`
 }
 
-func (q *Queries) GetLoginInactive(ctx context.Context, username string) (GetLoginInactiveRow, error) {
-	row := q.db.QueryRow(ctx, getLoginInactive, username)
+func (q *Queries) GetLoginInactive(ctx context.Context, arg GetLoginInactiveParams) (GetLoginInactiveRow, error) {
+	row := q.db.QueryRow(ctx, getLoginInactive, arg.Login, arg.UUID)
 	var i GetLoginInactiveRow
 	err := row.Scan(
 		&i.Uuid,
@@ -351,7 +356,7 @@ func (q *Queries) GetLogins(ctx context.Context) ([]GetLoginsRow, error) {
 	return items, nil
 }
 
-const getLoginsInactive = `-- name: GetLoginsInactive :one
+const getLoginsInactive = `-- name: GetLoginsInactive :many
 SELECT id_user AS uuid, username AS login, 
     COALESCE(FLOOR(EXTRACT(EPOCH FROM not_before))::BIGINT, 0) AS nbf, 
     COALESCE(FLOOR(EXTRACT(EPOCH FROM expiration))::BIGINT, 0) AS exp, 
@@ -367,17 +372,30 @@ type GetLoginsInactiveRow struct {
 	Disabled bool        `json:"disabled"`
 }
 
-func (q *Queries) GetLoginsInactive(ctx context.Context) (GetLoginsInactiveRow, error) {
-	row := q.db.QueryRow(ctx, getLoginsInactive)
-	var i GetLoginsInactiveRow
-	err := row.Scan(
-		&i.Uuid,
-		&i.Login,
-		&i.Nbf,
-		&i.Exp,
-		&i.Disabled,
-	)
-	return i, err
+func (q *Queries) GetLoginsInactive(ctx context.Context) ([]GetLoginsInactiveRow, error) {
+	rows, err := q.db.Query(ctx, getLoginsInactive)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetLoginsInactiveRow
+	for rows.Next() {
+		var i GetLoginsInactiveRow
+		if err := rows.Scan(
+			&i.Uuid,
+			&i.Login,
+			&i.Nbf,
+			&i.Exp,
+			&i.Disabled,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getPassword = `-- name: GetPassword :one

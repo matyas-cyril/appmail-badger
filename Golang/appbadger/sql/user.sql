@@ -112,10 +112,10 @@ SELECT id_user AS uuid, username AS login,
     COALESCE(FLOOR(EXTRACT(EPOCH FROM expiration))::BIGINT, 0) AS exp, 
     disabled
 FROM V_Logins_Inactive
-WHERE username = $1 OR id_user = $1
+WHERE username = sqlc.arg('Login') OR id_user = sqlc.arg('UUID')
 LIMIT 1;
 
--- name: GetLoginsInactive :one
+-- name: GetLoginsInactive :many
 SELECT id_user AS uuid, username AS login, 
     COALESCE(FLOOR(EXTRACT(EPOCH FROM not_before))::BIGINT, 0) AS nbf, 
     COALESCE(FLOOR(EXTRACT(EPOCH FROM expiration))::BIGINT, 0) AS exp, 

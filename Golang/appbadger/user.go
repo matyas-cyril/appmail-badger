@@ -166,13 +166,14 @@ func user(args []string) (int, error) {
 
 		var (
 			login, confFile, uuid string
-			all, help             bool
+			inactive, all, help   bool
 		)
 
 		getFs := flag.NewFlagSet(arg, flag.ExitOnError)
 		getFs.StringVar(&login, "login", "", "username for login")
 		getFs.StringVar(&uuid, "uuid", "", "uuid for login")
 		getFs.BoolVar(&all, "all", false, "get all logins")
+		getFs.BoolVar(&inactive, "inactive", false, "filter only disabled logins")
 		getFs.StringVar(&confFile, "conf", DEFAULT_CONFIG_FILE, "json configuration file")
 		getFs.BoolVar(&help, "help", false, "help me !!!")
 
@@ -196,16 +197,36 @@ func user(args []string) (int, error) {
 		}
 
 		if all {
-			if err := pkgUser.GetLogins(*cfg); err != nil {
-				return ERR_LOGIN, err
+
+			if inactive {
+				if err := pkgUser.GetLoginsInactive(*cfg); err != nil {
+					return ERR_LOGIN, err
+				}
+
+			} else {
+				if err := pkgUser.GetLogins(*cfg); err != nil {
+					return ERR_LOGIN, err
+				}
+
 			}
+
 			return OK, nil
 		}
 
 		if login != "" {
-			if err := pkgUser.GetLogin(login, *cfg); err != nil {
-				return ERR_LOGIN, err
+
+			if inactive {
+				if err := pkgUser.GetLoginInactive(login, *cfg); err != nil {
+					return ERR_LOGIN, err
+				}
+
+			} else {
+				if err := pkgUser.GetLogin(login, *cfg); err != nil {
+					return ERR_LOGIN, err
+				}
+
 			}
+
 			return OK, nil
 		}
 
