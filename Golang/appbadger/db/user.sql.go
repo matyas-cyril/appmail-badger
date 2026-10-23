@@ -274,6 +274,37 @@ func (q *Queries) GetLoginByUUID(ctx context.Context, idUser pgtype.UUID) (GetLo
 	return i, err
 }
 
+const getLoginInactive = `-- name: GetLoginInactive :one
+SELECT id_user AS uuid, username AS login, 
+    COALESCE(FLOOR(EXTRACT(EPOCH FROM not_before))::BIGINT, 0) AS nbf, 
+    COALESCE(FLOOR(EXTRACT(EPOCH FROM expiration))::BIGINT, 0) AS exp, 
+    disabled
+FROM V_Logins_Inactive
+WHERE username = $1 OR id_user = $1
+LIMIT 1
+`
+
+type GetLoginInactiveRow struct {
+	Uuid     pgtype.UUID `json:"uuid"`
+	Login    string      `json:"login"`
+	Nbf      interface{} `json:"nbf"`
+	Exp      interface{} `json:"exp"`
+	Disabled bool        `json:"disabled"`
+}
+
+func (q *Queries) GetLoginInactive(ctx context.Context, username string) (GetLoginInactiveRow, error) {
+	row := q.db.QueryRow(ctx, getLoginInactive, username)
+	var i GetLoginInactiveRow
+	err := row.Scan(
+		&i.Uuid,
+		&i.Login,
+		&i.Nbf,
+		&i.Exp,
+		&i.Disabled,
+	)
+	return i, err
+}
+
 const getLogins = `-- name: GetLogins :many
 SELECT id_user AS uuid, username AS login, 
     COALESCE(FLOOR(EXTRACT(EPOCH FROM not_before))::BIGINT, 0) AS nbf, 
@@ -318,6 +349,35 @@ func (q *Queries) GetLogins(ctx context.Context) ([]GetLoginsRow, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const getLoginsInactive = `-- name: GetLoginsInactive :one
+SELECT id_user AS uuid, username AS login, 
+    COALESCE(FLOOR(EXTRACT(EPOCH FROM not_before))::BIGINT, 0) AS nbf, 
+    COALESCE(FLOOR(EXTRACT(EPOCH FROM expiration))::BIGINT, 0) AS exp, 
+    disabled
+FROM V_Logins_Inactive
+`
+
+type GetLoginsInactiveRow struct {
+	Uuid     pgtype.UUID `json:"uuid"`
+	Login    string      `json:"login"`
+	Nbf      interface{} `json:"nbf"`
+	Exp      interface{} `json:"exp"`
+	Disabled bool        `json:"disabled"`
+}
+
+func (q *Queries) GetLoginsInactive(ctx context.Context) (GetLoginsInactiveRow, error) {
+	row := q.db.QueryRow(ctx, getLoginsInactive)
+	var i GetLoginsInactiveRow
+	err := row.Scan(
+		&i.Uuid,
+		&i.Login,
+		&i.Nbf,
+		&i.Exp,
+		&i.Disabled,
+	)
+	return i, err
 }
 
 const getPassword = `-- name: GetPassword :one

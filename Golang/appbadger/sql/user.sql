@@ -105,3 +105,19 @@ SET
     expiration = NULL
 WHERE username = sqlc.arg('Login') OR id_user = sqlc.arg('UUID')
 RETURNING id_user AS uuid, username AS login, expiration AS exp;
+
+-- name: GetLoginInactive :one
+SELECT id_user AS uuid, username AS login, 
+    COALESCE(FLOOR(EXTRACT(EPOCH FROM not_before))::BIGINT, 0) AS nbf, 
+    COALESCE(FLOOR(EXTRACT(EPOCH FROM expiration))::BIGINT, 0) AS exp, 
+    disabled
+FROM V_Logins_Inactive
+WHERE username = $1 OR id_user = $1
+LIMIT 1;
+
+-- name: GetLoginsInactive :one
+SELECT id_user AS uuid, username AS login, 
+    COALESCE(FLOOR(EXTRACT(EPOCH FROM not_before))::BIGINT, 0) AS nbf, 
+    COALESCE(FLOOR(EXTRACT(EPOCH FROM expiration))::BIGINT, 0) AS exp, 
+    disabled
+FROM V_Logins_Inactive;

@@ -99,6 +99,14 @@ type VLogin struct {
 	PasswordHash string      `json:"password_hash"`
 }
 
+type VLoginsInactive struct {
+	IDUser     pgtype.UUID        `json:"id_user"`
+	Username   string             `json:"username"`
+	NotBefore  pgtype.Timestamptz `json:"not_before"`
+	Expiration pgtype.Timestamptz `json:"expiration"`
+	Disabled   bool               `json:"disabled"`
+}
+
 type VOrphanedServer struct {
 	IDServer    pgtype.UUID `json:"id_server"`
 	Ip          *netip.Addr `json:"ip"`
