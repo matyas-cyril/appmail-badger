@@ -33,12 +33,7 @@ ORDER BY username;
 
 -- name: DeleteLogin :one
 DELETE FROM Users
-WHERE username = $1
-RETURNING id_user AS uuid, username AS login;
-
--- name: DeleteLoginByUUID :one
-DELETE FROM Users
-WHERE id_user = $1
+WHERE username = sqlc.arg('Login') OR id_user = sqlc.arg('UUID')
 RETURNING id_user AS uuid, username AS login;
 
 -- name: GetPassword :one

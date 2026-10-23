@@ -5,11 +5,23 @@ import (
 	db "appbadger/db"
 	"encoding/json"
 	"os"
+	"strings"
 
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-func DelLogin[T string | pgtype.UUID](user T, config pkgConfig.Config) error {
+func DelLogin(id string, config pkgConfig.Config) error {
+
+	id = strings.TrimSpace(id)
+	if id == "" {
+		return json.NewEncoder(os.Stdout).Encode(struct {
+			Status bool
+			Error  string
+		}{
+			Status: false,
+			Error:  "login or uuid not defined",
+		})
+	}
 
 	cnx, err := db.NewPG(db.PGServer{
 		Host:     config.Host,
@@ -25,42 +37,41 @@ func DelLogin[T string | pgtype.UUID](user T, config pkgConfig.Config) error {
 
 	dbx := db.New(cnx.Cnx)
 
-	// On test uniquement le type pgtype.UUID, car après uniquement string
-	if value, ok := any(user).(pgtype.UUID); ok {
-		rslt, err := dbx.DeleteLoginByUUID(cnx.Ctx, value)
-		if err != nil {
+	args := db.DeleteLoginParams{
+		Login: id,
+		UUID:  pgtype.UUID{Valid: false},
+	}
+
+	isSyntaxUUID := false
+
+	pgUUID, err := StringToPgUUID(id)
+	if err == nil {
+		args.Login = ""
+		args.UUID = pgUUID
+		isSyntaxUUID = true
+	}
+
+	rslt, err := dbx.DeleteLogin(cnx.Ctx, args)
+	if err != nil {
+
+		if isSyntaxUUID {
 			return json.NewEncoder(os.Stdout).Encode(struct {
 				UUID   string
 				Status bool
 				Error  string
 			}{
-				UUID:   value.String(),
+				UUID:   id,
 				Status: false,
 				Error:  err.Error(),
 			})
 		}
 
 		return json.NewEncoder(os.Stdout).Encode(struct {
-			UUID   string
-			Login  string
-			Status bool
-		}{
-			UUID:   rslt.Uuid.String(),
-			Login:  rslt.Login,
-			Status: true,
-		})
-
-	}
-
-	// On a forcément un string
-	rslt, err := dbx.DeleteLogin(cnx.Ctx, any(user).(string))
-	if err != nil {
-		return json.NewEncoder(os.Stdout).Encode(struct {
 			Login  string
 			Status bool
 			Error  string
 		}{
-			Login:  any(user).(string),
+			Login:  id,
 			Status: false,
 			Error:  err.Error(),
 		})
@@ -76,20 +87,4 @@ func DelLogin[T string | pgtype.UUID](user T, config pkgConfig.Config) error {
 		Status: true,
 	})
 
-}
-
-func DelLoginByUUID(uuid string, config pkgConfig.Config) error {
-	pgUUID, err := StringToPgUUID(uuid)
-	if err != nil {
-		return json.NewEncoder(os.Stdout).Encode(struct {
-			UUID   string
-			Status bool
-			Error  string
-		}{
-			UUID:   uuid,
-			Status: false,
-			Error:  err.Error(),
-		})
-	}
-	return DelLogin(pgUUID, config)
 }

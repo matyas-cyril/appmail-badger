@@ -92,36 +92,23 @@ func (q *Queries) ClearExpiration(ctx context.Context, arg ClearExpirationParams
 
 const deleteLogin = `-- name: DeleteLogin :one
 DELETE FROM Users
-WHERE username = $1
+WHERE username = $1 OR id_user = $2
 RETURNING id_user AS uuid, username AS login
 `
+
+type DeleteLoginParams struct {
+	Login string      `json:"Login"`
+	UUID  pgtype.UUID `json:"UUID"`
+}
 
 type DeleteLoginRow struct {
 	Uuid  pgtype.UUID `json:"uuid"`
 	Login string      `json:"login"`
 }
 
-func (q *Queries) DeleteLogin(ctx context.Context, username string) (DeleteLoginRow, error) {
-	row := q.db.QueryRow(ctx, deleteLogin, username)
+func (q *Queries) DeleteLogin(ctx context.Context, arg DeleteLoginParams) (DeleteLoginRow, error) {
+	row := q.db.QueryRow(ctx, deleteLogin, arg.Login, arg.UUID)
 	var i DeleteLoginRow
-	err := row.Scan(&i.Uuid, &i.Login)
-	return i, err
-}
-
-const deleteLoginByUUID = `-- name: DeleteLoginByUUID :one
-DELETE FROM Users
-WHERE id_user = $1
-RETURNING id_user AS uuid, username AS login
-`
-
-type DeleteLoginByUUIDRow struct {
-	Uuid  pgtype.UUID `json:"uuid"`
-	Login string      `json:"login"`
-}
-
-func (q *Queries) DeleteLoginByUUID(ctx context.Context, idUser pgtype.UUID) (DeleteLoginByUUIDRow, error) {
-	row := q.db.QueryRow(ctx, deleteLoginByUUID, idUser)
-	var i DeleteLoginByUUIDRow
 	err := row.Scan(&i.Uuid, &i.Login)
 	return i, err
 }

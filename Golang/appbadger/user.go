@@ -136,7 +136,7 @@ func user(args []string) (int, error) {
 		}
 
 		// Vérification des args
-		if (login == "" && uuid == "") || (login != "" && uuid != "") {
+		if login != "" && uuid != "" {
 			delFs.Usage()
 			return ERR_ARGS, fmt.Errorf("error: -login OR -uuid must defined")
 		}
@@ -147,20 +147,25 @@ func user(args []string) (int, error) {
 			return ERR_CONF_FILE, err
 		}
 
-		if uuid != "" {
-			return ERR_ARGS, pkgUser.DelLoginByUUID(uuid, *cfg)
+		id := ""
+
+		if login != "" {
+			id = login
+		} else if uuid != "" {
+			id = uuid
 		}
 
-		login = strings.TrimSpace(login)
-		if err := pkgUser.IsValidLogin(login); err != nil {
-			return ERR_ARGS, err
+		if id != "" {
+
+			if err := pkgUser.DelLogin(id, *cfg); err != nil {
+				return ERR_LOGIN, err
+			}
+
+			return OK, nil
 		}
 
-		if err := pkgUser.DelLogin(login, *cfg); err != nil {
-			return ERR_LOGIN, err
-		}
-
-		return OK, nil
+		delFs.Usage()
+		return ERR_ARGS, fmt.Errorf("error: -all  or -login or -uuid must defined")
 
 	case "get":
 
@@ -213,7 +218,7 @@ func user(args []string) (int, error) {
 			return OK, nil
 		}
 
-		var id string = ""
+		id := ""
 
 		if login != "" {
 			id = login
