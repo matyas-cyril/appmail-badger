@@ -26,7 +26,7 @@ func domain(args []string) (int, error) {
 		)
 
 		addDom := flag.NewFlagSet(arg, flag.ExitOnError)
-		addDom.StringVar(&domain, "dom", "", "define a new domain")
+		addDom.StringVar(&domain, "name", "", "define a new domain")
 		addDom.StringVar(&confFile, "conf", DEFAULT_CONFIG_FILE, "json configuration file")
 		addDom.BoolVar(&help, "help", false, "help me !!!")
 
@@ -68,7 +68,7 @@ func domain(args []string) (int, error) {
 		)
 
 		delDom := flag.NewFlagSet(arg, flag.ExitOnError)
-		delDom.StringVar(&domain, "dom", "", "define a new domain")
+		delDom.StringVar(&domain, "name", "", "define a new domain")
 		delDom.StringVar(&confFile, "conf", DEFAULT_CONFIG_FILE, "json configuration file")
 		delDom.BoolVar(&help, "help", false, "help me !!!")
 
@@ -112,7 +112,7 @@ func domain(args []string) (int, error) {
 		)
 
 		getDom := flag.NewFlagSet(arg, flag.ExitOnError)
-		getDom.StringVar(&domain, "dom", "", "define a new domain")
+		getDom.StringVar(&domain, "name", "", "define a new domain")
 		getDom.BoolVar(&all, "all", false, "get all domains")
 		getDom.StringVar(&confFile, "conf", DEFAULT_CONFIG_FILE, "json configuration file")
 		getDom.BoolVar(&help, "help", false, "help me !!!")
