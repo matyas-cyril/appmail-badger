@@ -5,3 +5,25 @@ Sous-commandes disponibles :
 * `server add`
 
 {{- end}}
+
+{{define "server_add" -}}
+### `server add`
+
+| Option | Type | Défaut | Description |
+|---|:---:|---|---|
+| `-ip` | string | | Définir une adresse IP |
+| `-name` | string | | Définir le nom de la machine |
+| `-description` | string | | Description du serveur |
+| `-conf` | string | {{ .Conf }} | Fichier de configuration |
+{{- end}}
+
+{{define "domain_del" -}}
+### `domain del`
+
+| Option | Type | Défaut | Description |
+|---|:---:|---|---|
+| `-ip` | string | | Suppression à partir de l'adresse IP |
+| `-name` | string | | Suppression à partir du nom de machine |
+| `-uuid` | string | | Suppression à partir de l'UUID |
+| `-conf` | string | {{ .Conf }} | Fichier de configuration |
+{{- end}}
