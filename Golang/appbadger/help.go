@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"embed"
 	_ "embed"
 	"fmt"
 	"os"
@@ -11,8 +12,8 @@ import (
 	"charm.land/glamour/v2"
 )
 
-//go:embed help.tmpl
-var helpTemplate string
+//go:embed help/*.tmpl
+var helpFS embed.FS
 
 const (
 	glamourStyle string = "dracula"
@@ -28,7 +29,7 @@ func printHelp(block string) error {
 		Build_Version string
 	}
 
-	tmpl, err := template.New("help").Parse(helpTemplate)
+	tmpl, err := template.New("help").ParseFS(helpFS, "help/*.tmpl")
 	if err != nil {
 		return fmt.Errorf("failed to analyze template : %v", err)
 	}
