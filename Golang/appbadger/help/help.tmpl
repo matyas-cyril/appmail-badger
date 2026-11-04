@@ -1,0 +1,50 @@
+{{define "full_help" -}}
+# appbadger CLI
+
+**Usage:** `appbadger <commande> [options]`
+
+## Commandes disponibles
+* `user`: Gestion des connexions
+* `domain`: Gestion des domaines
+* `server`: Gestion des serveurs
+* `date`: Gestion du système de date
+* `help`: Affiche l'aide
+
+{{template "user" .}}
+{{template "user_add" .}}
+{{template "user_del" .}}
+{{template "user_get" .}}
+{{template "user_modify" .}}
+{{template "user_check" .}}
+{{template "user_enable" .}}
+{{template "user_disable" .}}
+{{template "user_expiration" .}}
+
+{{template "domain" .}}
+{{template "domain_add" .}}
+{{template "domain_del" .}}
+{{template "domain_get" .}}
+{{template "domain_modify" .}}
+
+{{template "date" .}}
+{{template "date_epoch" .}}
+{{template "date_conv" .}}
+
+{{template "footer" .}}
+{{- end}}
+
+{{define "footer" -}}
+## Info
+
+**Build :** appbadger-cli v{{ .Build_Version }}{{ "\n" }}
+**Build date :** {{ .Build_Date }}{{ "\n" }}
+**Author :** matyas-cyril
+
+{{- end}}
+
+{{define "erreur_404" -}}
+# Erreur 404 ;-)
+
+Help not available !!!
+
+{{- end}}

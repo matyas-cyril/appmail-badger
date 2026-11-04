@@ -1,34 +1,3 @@
-{{define "full_help" -}}
-# appbadger CLI
-
-**Usage:** `appbadger <commande> [options]`
-
-## Commandes disponibles
-* `user`: Gestion des connexions
-* `date`: Gestion du système de date
-* `help`: Affiche l'aide
-
-{{template "user" .}}
-{{template "user_add" .}}
-{{template "user_del" .}}
-{{template "user_get" .}}
-{{template "user_modify" .}}
-{{template "user_check" .}}
-{{template "user_enable" .}}
-{{template "user_disable" .}}
-{{template "user_expiration" .}}
-{{template "footer" .}}
-{{- end}}
-
-{{define "footer" -}}
-## Info
-
-**Build :** appbadger-cli v{{ .Build_Version }}{{ "\n" }}
-**Build date :** {{ .Build_Date }}{{ "\n" }}
-**Author :** matyas-cyril
-
-{{- end}}
-
 {{define "user" -}}
 ## Commande `user`
 
@@ -134,40 +103,4 @@ Sous-commandes disponibles :
 | `-remove` | bool | false | Supprimer la date d'expiration |
 | `-utc` | bool | false | Horaire UTC, par défaut Local |
 | `-conf` | string | {{ .Conf }} | Fichier de configuration |
-{{- end}}
-
-{{define "erreur_404" -}}
-# Erreur 404 ;-)
-
-Help not available !!!
-
-{{- end}}
-
-{{define "date" -}}
-## Commande `date`
-
-Sous-commandes disponibles :
-* `date epoch`
-* `date conv`
-{{- end}}
-
-{{define "date_epoch" -}}
-### `date epoch`
-
-| Option | Type | Défaut | Description |
-|---|:---:|---|---|
-| `-value` | int64 | | Donnée Epoch à convertir |
-| `-utc` | bool | false | Horaire UTC, par défaut Local |
-
-{{- end}}
-
-{{define "date_conv" -}}
-### `date conv`
-
-| Option | Type | Défaut | Description |
-|---|:---:|---|---|
-| `-day` | string | | Jour au format YYYY/MM/DD |
-| `-hour` | string | 00:00:00 | Heure au format HH:MM:SS |
-| `-utc` | bool | false | Horaire UTC, par défaut Local |
-
 {{- end}}

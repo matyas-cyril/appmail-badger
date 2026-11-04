@@ -1,0 +1,47 @@
+{{define "domain" -}}
+## Commande `domain`
+
+Sous-commandes disponibles :
+* `domain add`
+* `domain del`
+* `domain get`
+* `domain modify`
+{{- end}}
+
+{{define "domain_add" -}}
+### `domain add`
+
+| Option | Type | Défaut | Description |
+|---|:---:|---|---|
+| `-name` | string | | Définir le nom d'un nouveau domaine |
+| `-conf` | string | {{ .Conf }} | Fichier de configuration |
+{{- end}}
+
+{{define "domain_del" -}}
+### `domain del`
+
+| Option | Type | Défaut | Description |
+|---|:---:|---|---|
+| `-name` | string | | Définir le nom d'un domaine à supprimer |
+| `-conf` | string | {{ .Conf }} | Fichier de configuration |
+{{- end}}
+
+{{define "domain_get" -}}
+### `domain get`
+
+| Option | Type | Défaut | Description |
+|---|:---:|---|---|
+| `-name` | string | | Obtenir un domaine |
+| `-all` | bool | false | Obtenir tous les domaines |
+| `-conf` | string | {{ .Conf }} | Fichier de configuration |
+{{- end}}
+
+{{define "domain_modify" -}}
+### `domain modify`
+
+| Option | Type | Défaut | Description |
+|---|:---:|---|---|
+| `-new` | string | | Définir le nom du nouveau domaine |
+| `-old` | string | | Définir le nom actuel du domaine |
+| `-conf` | string | {{ .Conf }} | Fichier de configuration |
+{{- end}}
