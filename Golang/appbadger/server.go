@@ -38,7 +38,7 @@ func server(args []string) (int, error) {
 		}
 
 		if help {
-			printHelp("domain_add")
+			printHelp("server_add")
 			return OK, nil
 		}
 
@@ -67,6 +67,49 @@ func server(args []string) (int, error) {
 
 		if err := pkgServer.AddServer(name, ipType, description, *cfg); err != nil {
 			return ERR_SERVER, err
+		}
+
+	case "del":
+
+		var (
+			name, ip, confFile, uuid string
+			help                     bool
+		)
+
+		delFs := flag.NewFlagSet(arg, flag.ExitOnError)
+		delFs.StringVar(&name, "name", "", "define name of server ")
+		delFs.StringVar(&ip, "ip", "", "define ip of server ")
+		delFs.StringVar(&uuid, "uuid", "", "defined UUID for server")
+		delFs.StringVar(&confFile, "conf", DEFAULT_CONFIG_FILE, "json configuration file")
+		delFs.BoolVar(&help, "help", false, "help me !!!")
+
+		if err := delFs.Parse(args[1:]); err != nil {
+			return ERR_ARGS, err
+		}
+
+		if help {
+			printHelp("server_add")
+			return OK, nil
+		}
+
+		if len(delFs.Args()) > 0 {
+			return ERR_ARGS, fmt.Errorf("unexpected arg : %q", delFs.Args()[0])
+		}
+
+		name = strings.TrimSpace(name)
+		ip = strings.TrimSpace(ip)
+		uuid = strings.TrimSpace(uuid)
+
+		// Vérification des args
+		if login != "" && uuid != "" {
+			delFs.Usage()
+			return ERR_ARGS, fmt.Errorf("error: -login OR -uuid must defined")
+		}
+
+		// Charger la conf
+		cfg, err := pkgConfig.Load(confFile)
+		if err != nil {
+			return ERR_CONF_FILE, err
 		}
 
 	default:
