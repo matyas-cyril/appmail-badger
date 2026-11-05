@@ -146,3 +146,44 @@ func (q *Queries) GetServers(ctx context.Context) ([]GetServersRow, error) {
 	}
 	return items, nil
 }
+
+const modifyServer = `-- name: ModifyServer :one
+UPDATE Servers
+SET
+    name = COALESCE(lower(trim($1)), name),
+    ip = COALESCE($2, ip),
+    description = COALESCE($3, description)
+WHERE id_server = $4
+RETURNING id_server AS uuid, name, ip, description
+`
+
+type ModifyServerParams struct {
+	Name        string      `json:"Name"`
+	IP          *netip.Addr `json:"IP"`
+	Description pgtype.Text `json:"Description"`
+	UUID        pgtype.UUID `json:"UUID"`
+}
+
+type ModifyServerRow struct {
+	Uuid        pgtype.UUID `json:"uuid"`
+	Name        string      `json:"name"`
+	Ip          netip.Addr  `json:"ip"`
+	Description pgtype.Text `json:"description"`
+}
+
+func (q *Queries) ModifyServer(ctx context.Context, arg ModifyServerParams) (ModifyServerRow, error) {
+	row := q.db.QueryRow(ctx, modifyServer,
+		arg.Name,
+		arg.IP,
+		arg.Description,
+		arg.UUID,
+	)
+	var i ModifyServerRow
+	err := row.Scan(
+		&i.Uuid,
+		&i.Name,
+		&i.Ip,
+		&i.Description,
+	)
+	return i, err
+}

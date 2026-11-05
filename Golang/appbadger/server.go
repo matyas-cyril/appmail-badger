@@ -169,6 +169,56 @@ func server(args []string) (int, error) {
 			}
 		}
 
+	case "modify":
+
+		var (
+			uuid, confFile, name, ip, description string
+			help                                  bool
+		)
+
+		modFs := flag.NewFlagSet(arg, flag.ExitOnError)
+		modFs.StringVar(&uuid, "uuid", "", "modify UUID for server")
+		modFs.StringVar(&name, "name", "", "modify name of server ")
+		modFs.StringVar(&ip, "ip", "", "modify ip of server ")
+		modFs.StringVar(&description, "description", "", "modify description")
+		modFs.StringVar(&confFile, "conf", DEFAULT_CONFIG_FILE, "json configuration file")
+		modFs.BoolVar(&help, "help", false, "help me !!!")
+
+		if err := modFs.Parse(args[1:]); err != nil {
+			return ERR_ARGS, err
+		}
+
+		if help {
+			printHelp("server_mod")
+			return OK, nil
+		}
+
+		if len(modFs.Args()) > 0 {
+			return ERR_ARGS, fmt.Errorf("unexpected arg : %q", modFs.Args()[0])
+		}
+
+		pkgDefine.TrimSpace(&uuid, &name, &ip, &description, &confFile)
+
+		// Obligation d'avoir l'UUID
+		if uuid == "" {
+			modFs.Usage()
+			return ERR_ARGS, fmt.Errorf("error: -uuid must defined")
+		}
+
+		if pkgDefine.CountDefinedStrArg(name, ip, description) == 0 {
+			return ERR_ARGS, fmt.Errorf("error: at least one argument (-name, -ip, -decription) must be defined")
+		}
+
+		// Charger la conf
+		cfg, err := pkgConfig.Load(confFile)
+		if err != nil {
+			return ERR_CONF_FILE, err
+		}
+
+		if err := pkgServer.ModifyServer(uuid, name, ip, description, *cfg); err != nil {
+			return ERR_SERVER, err
+		}
+
 	default:
 		fmt.Fprintf(os.Stdout, "command '%s' not exits\n", arg)
 		return ERR_ARGS, nil

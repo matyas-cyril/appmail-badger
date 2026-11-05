@@ -27,3 +27,12 @@ WHERE id_server = sqlc.arg('UUID') OR
       name = sqlc.arg('Name') OR
       ip = sqlc.arg('IP')
 LIMIT 1;
+
+-- name: ModifyServer :one
+UPDATE Servers
+SET
+    name = COALESCE(lower(trim(sqlc.arg('Name'))), name),
+    ip = COALESCE(sqlc.narg('IP'), ip),
+    description = COALESCE(sqlc.narg('Description'), description)
+WHERE id_server = sqlc.arg('UUID')
+RETURNING id_server AS uuid, name, ip, description;

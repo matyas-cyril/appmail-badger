@@ -5,6 +5,7 @@ Sous-commandes disponibles :
 * `server add`
 * `server del`
 * `server get`
+* `server modify`
 
 {{- end}}
 
@@ -39,5 +40,17 @@ Sous-commandes disponibles :
 | `-name` | string | | Suppression à partir du nom de machine |
 | `-uuid` | string | | Suppression à partir de l'UUID |
 | `-all` | bool | false | Obtenir la liste de tous les serveurs |
+| `-conf` | string | {{ .Conf }} | Fichier de configuration |
+{{- end}}
+
+{{define "server_mod" -}}
+### `server modify`
+
+| Option | Type | Défaut | Description |
+|---|:---:|---|---|
+| `-uuid` | string | | Suppression à partir de l'UUID |
+| `-name` | string | | Suppression à partir du nom de machine |
+| `-ip` | string | | Suppression à partir de l'adresse IP |
+| `-description` | string | | Description du serveur |
 | `-conf` | string | {{ .Conf }} | Fichier de configuration |
 {{- end}}
