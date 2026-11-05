@@ -3,6 +3,8 @@
 
 Sous-commandes disponibles :
 * `server add`
+* `server del`
+* `server get`
 
 {{- end}}
 
@@ -17,13 +19,25 @@ Sous-commandes disponibles :
 | `-conf` | string | {{ .Conf }} | Fichier de configuration |
 {{- end}}
 
-{{define "domain_del" -}}
-### `domain del`
+{{define "server_del" -}}
+### `server del`
 
 | Option | Type | Défaut | Description |
 |---|:---:|---|---|
 | `-ip` | string | | Suppression à partir de l'adresse IP |
 | `-name` | string | | Suppression à partir du nom de machine |
 | `-uuid` | string | | Suppression à partir de l'UUID |
+| `-conf` | string | {{ .Conf }} | Fichier de configuration |
+{{- end}}
+
+{{define "server_get" -}}
+### `server get`
+
+| Option | Type | Défaut | Description |
+|---|:---:|---|---|
+| `-ip` | string | | Suppression à partir de l'adresse IP |
+| `-name` | string | | Suppression à partir du nom de machine |
+| `-uuid` | string | | Suppression à partir de l'UUID |
+| `-all` | bool | false | Obtenir la liste de tous les serveurs |
 | `-conf` | string | {{ .Conf }} | Fichier de configuration |
 {{- end}}

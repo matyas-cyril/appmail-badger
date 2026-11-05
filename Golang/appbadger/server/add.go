@@ -15,7 +15,7 @@ import (
 func AddServer(name string, ip netip.Addr, description string, config pkgConfig.Config) error {
 
 	if name == "" || !ip.IsValid() {
-		return fmt.Errorf("name ou ip invalid")
+		return fmt.Errorf("name or ip invalid")
 	}
 
 	cnx, err := db.NewPG(db.PGServer{

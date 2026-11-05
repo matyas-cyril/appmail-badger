@@ -2,6 +2,7 @@ package main
 
 import (
 	pkgConfig "appbadger/config"
+	pkgDefine "appbadger/define"
 	pkgServer "appbadger/server"
 	"flag"
 	"fmt"
@@ -88,7 +89,7 @@ func server(args []string) (int, error) {
 		}
 
 		if help {
-			printHelp("server_add")
+			printHelp("server_del")
 			return OK, nil
 		}
 
@@ -96,20 +97,76 @@ func server(args []string) (int, error) {
 			return ERR_ARGS, fmt.Errorf("unexpected arg : %q", delFs.Args()[0])
 		}
 
-		name = strings.TrimSpace(name)
-		ip = strings.TrimSpace(ip)
-		uuid = strings.TrimSpace(uuid)
+		pkgDefine.TrimSpace(&name, &ip, &uuid)
 
 		// Vérification des args
-		if login != "" && uuid != "" {
+		if pkgDefine.CountDefinedStrArg(name, ip, uuid) != 1 {
 			delFs.Usage()
-			return ERR_ARGS, fmt.Errorf("error: -login OR -uuid must defined")
+			return ERR_ARGS, fmt.Errorf("error: -name OR -ip OR -uuid must defined")
 		}
 
 		// Charger la conf
 		cfg, err := pkgConfig.Load(confFile)
 		if err != nil {
 			return ERR_CONF_FILE, err
+		}
+
+		if err := pkgServer.DelServer(name, uuid, ip, *cfg); err != nil {
+			return ERR_SERVER, err
+		}
+
+	case "get":
+
+		var (
+			name, ip, confFile, uuid string
+			help, all                bool
+		)
+
+		getFs := flag.NewFlagSet(arg, flag.ExitOnError)
+		getFs.StringVar(&name, "name", "", "define name of server ")
+		getFs.StringVar(&ip, "ip", "", "define ip of server ")
+		getFs.StringVar(&uuid, "uuid", "", "defined UUID for server")
+		getFs.BoolVar(&all, "all", false, "get all servers")
+		getFs.StringVar(&confFile, "conf", DEFAULT_CONFIG_FILE, "json configuration file")
+		getFs.BoolVar(&help, "help", false, "help me !!!")
+
+		if err := getFs.Parse(args[1:]); err != nil {
+			return ERR_ARGS, err
+		}
+
+		if help {
+			printHelp("server_get")
+			return OK, nil
+		}
+
+		if len(getFs.Args()) > 0 {
+			return ERR_ARGS, fmt.Errorf("unexpected arg : %q", getFs.Args()[0])
+		}
+
+		pkgDefine.TrimSpace(&name, &ip, &uuid)
+
+		// Vérification des args
+		if !all {
+			if pkgDefine.CountDefinedStrArg(name, ip, uuid) != 1 {
+				getFs.Usage()
+				return ERR_ARGS, fmt.Errorf("error: -name OR -ip OR -uuid must defined")
+			}
+		}
+
+		// Charger la conf
+		cfg, err := pkgConfig.Load(confFile)
+		if err != nil {
+			return ERR_CONF_FILE, err
+		}
+
+		if all {
+			if err := pkgServer.GetServers(*cfg); err != nil {
+				return ERR_SERVER, err
+			}
+		} else {
+			if err := pkgServer.GetServer(name, uuid, ip, *cfg); err != nil {
+				return ERR_SERVER, err
+			}
 		}
 
 	default:

@@ -47,3 +47,102 @@ func (q *Queries) AddServer(ctx context.Context, arg AddServerParams) (AddServer
 	)
 	return i, err
 }
+
+const delServer = `-- name: DelServer :one
+DELETE FROM Servers
+WHERE id_server = $1 OR
+      name = $2 OR
+      ip = $3
+RETURNING id_server AS uuid, name, ip
+`
+
+type DelServerParams struct {
+	UUID pgtype.UUID `json:"UUID"`
+	Name string      `json:"Name"`
+	IP   netip.Addr  `json:"IP"`
+}
+
+type DelServerRow struct {
+	Uuid pgtype.UUID `json:"uuid"`
+	Name string      `json:"name"`
+	Ip   netip.Addr  `json:"ip"`
+}
+
+func (q *Queries) DelServer(ctx context.Context, arg DelServerParams) (DelServerRow, error) {
+	row := q.db.QueryRow(ctx, delServer, arg.UUID, arg.Name, arg.IP)
+	var i DelServerRow
+	err := row.Scan(&i.Uuid, &i.Name, &i.Ip)
+	return i, err
+}
+
+const getServer = `-- name: GetServer :one
+SELECT id_server AS uuid, name, ip, description
+FROM Servers
+WHERE id_server = $1 OR
+      name = $2 OR
+      ip = $3
+LIMIT 1
+`
+
+type GetServerParams struct {
+	UUID pgtype.UUID `json:"UUID"`
+	Name string      `json:"Name"`
+	IP   netip.Addr  `json:"IP"`
+}
+
+type GetServerRow struct {
+	Uuid        pgtype.UUID `json:"uuid"`
+	Name        string      `json:"name"`
+	Ip          netip.Addr  `json:"ip"`
+	Description pgtype.Text `json:"description"`
+}
+
+func (q *Queries) GetServer(ctx context.Context, arg GetServerParams) (GetServerRow, error) {
+	row := q.db.QueryRow(ctx, getServer, arg.UUID, arg.Name, arg.IP)
+	var i GetServerRow
+	err := row.Scan(
+		&i.Uuid,
+		&i.Name,
+		&i.Ip,
+		&i.Description,
+	)
+	return i, err
+}
+
+const getServers = `-- name: GetServers :many
+SELECT id_server AS uuid, name, ip, description
+FROM Servers
+ORDER BY ip
+`
+
+type GetServersRow struct {
+	Uuid        pgtype.UUID `json:"uuid"`
+	Name        string      `json:"name"`
+	Ip          netip.Addr  `json:"ip"`
+	Description pgtype.Text `json:"description"`
+}
+
+func (q *Queries) GetServers(ctx context.Context) ([]GetServersRow, error) {
+	rows, err := q.db.Query(ctx, getServers)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetServersRow
+	for rows.Next() {
+		var i GetServersRow
+		if err := rows.Scan(
+			&i.Uuid,
+			&i.Name,
+			&i.Ip,
+			&i.Description,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
