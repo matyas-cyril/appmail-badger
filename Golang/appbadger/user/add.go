@@ -3,6 +3,7 @@ package user
 import (
 	pkgConfig "appbadger/config"
 	db "appbadger/db"
+	pkgDefine "appbadger/define"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -12,6 +13,8 @@ import (
 )
 
 func AddLogin(login, passHash, description string, nbf, exp int64, enable bool, config pkgConfig.Config) error {
+
+	pkgDefine.TrimSpace(&login, &passHash, &description)
 
 	if login == "" || passHash == "" {
 		return fmt.Errorf("login or password must defined")

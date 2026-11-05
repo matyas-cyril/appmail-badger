@@ -14,6 +14,8 @@ import (
 
 func AddServer(name string, ip netip.Addr, description string, config pkgConfig.Config) error {
 
+	name = strings.TrimSpace(name)
+
 	if name == "" || !ip.IsValid() {
 		return fmt.Errorf("name or ip invalid")
 	}

@@ -1,6 +1,7 @@
 package date
 
 import (
+	pkgDefine "appbadger/define"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -9,6 +10,8 @@ import (
 )
 
 func Conv(day, hour string, utc bool) error {
+
+	pkgDefine.TrimSpace(&day, &hour)
 
 	// Vérifier la syntaxe de day
 	if _, err := time.Parse("2006/01/02", day); err != nil {

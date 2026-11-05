@@ -3,6 +3,7 @@ package user
 import (
 	pkgConfig "appbadger/config"
 	db "appbadger/db"
+	pkgDefine "appbadger/define"
 	"encoding/json"
 	"os"
 
@@ -10,6 +11,8 @@ import (
 )
 
 func Check(login, password string, config pkgConfig.Config) error {
+
+	pkgDefine.TrimSpace(&login, &password)
 
 	cnx, err := db.NewPG(db.PGServer{
 		Host:     config.Host,

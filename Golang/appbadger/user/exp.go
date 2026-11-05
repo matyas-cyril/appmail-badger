@@ -3,6 +3,7 @@ package user
 import (
 	pkgConfig "appbadger/config"
 	db "appbadger/db"
+	pkgDefine "appbadger/define"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -12,6 +13,8 @@ import (
 )
 
 func ExpLogin(login, uuid string, epoch int64, remove bool, config pkgConfig.Config) error {
+
+	pkgDefine.TrimSpace(&login, &uuid)
 
 	if (uuid != "" && login != "") || (uuid == "" && login == "") {
 		return fmt.Errorf("login or uuid must defined to expiration")

@@ -3,6 +3,7 @@ package user
 import (
 	pkgConfig "appbadger/config"
 	db "appbadger/db"
+	pkgDefine "appbadger/define"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -14,8 +15,7 @@ import (
 
 func ModifyLogin(login, uuid, password, description string, nbf, exp int64, disable int8, config pkgConfig.Config) error {
 
-	login = strings.TrimSpace(login)
-	uuid = strings.TrimSpace(uuid)
+	pkgDefine.TrimSpace(&login, &uuid)
 
 	if (uuid != "" && login != "") || (uuid == "" && login == "") {
 		return fmt.Errorf("login or uuid must defined to modify")
