@@ -24,6 +24,7 @@ const (
 	ERR_EPOCH
 	ERR_DOM
 	ERR_SERVER
+	ERR_PROJECT
 
 	DEFAULT_CONFIG_FILE string = "appbadger.json"
 )
@@ -33,7 +34,7 @@ func main() {
 	initBuildVar()
 
 	if len(os.Args) < 2 {
-		fmt.Fprintf(os.Stdout, "Use: %s [user|domain|server|date|help] {...options}\n", filepath.Base(os.Args[0]))
+		fmt.Fprintf(os.Stdout, "Use: %s [user|domain|server|project|date|help] {...options}\n", filepath.Base(os.Args[0]))
 		os.Exit(ERR_ARGS)
 	}
 
@@ -63,6 +64,13 @@ func main() {
 
 	case "server":
 		codeRetour, err := server(os.Args[2:])
+		if err != nil {
+			fmt.Fprintf(os.Stdout, "%s\n", err)
+		}
+		os.Exit(codeRetour)
+
+	case "project":
+		codeRetour, err := project(os.Args[2:])
 		if err != nil {
 			fmt.Fprintf(os.Stdout, "%s\n", err)
 		}
