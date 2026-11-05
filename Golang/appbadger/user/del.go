@@ -44,7 +44,7 @@ func DelLogin(id string, config pkgConfig.Config) error {
 
 	isSyntaxUUID := false
 
-	pgUUID, err := StringToPgUUID(id)
+	pgUUID, err := PkgDefine.StringToPgUUID(id)
 	if err == nil {
 		args.Login = ""
 		args.UUID = pgUUID

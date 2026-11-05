@@ -27,7 +27,7 @@ func ModifyLogin(login, uuid, password, description string, nbf, exp int64, disa
 	)
 
 	if uuid != "" {
-		pgUUID, err = StringToPgUUID(uuid)
+		pgUUID, err = pkgDefine.StringToPgUUID(uuid)
 		if err != nil {
 			return json.NewEncoder(os.Stdout).Encode(struct {
 				UUID   string

@@ -3,8 +3,6 @@ package user
 import (
 	"regexp"
 	"unicode/utf8"
-
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type LOGIN struct {
@@ -74,11 +72,4 @@ func IsValidPassword(passwd string) error {
 
 func IsValidPasswordRune(r rune) bool {
 	return !passwordRegex.MatchString(string(r))
-}
-
-// Convertir un type string vers un type sqlc -> pgtype.UUID
-func StringToPgUUID(data string) (pgtype.UUID, error) {
-	var uuid pgtype.UUID
-	err := uuid.Scan(data)
-	return uuid, err
 }

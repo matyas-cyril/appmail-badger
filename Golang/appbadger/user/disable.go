@@ -3,6 +3,7 @@ package user
 import (
 	pkgConfig "appbadger/config"
 	db "appbadger/db"
+	pkgDefine "appbadger/define"
 	"encoding/json"
 	"os"
 	"strings"
@@ -45,7 +46,7 @@ func enableOrDisableLogin(id string, enable bool, config pkgConfig.Config) error
 
 	isSyntaxUUID := false
 
-	pgUUID, err := StringToPgUUID(id)
+	pgUUID, err := pkgDefine.StringToPgUUID(id)
 	if err == nil {
 		args.Login = ""
 		args.UUID = pgUUID
