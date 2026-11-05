@@ -189,7 +189,7 @@ func server(args []string) (int, error) {
 		}
 
 		if help {
-			printHelp("server_mod")
+			printHelp("server_modify")
 			return OK, nil
 		}
 
