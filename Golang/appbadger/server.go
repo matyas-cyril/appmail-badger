@@ -47,14 +47,14 @@ func server(args []string) (int, error) {
 			return ERR_ARGS, fmt.Errorf("unexpected arg : %q", addSrv.Args()[0])
 		}
 
+		pkgDefine.TrimSpace(&name, &ip, &confFile)
+
 		// Charger la conf
 		cfg, err := pkgConfig.Load(confFile)
 		if err != nil {
 			return ERR_CONF_FILE, err
 		}
 
-		name = strings.TrimSpace(name)
-		ip = strings.TrimSpace(ip)
 		if name == "" || ip == "" {
 			addSrv.Usage()
 			return ERR_ARGS, fmt.Errorf("error: -name AND -ip are required")

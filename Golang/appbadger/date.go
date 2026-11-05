@@ -2,6 +2,7 @@ package main
 
 import (
 	pkgDate "appbadger/date"
+	pkgDefine "appbadger/define"
 	"flag"
 	"fmt"
 	"os"
@@ -72,6 +73,8 @@ func date(args []string) (int, error) {
 			printHelp("date_conv")
 			return OK, nil
 		}
+
+		pkgDefine.TrimSpace(&day, &hour)
 
 		if len(convFs.Args()) > 0 {
 			return ERR_ARGS, fmt.Errorf("unexpected arg : %q", convFs.Args()[0])

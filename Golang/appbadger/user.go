@@ -10,6 +10,7 @@ import (
 	"time"
 
 	pkgConfig "appbadger/config"
+	pkgDefine "appbadger/define"
 	pkgUser "appbadger/user"
 
 	"github.com/matyas-cyril/argon2id"
@@ -59,6 +60,8 @@ func user(args []string) (int, error) {
 			return ERR_ARGS, fmt.Errorf("unexpected arg : %q", addFs.Args()[0])
 		}
 
+		pkgDefine.TrimSpace(&login, &passwd, &description, &confFile)
+
 		// Charger la conf
 		cfg, err := pkgConfig.Load(confFile)
 		if err != nil {
@@ -76,8 +79,6 @@ func user(args []string) (int, error) {
 		if passStdin && passwd != "" {
 			return ERR_ARGS, fmt.Errorf("error: -P or -pass are required")
 		}
-
-		login = strings.TrimSpace(login)
 
 		// Vérification des args obligatoires
 		if login == "" || (!passStdin && passwd == "") {
@@ -134,6 +135,8 @@ func user(args []string) (int, error) {
 		if len(delFs.Args()) > 0 {
 			return ERR_ARGS, fmt.Errorf("unexpected arg : %q", delFs.Args()[0])
 		}
+
+		pkgDefine.TrimSpace(&login, &uuid, &confFile)
 
 		// Vérification des args
 		if login != "" && uuid != "" {
@@ -194,6 +197,8 @@ func user(args []string) (int, error) {
 		if len(getFs.Args()) > 0 {
 			return ERR_ARGS, fmt.Errorf("unexpected arg : %q", getFs.Args()[0])
 		}
+
+		pkgDefine.TrimSpace(&login, &uuid, &confFile)
 
 		// Charger la conf
 		cfg, err := pkgConfig.Load(confFile)
@@ -273,6 +278,8 @@ func user(args []string) (int, error) {
 			return ERR_ARGS, fmt.Errorf("unexpected arg : %q", checkFs.Args()[0])
 		}
 
+		pkgDefine.TrimSpace(&login, &passwd, &confFile)
+
 		// Charger la conf
 		cfg, err := pkgConfig.Load(confFile)
 		if err != nil {
@@ -282,8 +289,6 @@ func user(args []string) (int, error) {
 		if passStdin && passwd != "" {
 			return ERR_ARGS, fmt.Errorf("error: -P or -pass are required")
 		}
-
-		login = strings.TrimSpace(login)
 
 		// Vérification des args obligatoires
 		if login == "" || (!passStdin && passwd == "") {
@@ -340,6 +345,8 @@ func user(args []string) (int, error) {
 		if len(statusFs.Args()) > 0 {
 			return ERR_ARGS, fmt.Errorf("unexpected arg : %q", statusFs.Args()[0])
 		}
+
+		pkgDefine.TrimSpace(&login, &uuid, &confFile)
 
 		// Charger la conf
 		cfg, err := pkgConfig.Load(confFile)
@@ -411,14 +418,13 @@ func user(args []string) (int, error) {
 			return ERR_ARGS, fmt.Errorf("unexpected arg : %q", modFs.Args()[0])
 		}
 
+		pkgDefine.TrimSpace(&login, &uuid, &passwd, &description, &confFile)
+
 		// Charger la conf
 		cfg, err := pkgConfig.Load(confFile)
 		if err != nil {
 			return ERR_CONF_FILE, err
 		}
-
-		uuid = strings.TrimSpace(uuid)
-		login = strings.TrimSpace(login)
 
 		if (uuid != "" && login != "") || (uuid == "" && login == "") {
 			modFs.Usage()
@@ -485,6 +491,7 @@ func user(args []string) (int, error) {
 		return OK, nil
 
 	case "expiration":
+
 		var (
 			login, uuid, confFile  string
 			exp                    int64
@@ -514,14 +521,13 @@ func user(args []string) (int, error) {
 			return ERR_ARGS, fmt.Errorf("unexpected arg : %q", expFs.Args()[0])
 		}
 
+		pkgDefine.TrimSpace(&login, &uuid, &confFile)
+
 		// Charger la conf
 		cfg, err := pkgConfig.Load(confFile)
 		if err != nil {
 			return ERR_CONF_FILE, err
 		}
-
-		uuid = strings.TrimSpace(uuid)
-		login = strings.TrimSpace(login)
 
 		if (uuid != "" && login != "") || (uuid == "" && login == "") {
 			expFs.Usage()

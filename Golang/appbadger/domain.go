@@ -2,6 +2,7 @@ package main
 
 import (
 	pkgConfig "appbadger/config"
+	pkgDefine "appbadger/define"
 	pkgDomain "appbadger/domain"
 	"flag"
 	"fmt"
@@ -43,13 +44,14 @@ func domain(args []string) (int, error) {
 			return ERR_ARGS, fmt.Errorf("unexpected arg : %q", addDom.Args()[0])
 		}
 
+		pkgDefine.TrimSpace(&domain, &confFile)
+
 		// Charger la conf
 		cfg, err := pkgConfig.Load(confFile)
 		if err != nil {
 			return ERR_CONF_FILE, err
 		}
 
-		domain = strings.TrimSpace(domain)
 		// Vérification des args obligatoires
 		if domain == "" {
 			addDom.Usage()
@@ -85,13 +87,14 @@ func domain(args []string) (int, error) {
 			return ERR_ARGS, fmt.Errorf("unexpected arg : %q", delDom.Args()[0])
 		}
 
+		pkgDefine.TrimSpace(&domain, &confFile)
+
 		// Charger la conf
 		cfg, err := pkgConfig.Load(confFile)
 		if err != nil {
 			return ERR_CONF_FILE, err
 		}
 
-		domain = strings.TrimSpace(domain)
 		// Vérification des args obligatoires
 		if domain == "" {
 			delDom.Usage()
@@ -130,6 +133,8 @@ func domain(args []string) (int, error) {
 			return ERR_ARGS, fmt.Errorf("unexpected arg : %q", getDom.Args()[0])
 		}
 
+		pkgDefine.TrimSpace(&domain, &confFile)
+
 		// Charger la conf
 		cfg, err := pkgConfig.Load(confFile)
 		if err != nil {
@@ -143,7 +148,6 @@ func domain(args []string) (int, error) {
 			return OK, nil
 		}
 
-		domain = strings.TrimSpace(domain)
 		// Vérification des args obligatoires
 		if domain == "" {
 			getDom.Usage()
@@ -180,14 +184,13 @@ func domain(args []string) (int, error) {
 			return ERR_ARGS, fmt.Errorf("unexpected arg : %q", modDom.Args()[0])
 		}
 
+		pkgDefine.TrimSpace(&old, &new, &confFile)
+
 		// Charger la conf
 		cfg, err := pkgConfig.Load(confFile)
 		if err != nil {
 			return ERR_CONF_FILE, err
 		}
-
-		old = strings.TrimSpace(old)
-		new = strings.TrimSpace(new)
 
 		// Vérification des args obligatoires
 		if old == "" || new == "" {
