@@ -171,7 +171,8 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - ../Golang/:/go/src/:cached
       - ~/.gitconfig:/tmp/.gitconfig:ro
-      - ~/.ssh/:/tmp/.ssh/:ro,Z      
+      - ../Data/SQL/schema.sql:/go/src/appbadger/sql/schema.sql:ro
+      - ~/.ssh/:/tmp/.ssh/:ro,Z
 
 configs:
   adminer-index.php:
