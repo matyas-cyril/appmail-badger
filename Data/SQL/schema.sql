@@ -1,13 +1,6 @@
 
 ----- CRÉATION DES TABLES -----
 
---- Table Groups
-CREATE TABLE IF NOT EXISTS Groups (
-	id_group BIGSERIAL PRIMARY KEY,
-	name TEXT NOT NULL,
-	description TEXT
-);
-
 --- Table Senders
 CREATE TABLE IF NOT EXISTS Senders (
 	id_sender BIGSERIAL PRIMARY KEY,
@@ -60,11 +53,8 @@ CREATE TABLE IF NOT EXISTS Projects (
 	rate_limit VARCHAR(20) NOT NULL DEFAULT 0 CHECK (rate_limit ~ '^(?:\d+/\d+(?:s|m|h|d)|0)$'), -- 0 désactive le ratelimit
 	size_max NUMERIC(20,0) NOT NULL DEFAULT 3145728 CHECK (size_max >= 0 AND size_max <= 18446744073709551615), -- Correspond à UINT64
 	rcpt_pattern TEXT,
-	enabled BOOLEAN NOT NULL DEFAULT false,
-	description TEXT,
-	id_group BIGINT,
-	
-	CONSTRAINT projects_id_group_fkey FOREIGN KEY (id_group) REFERENCES Groups(id_group) ON DELETE SET NULL
+    modified TIMESTAMPTZ NOT NULL DEFAULT now(),
+	enabled BOOLEAN NOT NULL DEFAULT false
 );
 
 --- Table Auth
@@ -108,7 +98,7 @@ BEGIN
 END;
 $$;
 
-CREATE OR REPLACE FUNCTION set_users_modified()
+CREATE OR REPLACE FUNCTION set_row_modified_now()
 RETURNS trigger
 LANGUAGE plpgsql AS $$
 BEGIN
@@ -124,9 +114,14 @@ CREATE TRIGGER enforce_ip_host
 	EXECUTE FUNCTION enforce_ip_host_format();
 
 CREATE TRIGGER users_set_modified
-    BEFORE INSERT OR UPDATE ON users
+    BEFORE INSERT OR UPDATE ON Users
     FOR EACH ROW
-    EXECUTE FUNCTION set_users_modified();
+    EXECUTE FUNCTION set_row_modified_now();
+
+CREATE TRIGGER projects_set_modified
+    BEFORE INSERT OR UPDATE ON Projects
+    FOR EACH ROW
+    EXECUTE FUNCTION set_row_modified_now();
 
 ----- View -----
 
