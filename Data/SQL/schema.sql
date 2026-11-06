@@ -39,15 +39,17 @@ CREATE UNIQUE INDEX IF NOT EXISTS users_username_idx ON Users(username);
 CREATE TABLE IF NOT EXISTS Projects (
 	id_project uuid PRIMARY KEY DEFAULT uuidv7(),
 	name TEXT NOT NULL,
-    sender VARCHAR(64) NOT NULL,
-	reply_to VARCHAR(64),
+    sender VARCHAR(64) NOT NULL CHECK (sender = lower(sender)),
+	reply_to VARCHAR(64) CHECK (reply_to = lower(reply_to)),
 	rcpt_max SMALLINT DEFAULT 15 CHECK (rcpt_max >= 0 AND rcpt_max <= 1500),
     burst INTEGER NOT NULL DEFAULT 150 CHECK (burst >= 0 AND burst <= 65535), -- Nbr de mails que peut envoyer un utilisateur en 1 seul fois - mode rafale ;-)
 	rate_limit VARCHAR(20) NOT NULL DEFAULT 0 CHECK (rate_limit ~ '^(?:\d+/\d+(?:s|m|h|d)|0)$'), -- 0 désactive le ratelimit
 	size_max NUMERIC(20,0) NOT NULL DEFAULT 3145728 CHECK (size_max >= 0 AND size_max <= 18446744073709551615), -- Correspond à UINT64
 	rcpt_pattern TEXT,
     modified TIMESTAMPTZ NOT NULL DEFAULT now(),
-	enabled BOOLEAN NOT NULL DEFAULT false
+	enabled BOOLEAN NOT NULL DEFAULT false,
+
+    CONSTRAINT project_unique UNIQUE (name, sender)
 );
 
 --- Table Auth
