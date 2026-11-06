@@ -21,6 +21,16 @@ func TrimSpace(str ...*string) {
 	}
 }
 
+func TrimSpaceArray(array []string) []string {
+	for _, data := range array {
+		data = strings.TrimSpace(data)
+		if data != "" {
+			array = append(array, data)
+		}
+	}
+	return array
+}
+
 /*
 Comptabiliser le nbr d'arg != de "" lors de l'utilisation des param d'app
 */
