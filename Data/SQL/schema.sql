@@ -1,13 +1,6 @@
 
 ----- CRÉATION DES TABLES -----
 
---- Table Senders
-CREATE TABLE IF NOT EXISTS Senders (
-	id_sender BIGSERIAL PRIMARY KEY,
-	sender VARCHAR(64) NOT NULL,
-	description TEXT
-);
-
 --- Table Domains
 CREATE TABLE IF NOT EXISTS Domains (
 	id_domain BIGSERIAL PRIMARY KEY,
@@ -46,7 +39,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS users_username_idx ON Users(username);
 CREATE TABLE IF NOT EXISTS Projects (
 	id_project uuid PRIMARY KEY DEFAULT uuidv7(),
 	name TEXT NOT NULL,
-	id_sender BIGINT NOT NULL, -- S'assurer que chaque Project a exactement 1 Sender
+    sender VARCHAR(64),
 	reply_to VARCHAR(64),
 	rcpt_max SMALLINT DEFAULT 15 CHECK (rcpt_max >= 0 AND rcpt_max <= 1500),
     burst INTEGER NOT NULL DEFAULT 150 CHECK (burst >= 0 AND burst <= 65535), -- Nbr de mails que peut envoyer un utilisateur en 1 seul fois - mode rafale ;-)
@@ -161,20 +154,18 @@ CREATE OR REPLACE VIEW v_clients_allowlist AS
 
 --- Liste des comptes mails, sender @ domains actifs
 CREATE OR REPLACE VIEW v_enabled_projects AS
-    SELECT DISTINCT S.sender, D.domain AS domain, CONCAT(S.sender, '@', D.domain) AS mail, P.burst AS burst, P.rate_limit AS rate_limit, P.size_max AS size_max, P.reply_to AS reply_to, P.rcpt_max AS rcpt_max, P.rcpt_pattern AS rcpt_pattern, P.id_project AS id_project
+    SELECT DISTINCT P.sender, D.domain AS domain, CONCAT(P.sender, '@', D.domain) AS mail, P.burst AS burst, P.rate_limit AS rate_limit, P.size_max AS size_max, P.reply_to AS reply_to, P.rcpt_max AS rcpt_max, P.rcpt_pattern AS rcpt_pattern, P.id_project AS id_project
     FROM ProjectsDomains PD
     INNER JOIN Domains D ON D.id_domain = PD.id_domain
     INNER JOIN Projects P ON P.id_project = PD.id_project AND P.enabled IS TRUE
-    INNER JOIN Senders S ON S.id_sender = P.id_sender
-    ORDER BY S.sender ASC;
+    ORDER BY P.sender ASC;
 
 --- Liste des Projets par Serveur
 CREATE OR REPLACE VIEW v_projects_by_server AS
-    SELECT SV.ip AS ip_server, SV.name AS server_name, S.sender AS sender, P.id_project AS id_project, P.enabled AS enabled_project
+    SELECT SV.ip AS ip_server, SV.name AS server_name, P.sender AS sender, P.id_project AS id_project, P.enabled AS enabled_project
     FROM ProjectsServers PS
     INNER JOIN Projects P ON P.id_project = PS.id_project
     INNER JOIN Servers SV ON SV.id_server = PS.id_server
-    INNER JOIN Senders S ON S.id_sender = P.id_sender
     ORDER BY SV.ip ASC;
 
 --- Liste des utilisateurs autorisés
@@ -187,11 +178,10 @@ CREATE OR REPLACE VIEW v_logins AS
 
 --- Liste pour le login mismatch
 CREATE OR REPLACE VIEW v_sender_login_maps AS
-    SELECT DISTINCT LOWER(CONCAT(S.sender,'@',D.domain)) AS mail, U.username AS login
+    SELECT DISTINCT LOWER(CONCAT(P.sender,'@',D.domain)) AS mail, U.username AS login
     FROM Auth A
     INNER JOIN Projects P ON P.id_project = A.id_project
     INNER JOIN Users U ON U.id_user = A.id_user
-    INNER JOIN Senders S ON S.id_sender = P.id_sender
     INNER JOIN ProjectsDomains PD ON PD.id_project = P.id_project
     INNER JOIN Domains D ON D.id_domain = PD.id_domain
     WHERE P.enabled = true;

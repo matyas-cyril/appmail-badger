@@ -3,11 +3,6 @@ INSERT INTO Users (username, password) VALUES ('cyril',  '$argon2id$v=19$m=16,t=
 INSERT INTO Users (username, password) VALUES ('samy',   '$argon2id$v=19$m=16,t=2,p=1$eG83WmlmSWFPUVEyV05HTA$kzMu+LbLtK0olKKevvk3ug');
 INSERT INTO Users (username, password) VALUES ('benoit', '$argon2id$v=19$m=16,t=2,p=1$MjZvOFhyWkNZZWdPSm43bQ$XSlVJitDiO1pp+K8LmYZDw');
 
---- Ajout des senders
-INSERT INTO Senders (sender) VALUES ('sans-reponse');
-INSERT INTO Senders (sender) VALUES ('no-reply');
-INSERT INTO Senders (sender) VALUES ('photocopieurs');
-
 --- Ajout de serveurs
 INSERT INTO Servers (name, ip) VALUES ('server1.loc', '192.168.10.1');
 INSERT INTO Servers (name, ip) VALUES ('server2.loc', '192.168.10.2');
@@ -20,7 +15,7 @@ INSERT INTO Domains (domain) VALUES ('email.test');
 INSERT INTO Domains (domain) VALUES ('programm.test');
 
 --- Ajout des projets
-INSERT INTO Projects(name, id_sender) VALUES ('Photocopieurs direction',3);
+INSERT INTO Projects(name, sender) VALUES ('Photocopieurs direction','photocopieurs');
 
 --- Affecter des utilisateurs à un projet
 INSERT INTO Auth (id_project, id_user)
