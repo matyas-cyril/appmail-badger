@@ -39,7 +39,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS users_username_idx ON Users(username);
 CREATE TABLE IF NOT EXISTS Projects (
 	id_project uuid PRIMARY KEY DEFAULT uuidv7(),
 	name TEXT NOT NULL,
-    sender VARCHAR(64),
+    sender VARCHAR(64) NOT NULL,
 	reply_to VARCHAR(64),
 	rcpt_max SMALLINT DEFAULT 15 CHECK (rcpt_max >= 0 AND rcpt_max <= 1500),
     burst INTEGER NOT NULL DEFAULT 150 CHECK (burst >= 0 AND burst <= 65535), -- Nbr de mails que peut envoyer un utilisateur en 1 seul fois - mode rafale ;-)
