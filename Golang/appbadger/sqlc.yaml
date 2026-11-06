@@ -5,6 +5,7 @@ sql:
       - "sql/user.sql"
       - "sql/domain.sql"
       - "sql/server.sql"
+      - "sql/project.sql"
     engine: "postgresql"
     gen:
       go:
