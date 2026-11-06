@@ -20,25 +20,18 @@ type Domain struct {
 	Domain   string `json:"domain"`
 }
 
-type Group struct {
-	IDGroup     int64       `json:"id_group"`
-	Name        string      `json:"name"`
-	Description pgtype.Text `json:"description"`
-}
-
 type Project struct {
-	IDProject   pgtype.UUID    `json:"id_project"`
-	Name        string         `json:"name"`
-	IDSender    int64          `json:"id_sender"`
-	ReplyTo     pgtype.Text    `json:"reply_to"`
-	RcptMax     pgtype.Int2    `json:"rcpt_max"`
-	Burst       int32          `json:"burst"`
-	RateLimit   string         `json:"rate_limit"`
-	SizeMax     pgtype.Numeric `json:"size_max"`
-	RcptPattern pgtype.Text    `json:"rcpt_pattern"`
-	Enabled     bool           `json:"enabled"`
-	Description pgtype.Text    `json:"description"`
-	IDGroup     pgtype.Int8    `json:"id_group"`
+	IDProject   pgtype.UUID        `json:"id_project"`
+	Name        string             `json:"name"`
+	IDSender    int64              `json:"id_sender"`
+	ReplyTo     pgtype.Text        `json:"reply_to"`
+	RcptMax     pgtype.Int2        `json:"rcpt_max"`
+	Burst       int32              `json:"burst"`
+	RateLimit   string             `json:"rate_limit"`
+	SizeMax     pgtype.Numeric     `json:"size_max"`
+	RcptPattern pgtype.Text        `json:"rcpt_pattern"`
+	Modified    pgtype.Timestamptz `json:"modified"`
+	Enabled     bool               `json:"enabled"`
 }
 
 type Projectsdomain struct {
