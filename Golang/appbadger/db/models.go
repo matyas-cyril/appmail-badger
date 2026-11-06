@@ -23,7 +23,7 @@ type Domain struct {
 type Project struct {
 	IDProject   pgtype.UUID        `json:"id_project"`
 	Name        string             `json:"name"`
-	IDSender    int64              `json:"id_sender"`
+	Sender      string             `json:"sender"`
 	ReplyTo     pgtype.Text        `json:"reply_to"`
 	RcptMax     pgtype.Int2        `json:"rcpt_max"`
 	Burst       int32              `json:"burst"`
@@ -42,12 +42,6 @@ type Projectsdomain struct {
 type Projectsserver struct {
 	IDProject pgtype.UUID `json:"id_project"`
 	IDServer  pgtype.UUID `json:"id_server"`
-}
-
-type Sender struct {
-	IDSender    int64       `json:"id_sender"`
-	Sender      string      `json:"sender"`
-	Description pgtype.Text `json:"description"`
 }
 
 type Server struct {
