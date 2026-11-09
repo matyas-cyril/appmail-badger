@@ -22,13 +22,21 @@ func TrimSpace(str ...*string) {
 }
 
 func TrimSpaceArray(array []string) []string {
-	for _, data := range array {
-		data = strings.TrimSpace(data)
-		if data != "" {
-			array = append(array, data)
+
+	var tab []string
+
+	// Pré-allouer le tableau
+	if len(array) > 0 {
+		tab = make([]string, 0, len(array))
+	}
+
+	for _, value := range array {
+		value = strings.TrimSpace(value)
+		if value != "" {
+			tab = append(tab, value)
 		}
 	}
-	return array
+	return tab
 }
 
 /*
