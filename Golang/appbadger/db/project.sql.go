@@ -7,18 +7,99 @@ package db
 
 import (
 	"context"
+	"net/netip"
 
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const addAuthInProject = `-- name: AddAuthInProject :many
+WITH req_users AS (
+    SELECT unnest($2::text[]) AS username
+),
+all_user_match AS (
+    SELECT NOT EXISTS (
+        SELECT 1
+        FROM req_users R
+        WHERE NOT EXISTS (
+            SELECT 1
+            FROM Users U
+            WHERE U.username LIKE R.username
+        )
+    ) AS ok
+)
+INSERT INTO Auth(id_project, id_user)
+SELECT P.id_project, U.id_user
+FROM Projects AS P
+CROSS JOIN Users AS U
+CROSS JOIN all_user_match AS M
+WHERE P.id_project = $1
+  AND M.ok
+  AND EXISTS (
+      SELECT 1
+      FROM req_users R
+      WHERE U.username LIKE R.username
+  )
+RETURNING id_project AS uuid_project, id_user AS uuid_user
+`
+
+type AddAuthInProjectParams struct {
+	UUID  pgtype.UUID `json:"UUID"`
+	Users []string    `json:"Users"`
+}
+
+type AddAuthInProjectRow struct {
+	UuidProject pgtype.UUID `json:"uuid_project"`
+	UuidUser    pgtype.UUID `json:"uuid_user"`
+}
+
+func (q *Queries) AddAuthInProject(ctx context.Context, arg AddAuthInProjectParams) ([]AddAuthInProjectRow, error) {
+	rows, err := q.db.Query(ctx, addAuthInProject, arg.UUID, arg.Users)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []AddAuthInProjectRow
+	for rows.Next() {
+		var i AddAuthInProjectRow
+		if err := rows.Scan(&i.UuidProject, &i.UuidUser); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const addDomainInProject = `-- name: AddDomainInProject :many
+WITH req_domains AS (
+    SELECT unnest($2::text[]) AS dom
+),
+all_dom_match AS (
+    SELECT NOT EXISTS (
+        SELECT 1
+        FROM req_domains R
+        WHERE NOT EXISTS (
+            SELECT 1
+            FROM Domains D
+            WHERE D.domain LIKE R.dom
+        )
+    ) AS ok
+)
 INSERT INTO ProjectsDomains(id_project, id_domain)
-SELECT P.id_project AS id_project, D.id_domain AS id_domain
+SELECT P.id_project, D.id_domain
 FROM Projects AS P
 CROSS JOIN Domains AS D
+CROSS JOIN all_dom_match AS M
 WHERE P.id_project = $1
-  AND D.domain = ANY($2::text[])
-RETURNING id_project, id_domain
+  AND M.ok
+  AND EXISTS (
+      SELECT 1
+      FROM req_domains R
+      WHERE D.domain LIKE R.dom
+  )
+RETURNING id_project AS uuid_project, id_domain
 `
 
 type AddDomainInProjectParams struct {
@@ -26,16 +107,21 @@ type AddDomainInProjectParams struct {
 	Domains []string    `json:"Domains"`
 }
 
-func (q *Queries) AddDomainInProject(ctx context.Context, arg AddDomainInProjectParams) ([]Projectsdomain, error) {
+type AddDomainInProjectRow struct {
+	UuidProject pgtype.UUID `json:"uuid_project"`
+	IDDomain    int64       `json:"id_domain"`
+}
+
+func (q *Queries) AddDomainInProject(ctx context.Context, arg AddDomainInProjectParams) ([]AddDomainInProjectRow, error) {
 	rows, err := q.db.Query(ctx, addDomainInProject, arg.UUID, arg.Domains)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Projectsdomain
+	var items []AddDomainInProjectRow
 	for rows.Next() {
-		var i Projectsdomain
-		if err := rows.Scan(&i.IDProject, &i.IDDomain); err != nil {
+		var i AddDomainInProjectRow
+		if err := rows.Scan(&i.UuidProject, &i.IDDomain); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -48,19 +134,21 @@ func (q *Queries) AddDomainInProject(ctx context.Context, arg AddDomainInProject
 
 const addProject = `-- name: AddProject :one
 INSERT INTO Projects (
-    name, sender, enabled
+    name, sender, reply_to, enabled
 ) VALUES (
     $1,
     $2,
-    $3
+    $3,
+    $4
 )
 RETURNING id_project AS uuid, name, sender, reply_to, rcpt_max, burst, rate_limit,size_max,rcpt_pattern, enabled
 `
 
 type AddProjectParams struct {
-	Name   string      `json:"Name"`
-	Sender pgtype.Text `json:"Sender"`
-	Enable bool        `json:"Enable"`
+	Name    string      `json:"Name"`
+	Sender  pgtype.Text `json:"Sender"`
+	ReplyTo pgtype.Text `json:"ReplyTo"`
+	Enable  bool        `json:"Enable"`
 }
 
 type AddProjectRow struct {
@@ -77,7 +165,12 @@ type AddProjectRow struct {
 }
 
 func (q *Queries) AddProject(ctx context.Context, arg AddProjectParams) (AddProjectRow, error) {
-	row := q.db.QueryRow(ctx, addProject, arg.Name, arg.Sender, arg.Enable)
+	row := q.db.QueryRow(ctx, addProject,
+		arg.Name,
+		arg.Sender,
+		arg.ReplyTo,
+		arg.Enable,
+	)
 	var i AddProjectRow
 	err := row.Scan(
 		&i.Uuid,
@@ -92,4 +185,77 @@ func (q *Queries) AddProject(ctx context.Context, arg AddProjectParams) (AddProj
 		&i.Enabled,
 	)
 	return i, err
+}
+
+const addServerInProject = `-- name: AddServerInProject :many
+WITH req_ips AS (
+    SELECT unnest($2::inet[]) AS IP
+),
+req_names AS (
+    SELECT unnest($3::text[]) AS Name
+),
+all_servers_match AS (
+    SELECT
+        NOT EXISTS (
+            SELECT 1
+            FROM req_ips AS RI
+            WHERE NOT EXISTS (
+                SELECT 1
+                FROM Servers AS S
+                WHERE S.ip = RI.ip
+            )
+        )
+        AND NOT EXISTS (
+            SELECT 1
+            FROM req_names AS RN
+            WHERE NOT EXISTS (
+                SELECT 1
+                FROM Servers AS S
+                WHERE S.name = RN.name
+            )
+        ) AS ok
+)
+INSERT INTO ProjectsServers (id_project, id_server)
+SELECT P.id_project, S.id_server
+FROM Projects AS P
+CROSS JOIN Servers AS S
+CROSS JOIN all_servers_match AS M
+WHERE P.name = $1
+  AND M.ok
+  AND (
+      EXISTS (SELECT 1 FROM req_ips AS RI WHERE RI.ip = S.ip)
+      OR EXISTS (SELECT 1 FROM req_names AS RN WHERE RN.name = S.name)
+  )
+RETURNING id_project AS uuid_project, id_server AS uuid_server
+`
+
+type AddServerInProjectParams struct {
+	ProjectName string       `json:"project_name"`
+	IPs         []netip.Addr `json:"IPs"`
+	ServerNames []string     `json:"ServerNames"`
+}
+
+type AddServerInProjectRow struct {
+	UuidProject pgtype.UUID `json:"uuid_project"`
+	UuidServer  pgtype.UUID `json:"uuid_server"`
+}
+
+func (q *Queries) AddServerInProject(ctx context.Context, arg AddServerInProjectParams) ([]AddServerInProjectRow, error) {
+	rows, err := q.db.Query(ctx, addServerInProject, arg.ProjectName, arg.IPs, arg.ServerNames)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []AddServerInProjectRow
+	for rows.Next() {
+		var i AddServerInProjectRow
+		if err := rows.Scan(&i.UuidProject, &i.UuidServer); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }

@@ -21,9 +21,12 @@ func TrimSpace(str ...*string) {
 	}
 }
 
+// Evite le doublons , mais sensible à la casse
 func TrimSpaceArray(array []string) []string {
 
 	var tab []string
+
+	seen := make(map[string]bool, len(array))
 
 	// Pré-allouer le tableau
 	if len(array) > 0 {
@@ -33,6 +36,12 @@ func TrimSpaceArray(array []string) []string {
 	for _, value := range array {
 		value = strings.TrimSpace(value)
 		if value != "" {
+
+			if seen[value] { // Existe déjà
+				continue
+			}
+
+			seen[value] = true
 			tab = append(tab, value)
 		}
 	}

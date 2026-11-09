@@ -31,8 +31,10 @@ import (
 type ADD struct {
 	Name      string
 	Sender    string
+	ReplyTo   string
 	AuthUsers []string
 	Domains   []string
+	Servers   []string
 	Enable    bool
 }
 
@@ -40,11 +42,13 @@ func AddProject(args ADD, config pkgConfig.Config) error {
 
 	name := strings.TrimSpace(args.Name)
 	sender := strings.TrimSpace(args.Sender)
+	replyTo := strings.TrimSpace(args.ReplyTo)
 	authUsers := pkgDefine.TrimSpaceArray(args.AuthUsers)
 	domains := pkgDefine.TrimSpaceArray(args.Domains)
+	servers := parseServers(pkgDefine.TrimSpaceArray(args.Servers))
 
-	if name == "" || sender == "" || len(authUsers) == 0 || len(domains) == 0 {
-		return fmt.Errorf("name AND sender AND auth user AND domains must defined")
+	if name == "" || sender == "" || len(authUsers) == 0 || len(domains) == 0 || servers == nil {
+		return fmt.Errorf("name AND sender AND auth user AND domains AND servers must defined")
 	}
 
 	cnx, err := db.NewPG(db.PGServer{
@@ -73,10 +77,21 @@ func AddProject(args ADD, config pkgConfig.Config) error {
 			String: sender,
 			Valid:  true,
 		},
+		ReplyTo: pgtype.Text{
+			String: sender,
+			Valid:  true,
+		},
 		Enable: args.Enable,
 	}
 
-	// Liste des requêtes
+	if replyTo != "" {
+		argsAddProj.ReplyTo = pgtype.Text{
+			String: replyTo,
+			Valid:  true,
+		}
+	}
+
+	// Ajoute des informations dans le Project
 	rsltAddProj, err := dbx.AddProject(cnx.Ctx, argsAddProj)
 	if err != nil {
 		return json.NewEncoder(os.Stdout).Encode(struct {
@@ -88,12 +103,11 @@ func AddProject(args ADD, config pkgConfig.Config) error {
 		})
 	}
 
-	argsAddDomProj := db.AddDomainInProjectParams{
+	// Ajouter le projet à des domaines existants
+	rsltAddDomProj, err := dbx.AddDomainInProject(cnx.Ctx, db.AddDomainInProjectParams{
 		UUID:    rsltAddProj.Uuid,
 		Domains: domains,
-	}
-
-	rsltAddDomProj, err := dbx.AddDomainInProject(cnx.Ctx, argsAddDomProj)
+	})
 	if err != nil {
 		return json.NewEncoder(os.Stdout).Encode(struct {
 			Status bool
@@ -110,11 +124,52 @@ func AddProject(args ADD, config pkgConfig.Config) error {
 			Err    string
 		}{
 			Status: false,
-			Err:    fmt.Errorf("dom %s not available", domains[:]).Error(),
+			Err:    fmt.Errorf("at least one domain %s not available", domains[:]).Error(),
 		})
 	}
 
-	// Commit
+	// Ajouter des utilisateurs pour l'Authentification
+	rsltAddAuthProj, err := dbx.AddAuthInProject(cnx.Ctx, db.AddAuthInProjectParams{
+		UUID:  rsltAddProj.Uuid,
+		Users: authUsers,
+	})
+	if err != nil {
+		return json.NewEncoder(os.Stdout).Encode(struct {
+			Status bool
+			Err    string
+		}{
+			Status: false,
+			Err:    err.Error(),
+		})
+	}
+
+	if len(rsltAddAuthProj) == 0 {
+		return json.NewEncoder(os.Stdout).Encode(struct {
+			Status bool
+			Err    string
+		}{
+			Status: false,
+			Err:    fmt.Errorf("at least one auth user %s not available", authUsers[:]).Error(),
+		})
+	}
+
+	// Ajouter des servers pour auth la connexion
+	rsltAddSrvProj, err := dbx.AddServerInProject(cnx.Ctx, db.AddServerInProjectParams{
+		IPs:         servers.ip,
+		ServerNames: servers.name,
+	})
+
+	if len(rsltAddSrvProj) == 0 {
+		return json.NewEncoder(os.Stdout).Encode(struct {
+			Status bool
+			Err    string
+		}{
+			Status: false,
+			Err:    fmt.Errorf("at least one auth server %s not available", pkgDefine.TrimSpaceArray(args.Servers)[:]).Error(),
+		})
+	}
+
+	// Commit si tout est OK, sinon Rollback
 	if err := tx.Commit(cnx.Ctx); err != nil {
 		return json.NewEncoder(os.Stdout).Encode(struct {
 			Status bool
@@ -138,7 +193,5 @@ func AddProject(args ADD, config pkgConfig.Config) error {
 SELECT P.id_project AS uuid, P.name AS name, U.sender AS sender, P.reply_to AS reply_to, P.rcpt_max AS rcpt_max, P.burst AS burts, P.rate_limit AS rate_limit, P.size_max AS size_max, P.rcpt_pattern AS rcpt_pattern, P.modified AS modified, P.enabled AS enabled
 FROM Projects P
 INNER JOIN Senders U ON U.id_sender = P.id_sender
-
-
 
 */

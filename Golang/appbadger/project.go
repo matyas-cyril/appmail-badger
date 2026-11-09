@@ -6,6 +6,7 @@ import (
 	pkgProject "appbadger/project"
 	"flag"
 	"fmt"
+	"os"
 	"strings"
 )
 
@@ -22,8 +23,9 @@ func project(args []string) (int, error) {
 
 		var (
 			name, sender, domains, auths string
-			confFile                     string
-			enable, help                 bool
+			servers, confFile            string
+
+			enable, help bool
 		)
 
 		addProj := flag.NewFlagSet(arg, flag.ExitOnError)
@@ -31,6 +33,7 @@ func project(args []string) (int, error) {
 		addProj.StringVar(&sender, "sender", "", "define sender")
 		addProj.StringVar(&domains, "domains", "", "define sender")
 		addProj.StringVar(&auths, "auths", "", "define auth users")
+		addProj.StringVar(&servers, "servers", "", "define server name or ip")
 		addProj.BoolVar(&enable, "enable", false, "enable project")
 		addProj.StringVar(&confFile, "conf", DEFAULT_CONFIG_FILE, "json configuration file")
 		addProj.BoolVar(&help, "help", false, "help me !!!")
@@ -61,15 +64,18 @@ func project(args []string) (int, error) {
 			Sender:    sender,
 			AuthUsers: strings.Split(auths, ","),
 			Domains:   strings.Split(domains, ","),
+			Servers:   strings.Split(servers, ","),
 			Enable:    enable,
 		}, *cfg); err != nil {
 			return ERR_SERVER, err
 		}
 
-		return OK, nil
+	default:
+		fmt.Fprintf(os.Stdout, "command '%s' not exits\n", arg)
+		return ERR_ARGS, nil
 
 	}
 
-	return 0, nil
+	return OK, nil
 
 }
