@@ -48,7 +48,7 @@ func project(args []string) (int, error) {
 		}
 
 		if help {
-			printHelp("user_add")
+			printHelp("project_add")
 			return OK, nil
 		}
 
@@ -105,12 +105,49 @@ func project(args []string) (int, error) {
 			Burst:     burst,
 			SizeMax:   sizeMax,
 		}, *cfg); err != nil {
-			return ERR_SERVER, err
+			return ERR_PROJECT, err
 		}
 
-	case "get":
-
 	case "del":
+		var (
+			uuid, confFile string
+			help           bool
+		)
+
+		delFs := flag.NewFlagSet(arg, flag.ExitOnError)
+		delFs.StringVar(&uuid, "uuid", "", "uuid for login")
+		delFs.StringVar(&confFile, "conf", DEFAULT_CONFIG_FILE, "json configuration file")
+		delFs.BoolVar(&help, "help", false, "help me !!!")
+
+		if err := delFs.Parse(args[1:]); err != nil {
+			return ERR_ARGS, err
+		}
+
+		if help {
+			printHelp("project_del")
+			return OK, nil
+		}
+
+		if len(delFs.Args()) > 0 {
+			return ERR_ARGS, fmt.Errorf("unexpected arg : %q", delFs.Args()[0])
+		}
+
+		pkgDefine.TrimSpace(&uuid, &confFile)
+
+		// Charger la conf
+		cfg, err := pkgConfig.Load(confFile)
+		if err != nil {
+			return ERR_CONF_FILE, err
+		}
+
+		if err := pkgProject.DelProject(uuid, *cfg); err != nil {
+			return ERR_PROJECT, err
+		}
+
+		delFs.Usage()
+		return ERR_ARGS, fmt.Errorf("error: -all  or -login or -uuid must defined")
+
+	case "get":
 
 	case "enable", "disable":
 
