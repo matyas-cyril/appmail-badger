@@ -108,6 +108,14 @@ func project(args []string) (int, error) {
 			return ERR_SERVER, err
 		}
 
+	case "get":
+
+	case "del":
+
+	case "enable", "disable":
+
+	case "modify":
+
 	default:
 		fmt.Fprintf(os.Stdout, "command '%s' not exits\n", arg)
 		return ERR_ARGS, nil
