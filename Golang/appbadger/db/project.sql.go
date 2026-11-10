@@ -134,21 +134,31 @@ func (q *Queries) AddDomainInProject(ctx context.Context, arg AddDomainInProject
 
 const addProject = `-- name: AddProject :one
 INSERT INTO Projects (
-    name, sender, reply_to, enabled
+    name, sender, reply_to, rcpt_max, burst, rate_limit, size_max, rcpt_pattern, enabled
 ) VALUES (
     $1,
     $2,
     $3,
-    $4
+    $4,
+    $5,
+    $6,
+    $7,
+    $8,
+    $9
 )
 RETURNING id_project AS uuid, name, sender, reply_to, rcpt_max, burst, rate_limit,size_max,rcpt_pattern, enabled
 `
 
 type AddProjectParams struct {
-	Name    string      `json:"Name"`
-	Sender  pgtype.Text `json:"Sender"`
-	ReplyTo pgtype.Text `json:"ReplyTo"`
-	Enable  bool        `json:"Enable"`
+	Name        string         `json:"Name"`
+	Sender      string         `json:"Sender"`
+	ReplyTo     pgtype.Text    `json:"ReplyTo"`
+	RcptMax     pgtype.Int2    `json:"RcptMax"`
+	Burst       pgtype.Int4    `json:"Burst"`
+	RateLimit   pgtype.Text    `json:"RateLimit"`
+	SizeMax     pgtype.Numeric `json:"SizeMax"`
+	RcptPattern pgtype.Text    `json:"RcptPattern"`
+	Enable      bool           `json:"Enable"`
 }
 
 type AddProjectRow struct {
@@ -169,6 +179,11 @@ func (q *Queries) AddProject(ctx context.Context, arg AddProjectParams) (AddProj
 		arg.Name,
 		arg.Sender,
 		arg.ReplyTo,
+		arg.RcptMax,
+		arg.Burst,
+		arg.RateLimit,
+		arg.SizeMax,
+		arg.RcptPattern,
 		arg.Enable,
 	)
 	var i AddProjectRow
@@ -216,11 +231,11 @@ all_servers_match AS (
         ) AS ok
 )
 INSERT INTO ProjectsServers (id_project, id_server)
-SELECT P.id_project, S.id_server
+SELECT DISTINCT P.id_project, S.id_server
 FROM Projects AS P
 CROSS JOIN Servers AS S
 CROSS JOIN all_servers_match AS M
-WHERE P.name = $1
+WHERE P.id_project = $1
   AND M.ok
   AND (
       EXISTS (SELECT 1 FROM req_ips AS RI WHERE RI.ip = S.ip)
@@ -230,7 +245,7 @@ RETURNING id_project AS uuid_project, id_server AS uuid_server
 `
 
 type AddServerInProjectParams struct {
-	ProjectName string       `json:"project_name"`
+	UUIDProject pgtype.UUID  `json:"UUID_Project"`
 	IPs         []netip.Addr `json:"IPs"`
 	ServerNames []string     `json:"ServerNames"`
 }
@@ -241,7 +256,7 @@ type AddServerInProjectRow struct {
 }
 
 func (q *Queries) AddServerInProject(ctx context.Context, arg AddServerInProjectParams) ([]AddServerInProjectRow, error) {
-	rows, err := q.db.Query(ctx, addServerInProject, arg.ProjectName, arg.IPs, arg.ServerNames)
+	rows, err := q.db.Query(ctx, addServerInProject, arg.UUIDProject, arg.IPs, arg.ServerNames)
 	if err != nil {
 		return nil, err
 	}

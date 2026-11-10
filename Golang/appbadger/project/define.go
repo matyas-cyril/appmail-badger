@@ -1,7 +1,9 @@
 package project
 
 import (
+	"fmt"
 	"net/netip"
+	"regexp"
 	"strings"
 )
 
@@ -40,4 +42,15 @@ func parseServers(args []string) *parseSrv {
 	}
 
 	return &srv
+}
+
+// Vérifier la syntaxe de rate limit
+var rateLimitRegEx = regexp.MustCompile(`^([0-9]+/[0-9]+[smhd]|0)$`)
+
+func CheckRateLimitSyntax(rateLimit string) (string, error) {
+	rateLimit = strings.ToLower(strings.TrimSpace(rateLimit))
+	if rateLimitRegEx.MatchString(rateLimit) {
+		return rateLimit, nil
+	}
+	return "", fmt.Errorf("rate limit syntax invalid")
 }

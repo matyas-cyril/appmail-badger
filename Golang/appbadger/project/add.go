@@ -6,6 +6,7 @@ import (
 	pkgDefine "appbadger/define"
 	"encoding/json"
 	"fmt"
+	"math/big"
 	"os"
 	"strings"
 
@@ -29,13 +30,18 @@ import (
 }
 */
 type ADD struct {
-	Name      string
-	Sender    string
-	ReplyTo   string
-	AuthUsers []string
-	Domains   []string
-	Servers   []string
-	Enable    bool
+	Name        string
+	Sender      string
+	ReplyTo     string
+	AuthUsers   []string
+	Domains     []string
+	Servers     []string
+	RateLimit   string
+	RcptMax     *uint16
+	Burst       *uint16
+	SizeMax     *uint64
+	RcptPattern string // A définir le fonctionnement
+	Enable      bool
 }
 
 func AddProject(args ADD, config pkgConfig.Config) error {
@@ -46,6 +52,8 @@ func AddProject(args ADD, config pkgConfig.Config) error {
 	authUsers := pkgDefine.TrimSpaceArray(args.AuthUsers)
 	domains := pkgDefine.TrimSpaceArray(args.Domains)
 	servers := parseServers(pkgDefine.TrimSpaceArray(args.Servers))
+	rateLimit := strings.TrimSpace(args.RateLimit)
+	rcptPattern := strings.TrimSpace(args.RcptPattern)
 
 	if name == "" || sender == "" || len(authUsers) == 0 || len(domains) == 0 || servers == nil {
 		return fmt.Errorf("name AND sender AND auth user AND domains AND servers must defined")
@@ -72,14 +80,26 @@ func AddProject(args ADD, config pkgConfig.Config) error {
 	dbx := db.New(cnx.Cnx).WithTx(tx)
 
 	argsAddProj := db.AddProjectParams{
-		Name: name,
-		Sender: pgtype.Text{
-			String: sender,
-			Valid:  true,
-		},
+		Name:   name,
+		Sender: sender,
 		ReplyTo: pgtype.Text{
 			String: sender,
 			Valid:  true,
+		},
+		RateLimit: pgtype.Text{
+			Valid: false,
+		},
+		RcptMax: pgtype.Int2{
+			Valid: false,
+		},
+		Burst: pgtype.Int4{
+			Valid: false,
+		},
+		SizeMax: pgtype.Numeric{
+			Valid: false,
+		},
+		RcptPattern: pgtype.Text{
+			Valid: false,
 		},
 		Enable: args.Enable,
 	}
@@ -87,6 +107,52 @@ func AddProject(args ADD, config pkgConfig.Config) error {
 	if replyTo != "" {
 		argsAddProj.ReplyTo = pgtype.Text{
 			String: replyTo,
+			Valid:  true,
+		}
+	}
+
+	if rateLimit != "" {
+		r, err := CheckRateLimitSyntax(rateLimit)
+		if err != nil {
+			return json.NewEncoder(os.Stdout).Encode(struct {
+				Status bool
+				Err    string
+			}{
+				Status: false,
+				Err:    err.Error(),
+			})
+		}
+		argsAddProj.RateLimit = pgtype.Text{
+			String: r,
+			Valid:  true,
+		}
+	}
+
+	if args.RcptMax != nil {
+		argsAddProj.RcptMax = pgtype.Int2{
+			Int16: int16(*args.RcptMax),
+			Valid: true,
+		}
+	}
+
+	if args.Burst != nil {
+		argsAddProj.Burst = pgtype.Int4{
+			Int32: int32(*args.Burst),
+			Valid: true,
+		}
+	}
+
+	if args.SizeMax != nil {
+		argsAddProj.SizeMax = pgtype.Numeric{
+			Int:   new(big.Int).SetUint64(*args.SizeMax),
+			Exp:   0, // entier
+			Valid: true,
+		}
+	}
+
+	if rcptPattern != "" {
+		argsAddProj.RcptPattern = pgtype.Text{
+			String: rcptPattern,
 			Valid:  true,
 		}
 	}
@@ -155,6 +221,7 @@ func AddProject(args ADD, config pkgConfig.Config) error {
 
 	// Ajouter des servers pour auth la connexion
 	rsltAddSrvProj, err := dbx.AddServerInProject(cnx.Ctx, db.AddServerInProjectParams{
+		UUIDProject: rsltAddProj.Uuid,
 		IPs:         servers.ip,
 		ServerNames: servers.name,
 	})
