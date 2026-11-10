@@ -1,10 +1,15 @@
 -- name: AddProject :one
 INSERT INTO Projects (
-    name, sender, reply_to, enabled
+    name, sender, reply_to, rcpt_max, burst, rate_limit, size_max, rcpt_pattern, enabled
 ) VALUES (
     sqlc.arg('Name'),
-    sqlc.narg('Sender'),
+    sqlc.arg('Sender'),
     sqlc.narg('ReplyTo'),
+    sqlc.narg('RcptMax'),
+    sqlc.narg('Burst'),
+    sqlc.narg('RateLimit'),
+    sqlc.narg('SizeMax'),
+    sqlc.narg('RcptPattern'),
     sqlc.arg('Enable')
 )
 RETURNING id_project AS uuid, name, sender, reply_to, rcpt_max, burst, rate_limit,size_max,rcpt_pattern, enabled;
@@ -96,11 +101,11 @@ all_servers_match AS (
         ) AS ok
 )
 INSERT INTO ProjectsServers (id_project, id_server)
-SELECT P.id_project, S.id_server
+SELECT DISTINCT P.id_project, S.id_server
 FROM Projects AS P
 CROSS JOIN Servers AS S
 CROSS JOIN all_servers_match AS M
-WHERE P.name = sqlc.arg(project_name)
+WHERE P.id_project = sqlc.arg('UUID_Project')
   AND M.ok
   AND (
       EXISTS (SELECT 1 FROM req_ips AS RI WHERE RI.ip = S.ip)
