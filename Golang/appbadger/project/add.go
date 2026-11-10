@@ -255,10 +255,3 @@ func AddProject(args ADD, config pkgConfig.Config) error {
 		Status: true,
 	})
 }
-
-/*
-SELECT P.id_project AS uuid, P.name AS name, U.sender AS sender, P.reply_to AS reply_to, P.rcpt_max AS rcpt_max, P.burst AS burts, P.rate_limit AS rate_limit, P.size_max AS size_max, P.rcpt_pattern AS rcpt_pattern, P.modified AS modified, P.enabled AS enabled
-FROM Projects P
-INNER JOIN Senders U ON U.id_sender = P.id_sender
-
-*/
