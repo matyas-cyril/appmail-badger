@@ -274,3 +274,28 @@ func (q *Queries) AddServerInProject(ctx context.Context, arg AddServerInProject
 	}
 	return items, nil
 }
+
+const delProjet = `-- name: DelProjet :one
+DELETE FROM Projects
+WHERE id_project = $1
+RETURNING id_project AS uuid, name, sender, enabled
+`
+
+type DelProjetRow struct {
+	Uuid    pgtype.UUID `json:"uuid"`
+	Name    string      `json:"name"`
+	Sender  string      `json:"sender"`
+	Enabled bool        `json:"enabled"`
+}
+
+func (q *Queries) DelProjet(ctx context.Context, uuid pgtype.UUID) (DelProjetRow, error) {
+	row := q.db.QueryRow(ctx, delProjet, uuid)
+	var i DelProjetRow
+	err := row.Scan(
+		&i.Uuid,
+		&i.Name,
+		&i.Sender,
+		&i.Enabled,
+	)
+	return i, err
+}

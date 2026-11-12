@@ -144,9 +144,6 @@ func project(args []string) (int, error) {
 			return ERR_PROJECT, err
 		}
 
-		delFs.Usage()
-		return ERR_ARGS, fmt.Errorf("error: -all  or -login or -uuid must defined")
-
 	case "get":
 
 	case "enable", "disable":

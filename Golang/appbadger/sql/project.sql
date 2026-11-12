@@ -112,3 +112,8 @@ WHERE P.id_project = sqlc.arg('UUID_Project')
       OR EXISTS (SELECT 1 FROM req_names AS RN WHERE RN.name = S.name)
   )
 RETURNING id_project AS uuid_project, id_server AS uuid_server;
+
+-- name: DelProjet :one
+DELETE FROM Projects
+WHERE id_project = sqlc.arg('UUID')
+RETURNING id_project AS uuid, name, sender, enabled;
