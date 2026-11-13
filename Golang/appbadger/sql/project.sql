@@ -117,3 +117,67 @@ RETURNING id_project AS uuid_project, id_server AS uuid_server;
 DELETE FROM Projects
 WHERE id_project = sqlc.arg('UUID')
 RETURNING id_project AS uuid, name, sender, enabled;
+
+-- name: GetProject :many
+SELECT
+    P.id_project AS uuid, P.name AS name, P.sender AS sender,
+    P.reply_to AS reply_to, P.rcpt_max AS rcpt_max, P.burst AS burst,
+    P.rate_limit AS rate_limit, P.size_max AS size_max, P.rcpt_pattern AS rcpt_pattern,
+    P.enabled AS enable,
+    ARRAY(
+        SELECT S.ip
+        FROM ProjectsServers AS PS
+        JOIN Servers AS S ON S.id_server = PS.id_server
+        WHERE PS.id_project = P.id_project
+        ORDER BY S.ip
+    ) AS ips,
+    ARRAY(
+        SELECT S.name
+        FROM ProjectsServers AS PS
+        JOIN Servers AS S ON S.id_server = PS.id_server
+        WHERE PS.id_project = P.id_project
+        ORDER BY S.ip
+    ) AS name_servers,
+    ARRAY(
+        SELECT D.domain
+        FROM ProjectsDomains AS PD
+        JOIN Domains AS D ON D.id_domain = PD.id_domain
+        WHERE PD.id_project = P.id_project
+        ORDER BY D.id_domain
+    ) AS domains
+FROM Projects AS P
+WHERE P.id_project = sqlc.arg('UUID') OR
+      P.name = sqlc.arg('Name') OR
+      P.sender = sqlc.arg('Sender') OR
+      P.reply_to = sqlc.arg('ReplyTo')
+GROUP BY P.id_project;
+
+-- name: GetProjects :many
+SELECT
+    P.id_project AS uuid, P.name AS name, P.sender AS sender,
+    P.reply_to AS reply_to, P.rcpt_max AS rcpt_max, P.burst AS burst,
+    P.rate_limit AS rate_limit, P.size_max AS size_max, P.rcpt_pattern AS rcpt_pattern,
+    P.enabled AS enable,
+    ARRAY(
+        SELECT S.ip
+        FROM ProjectsServers AS PS
+        JOIN Servers AS S ON S.id_server = PS.id_server
+        WHERE PS.id_project = P.id_project
+        ORDER BY S.ip
+    ) AS ips,
+    ARRAY(
+        SELECT S.name
+        FROM ProjectsServers AS PS
+        JOIN Servers AS S ON S.id_server = PS.id_server
+        WHERE PS.id_project = P.id_project
+        ORDER BY S.ip
+    ) AS name_servers,
+    ARRAY(
+        SELECT D.domain
+        FROM ProjectsDomains AS PD
+        JOIN Domains AS D ON D.id_domain = PD.id_domain
+        WHERE PD.id_project = P.id_project
+        ORDER BY D.id_domain
+    ) AS domains
+FROM Projects AS P
+GROUP BY P.id_project;

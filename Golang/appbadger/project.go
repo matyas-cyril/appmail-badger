@@ -146,6 +146,61 @@ func project(args []string) (int, error) {
 
 	case "get":
 
+		var (
+			uuid, name, sender string
+			reply_to, confFile string
+			all, help          bool
+		)
+
+		getProj := flag.NewFlagSet(arg, flag.ExitOnError)
+		getProj.StringVar(&uuid, "uuid", "", "define uuid")
+		getProj.StringVar(&name, "name", "", "define name")
+		getProj.StringVar(&sender, "sender", "", "define sender")
+		getProj.StringVar(&reply_to, "reply_to", "", "define reply to")
+		getProj.StringVar(&confFile, "conf", DEFAULT_CONFIG_FILE, "json configuration file")
+		getProj.BoolVar(&all, "all", false, "get all projects")
+		getProj.BoolVar(&help, "help", false, "help me !!!")
+
+		if err := getProj.Parse(args[1:]); err != nil {
+			return ERR_ARGS, err
+		}
+
+		if help {
+			printHelp("project_add")
+			return OK, nil
+		}
+
+		if len(getProj.Args()) > 0 {
+			return ERR_ARGS, fmt.Errorf("unexpected arg : %q", getProj.Args()[0])
+		}
+
+		pkgDefine.TrimSpace(&name, &sender, &confFile, &uuid, &reply_to)
+
+		// Charger la conf
+		cfg, err := pkgConfig.Load(confFile)
+		if err != nil {
+			return ERR_CONF_FILE, err
+		}
+
+		if all {
+
+			if err := pkgProject.GetProjects(*cfg); err != nil {
+				return ERR_PROJECT, err
+			}
+
+		} else {
+
+			if err := pkgProject.GetProject(pkgProject.GET{
+				UUID:    uuid,
+				Name:    name,
+				Sender:  sender,
+				ReplyTo: reply_to,
+			}, *cfg); err != nil {
+				return ERR_PROJECT, err
+			}
+
+		}
+
 	case "enable", "disable":
 
 	case "modify":

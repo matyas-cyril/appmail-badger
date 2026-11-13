@@ -13,22 +13,6 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-/*
-	type ADD struct {
-		Name string
-		Sender string
-		AuthUsers []string
-		Domains []string
-		ReplyTo string
-		RcptMax uint16
-		Burst uint16
-		RateLimit string
-		SizeMax uint64
-		RcptPattern string
-		Enable bool
-
-}
-*/
 type ADD struct {
 	Name        string
 	Sender      string

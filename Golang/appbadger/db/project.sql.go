@@ -299,3 +299,181 @@ func (q *Queries) DelProjet(ctx context.Context, uuid pgtype.UUID) (DelProjetRow
 	)
 	return i, err
 }
+
+const getProject = `-- name: GetProject :many
+SELECT
+    P.id_project AS uuid, P.name AS name, P.sender AS sender,
+    P.reply_to AS reply_to, P.rcpt_max AS rcpt_max, P.burst AS burst,
+    P.rate_limit AS rate_limit, P.size_max AS size_max, P.rcpt_pattern AS rcpt_pattern,
+    P.enabled AS enable,
+    ARRAY(
+        SELECT S.ip
+        FROM ProjectsServers AS PS
+        JOIN Servers AS S ON S.id_server = PS.id_server
+        WHERE PS.id_project = P.id_project
+        ORDER BY S.ip
+    ) AS ips,
+    ARRAY(
+        SELECT S.name
+        FROM ProjectsServers AS PS
+        JOIN Servers AS S ON S.id_server = PS.id_server
+        WHERE PS.id_project = P.id_project
+        ORDER BY S.ip
+    ) AS name_servers,
+    ARRAY(
+        SELECT D.domain
+        FROM ProjectsDomains AS PD
+        JOIN Domains AS D ON D.id_domain = PD.id_domain
+        WHERE PD.id_project = P.id_project
+        ORDER BY D.id_domain
+    ) AS domains
+FROM Projects AS P
+WHERE P.id_project = $1 OR
+      P.name = $2 OR
+      P.sender = $3 OR
+      P.reply_to = $4
+GROUP BY P.id_project
+`
+
+type GetProjectParams struct {
+	UUID    pgtype.UUID `json:"UUID"`
+	Name    string      `json:"Name"`
+	Sender  string      `json:"Sender"`
+	ReplyTo pgtype.Text `json:"ReplyTo"`
+}
+
+type GetProjectRow struct {
+	Uuid        pgtype.UUID    `json:"uuid"`
+	Name        string         `json:"name"`
+	Sender      string         `json:"sender"`
+	ReplyTo     pgtype.Text    `json:"reply_to"`
+	RcptMax     pgtype.Int2    `json:"rcpt_max"`
+	Burst       int32          `json:"burst"`
+	RateLimit   string         `json:"rate_limit"`
+	SizeMax     pgtype.Numeric `json:"size_max"`
+	RcptPattern pgtype.Text    `json:"rcpt_pattern"`
+	Enable      bool           `json:"enable"`
+	Ips         interface{}    `json:"ips"`
+	NameServers interface{}    `json:"name_servers"`
+	Domains     interface{}    `json:"domains"`
+}
+
+func (q *Queries) GetProject(ctx context.Context, arg GetProjectParams) ([]GetProjectRow, error) {
+	rows, err := q.db.Query(ctx, getProject,
+		arg.UUID,
+		arg.Name,
+		arg.Sender,
+		arg.ReplyTo,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetProjectRow
+	for rows.Next() {
+		var i GetProjectRow
+		if err := rows.Scan(
+			&i.Uuid,
+			&i.Name,
+			&i.Sender,
+			&i.ReplyTo,
+			&i.RcptMax,
+			&i.Burst,
+			&i.RateLimit,
+			&i.SizeMax,
+			&i.RcptPattern,
+			&i.Enable,
+			&i.Ips,
+			&i.NameServers,
+			&i.Domains,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getProjects = `-- name: GetProjects :many
+SELECT
+    P.id_project AS uuid, P.name AS name, P.sender AS sender,
+    P.reply_to AS reply_to, P.rcpt_max AS rcpt_max, P.burst AS burst,
+    P.rate_limit AS rate_limit, P.size_max AS size_max, P.rcpt_pattern AS rcpt_pattern,
+    P.enabled AS enable,
+    ARRAY(
+        SELECT S.ip
+        FROM ProjectsServers AS PS
+        JOIN Servers AS S ON S.id_server = PS.id_server
+        WHERE PS.id_project = P.id_project
+        ORDER BY S.ip
+    ) AS ips,
+    ARRAY(
+        SELECT S.name
+        FROM ProjectsServers AS PS
+        JOIN Servers AS S ON S.id_server = PS.id_server
+        WHERE PS.id_project = P.id_project
+        ORDER BY S.ip
+    ) AS name_servers,
+    ARRAY(
+        SELECT D.domain
+        FROM ProjectsDomains AS PD
+        JOIN Domains AS D ON D.id_domain = PD.id_domain
+        WHERE PD.id_project = P.id_project
+        ORDER BY D.id_domain
+    ) AS domains
+FROM Projects AS P
+GROUP BY P.id_project
+`
+
+type GetProjectsRow struct {
+	Uuid        pgtype.UUID    `json:"uuid"`
+	Name        string         `json:"name"`
+	Sender      string         `json:"sender"`
+	ReplyTo     pgtype.Text    `json:"reply_to"`
+	RcptMax     pgtype.Int2    `json:"rcpt_max"`
+	Burst       int32          `json:"burst"`
+	RateLimit   string         `json:"rate_limit"`
+	SizeMax     pgtype.Numeric `json:"size_max"`
+	RcptPattern pgtype.Text    `json:"rcpt_pattern"`
+	Enable      bool           `json:"enable"`
+	Ips         interface{}    `json:"ips"`
+	NameServers interface{}    `json:"name_servers"`
+	Domains     interface{}    `json:"domains"`
+}
+
+func (q *Queries) GetProjects(ctx context.Context) ([]GetProjectsRow, error) {
+	rows, err := q.db.Query(ctx, getProjects)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetProjectsRow
+	for rows.Next() {
+		var i GetProjectsRow
+		if err := rows.Scan(
+			&i.Uuid,
+			&i.Name,
+			&i.Sender,
+			&i.ReplyTo,
+			&i.RcptMax,
+			&i.Burst,
+			&i.RateLimit,
+			&i.SizeMax,
+			&i.RcptPattern,
+			&i.Enable,
+			&i.Ips,
+			&i.NameServers,
+			&i.Domains,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
