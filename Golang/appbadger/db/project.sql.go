@@ -426,6 +426,7 @@ SELECT
     ) AS domains
 FROM Projects AS P
 GROUP BY P.id_project
+ORDER BY P.id_project
 `
 
 type GetProjectsRow struct {

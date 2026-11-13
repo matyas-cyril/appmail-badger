@@ -180,4 +180,5 @@ SELECT
         ORDER BY D.id_domain
     ) AS domains
 FROM Projects AS P
-GROUP BY P.id_project;
+GROUP BY P.id_project
+ORDER BY P.id_project;
