@@ -32,7 +32,7 @@ func project(args []string) (int, error) {
 		addProj := flag.NewFlagSet(arg, flag.ExitOnError)
 		addProj.StringVar(&name, "name", "", "define name")
 		addProj.StringVar(&sender, "sender", "", "define sender")
-		addProj.StringVar(&domains, "domains", "", "define sender")
+		addProj.StringVar(&domains, "domains", "", "define domains")
 		addProj.StringVar(&auths, "auths", "", "define auth users")
 		addProj.StringVar(&servers, "servers", "", "define server name or ip")
 		addProj.BoolVar(&enable, "enable", false, "enable project")
