@@ -182,3 +182,9 @@ SELECT
 FROM Projects AS P
 GROUP BY P.id_project
 ORDER BY P.id_project;
+
+-- name: EnableProjet :one
+UPDATE Projects
+SET enabled = sqlc.arg('Enable')
+WHERE id_project = sqlc.arg('UUID')
+RETURNING id_project AS uuid, name, sender, enabled;

@@ -300,6 +300,37 @@ func (q *Queries) DelProjet(ctx context.Context, uuid pgtype.UUID) (DelProjetRow
 	return i, err
 }
 
+const enableProjet = `-- name: EnableProjet :one
+UPDATE Projects
+SET enabled = $1
+WHERE id_project = $2
+RETURNING id_project AS uuid, name, sender, enabled
+`
+
+type EnableProjetParams struct {
+	Enable bool        `json:"Enable"`
+	UUID   pgtype.UUID `json:"UUID"`
+}
+
+type EnableProjetRow struct {
+	Uuid    pgtype.UUID `json:"uuid"`
+	Name    string      `json:"name"`
+	Sender  string      `json:"sender"`
+	Enabled bool        `json:"enabled"`
+}
+
+func (q *Queries) EnableProjet(ctx context.Context, arg EnableProjetParams) (EnableProjetRow, error) {
+	row := q.db.QueryRow(ctx, enableProjet, arg.Enable, arg.UUID)
+	var i EnableProjetRow
+	err := row.Scan(
+		&i.Uuid,
+		&i.Name,
+		&i.Sender,
+		&i.Enabled,
+	)
+	return i, err
+}
+
 const getProject = `-- name: GetProject :many
 SELECT
     P.id_project AS uuid, P.name AS name, P.sender AS sender,

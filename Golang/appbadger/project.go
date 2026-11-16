@@ -166,7 +166,7 @@ func project(args []string) (int, error) {
 		}
 
 		if help {
-			printHelp("project_add")
+			printHelp("project_get")
 			return OK, nil
 		}
 
@@ -202,6 +202,51 @@ func project(args []string) (int, error) {
 		}
 
 	case "enable", "disable":
+
+		var (
+			uuid, confFile string
+			help           bool
+		)
+
+		activateProj := flag.NewFlagSet(arg, flag.ExitOnError)
+		activateProj.StringVar(&uuid, "uuid", "", "define uuid")
+		activateProj.StringVar(&confFile, "conf", DEFAULT_CONFIG_FILE, "json configuration file")
+		activateProj.BoolVar(&help, "help", false, "help me !!!")
+
+		if err := activateProj.Parse(args[1:]); err != nil {
+			return ERR_ARGS, err
+		}
+
+		if help {
+			if arg == "enable" {
+				printHelp("project_enable")
+			} else {
+				printHelp("project_disable")
+			}
+			return OK, nil
+		}
+
+		if len(activateProj.Args()) > 0 {
+			return ERR_ARGS, fmt.Errorf("unexpected arg : %q", activateProj.Args()[0])
+		}
+
+		pkgDefine.TrimSpace(&uuid)
+
+		// Charger la conf
+		cfg, err := pkgConfig.Load(confFile)
+		if err != nil {
+			return ERR_CONF_FILE, err
+		}
+
+		if arg == "enable" {
+			if errProj := pkgProject.EnableProject(uuid, *cfg); errProj != nil {
+				return ERR_PROJECT, errProj
+			}
+		} else {
+			if errProj := pkgProject.DisableProject(uuid, *cfg); errProj != nil {
+				return ERR_PROJECT, errProj
+			}
+		}
 
 	case "modify":
 

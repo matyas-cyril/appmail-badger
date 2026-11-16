@@ -1,0 +1,73 @@
+{{define "project" -}}
+## Commande `project`
+
+Sous-commandes disponibles :
+* `project add`
+* `project del`
+* `project get`
+* `project modify`
+* `project enable`
+* `project disable`
+{{- end}}
+
+{{define "project_add" -}}
+### `project add`
+
+| Option | Type | Défaut | Description |
+|---|:---:|---|---|
+| `-name` | string | | Nom du projet |
+| `-sender` | string | | Nom de l'emetteur |
+| `-domains` | string | | Lister les domaines. , comme séparateur |
+| `-auths` | string | | Lister les utilisateur authentifiés. , comme séparateur |
+| `-servers` | string | | Lister les servers (nom et ip acceptés). , comme séparateur |
+| `-rcpt_max` | string | | ............. |
+| `-burst` | string | | ............. |
+| `-size_max` | string | | ............. |
+| `-rate_limit` | string | | ............. |
+| `-enable` | bool | false | activé le projet immédiatement|
+| `-conf` | string | {{ .Conf }} | Fichier de configuration |
+{{- end}}
+
+{{define "project_del" -}}
+### `project del`
+
+| Option | Type | Défaut | Description |
+|---|:---:|---|---|
+| `-uuid` | string | | UUID de la connexion |
+| `-conf` | string | {{ .Conf }} | Fichier de configuration |
+{{- end}}
+
+{{define "project_get" -}}
+### `project get`
+
+| Option | Type | Défaut | Description |
+|---|:---:|---|---|
+| `-uuid` | string | | UUID de la connexion |
+| `-name` | string | | Nom du projet |
+| `-sender` | string | | Nom de l'emetteur |
+| `-reply_to` | string | | Adresse de retour |
+| `-all` | bool | false | Obtenir tous les projets |
+| `-conf` | string | {{ .Conf }} | Fichier de configuration |
+{{- end}}
+
+{{define "project_enable" -}}
+### `project enable`
+
+| Option | Type | Défaut | Description |
+|---|:---:|---|---|
+| `-uuid` | string | | UUID de la connexion |
+| `-conf` | string | {{ .Conf }} | Fichier de configuration |
+{{- end}}
+
+{{define "project_disable" -}}
+### `project disable`
+
+| Option | Type | Défaut | Description |
+|---|:---:|---|---|
+| `-uuid` | string | | UUID de la connexion |
+| `-conf` | string | {{ .Conf }} | Fichier de configuration |
+{{- end}}
+
+{{define "project_modify" -}}
+
+{{- end}}
