@@ -10,6 +10,7 @@
         chdir: ..
       register: smtp_make
       failed_when: smtp_make.rc != 0
+      when: docker | default(false) | bool
       tags:
         - always
 
