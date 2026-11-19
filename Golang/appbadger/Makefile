@@ -32,6 +32,11 @@ export fAppbadgerJson=$(fAppbadgerJson)
 
 all: build
 
+.install_depends:
+	@command -v fakeroot >/dev/null 2>&1 || { \
+		sudo apt-get update && sudo apt-get install -y fakeroot; \
+	}
+
 build:
 	@mkdir -p $(BIN_DIR)
 	$(GO_ENV) $(GO) build $(BUILD_FLAGS) \
@@ -45,21 +50,21 @@ clean:
 	@rm -rf $(BIN_DIR) $(DEB_DIR)
 	$(GO) clean
 
-deb: clean build
-	mkdir -p ${DEB_DIR}${DIR_INSTALL} \
+deb: .install_depends clean build
+	@mkdir -p ${DEB_DIR}${DIR_INSTALL} \
 		${DEB_DIR}${DIR_CONF} \
 		${DEB_DIR}/DEBIAN
 
-	cp -f ${BINARY} ${DEB_DIR}${DIR_INSTALL}${NAME} && \
+	@cp -f ${BINARY} ${DEB_DIR}${DIR_INSTALL}${NAME} && \
 	   chmod 440 ${DEB_DIR}${DIR_INSTALL}${NAME}
 
-	printf "$${fAppbadgerJson}" > ${DEB_DIR}${DIR_CONF}${FILE_CONF}
-	printf "$${fConfFiles}" > ${DEB_DIR}/DEBIAN/conffiles && /bin/chmod 0755 ${DEB_DIR}/DEBIAN/conffiles
-	printf "$${fPreInst}" > ${DEB_DIR}/DEBIAN/preinst && /bin/chmod 0755 ${DEB_DIR}/DEBIAN/preinst
-	printf "$${fPostInst}" > ${DEB_DIR}/DEBIAN/postinst && /bin/chmod 0755 ${DEB_DIR}/DEBIAN/postinst
-	printf "$${fPreRm}" > ${DEB_DIR}/DEBIAN/prerm && /bin/chmod 0755 ${DEB_DIR}/DEBIAN/prerm
-	printf "$${fPostRm}" > ${DEB_DIR}/DEBIAN/postrm && /bin/chmod 0755 ${DEB_DIR}/DEBIAN/postrm
-	printf "$${fControl}" > ${DEB_DIR}/DEBIAN/control && /bin/chmod 0755 ${DEB_DIR}/DEBIAN/control
+	@printf "$${fAppbadgerJson}" > ${DEB_DIR}${DIR_CONF}${FILE_CONF}
+	@printf "$${fConfFiles}" > ${DEB_DIR}/DEBIAN/conffiles && /bin/chmod 0755 ${DEB_DIR}/DEBIAN/conffiles
+	@printf "$${fPreInst}" > ${DEB_DIR}/DEBIAN/preinst && /bin/chmod 0755 ${DEB_DIR}/DEBIAN/preinst
+	@printf "$${fPostInst}" > ${DEB_DIR}/DEBIAN/postinst && /bin/chmod 0755 ${DEB_DIR}/DEBIAN/postinst
+	@printf "$${fPreRm}" > ${DEB_DIR}/DEBIAN/prerm && /bin/chmod 0755 ${DEB_DIR}/DEBIAN/prerm
+	@printf "$${fPostRm}" > ${DEB_DIR}/DEBIAN/postrm && /bin/chmod 0755 ${DEB_DIR}/DEBIAN/postrm
+	@printf "$${fControl}" > ${DEB_DIR}/DEBIAN/control && /bin/chmod 0755 ${DEB_DIR}/DEBIAN/control
 
 	fakeroot dpkg-deb -Zgzip --build ${DEB_DIR}/ ${DEB_DIR}/${NAME}_${VERSION}_${ARCH}.deb && \
 	     fakeroot chown 1000:1000 ${DEB_DIR}/${NAME}_${VERSION}_${ARCH}.deb
