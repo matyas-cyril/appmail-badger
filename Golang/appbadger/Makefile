@@ -36,6 +36,14 @@ all: build
 	@command -v fakeroot >/dev/null 2>&1 || { \
 		sudo apt-get update && sudo apt-get install -y fakeroot; \
 	}
+	@command -v pandoc >/dev/null 2>&1 || { \
+		sudo apt-get update && sudo apt-get install -y pandoc; \
+	}
+
+man:
+	@rm -f ${DEB_DIR}/${NAME}.1*
+	@mkdir -p ${DEB_DIR} && \
+		pandoc man.md -s -f markdown -t man -o ${DEB_DIR}/${NAME}.1 && gzip ${DEB_DIR}/${NAME}.1
 
 build:
 	@mkdir -p $(BIN_DIR)
@@ -50,7 +58,7 @@ clean:
 	@rm -rf $(BIN_DIR) $(DEB_DIR)
 	$(GO) clean
 
-deb: .install_depends clean build
+deb: .install_depends clean man build
 	@mkdir -p ${DEB_DIR}${DIR_INSTALL} \
 		${DEB_DIR}${DIR_CONF} \
 		${DEB_DIR}/DEBIAN
