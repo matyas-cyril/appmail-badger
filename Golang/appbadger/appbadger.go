@@ -26,7 +26,7 @@ const (
 	ERR_SERVER
 	ERR_PROJECT
 
-	DEFAULT_CONFIG_FILE string = "appbadger.json"
+	DEFAULT_CONFIG_FILE string = "/etc/appbadger/appbadger.json"
 )
 
 func main() {
