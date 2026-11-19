@@ -36,6 +36,7 @@ Docker/GOLANG/Dockerfile
 venv/
 
 Golang/appbadger/BIN
+Golang/appbadger/DEB
 
 # Auth uniquement ce fichier .so
 !pam_pg_argon2.so
