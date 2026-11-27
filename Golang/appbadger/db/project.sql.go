@@ -527,15 +527,15 @@ RETURNING id_project AS uuid, name, sender, reply_to, rcpt_max, burst, rate_limi
 `
 
 type ModProjectParams struct {
-	Name        string         `json:"Name"`
-	Sender      string         `json:"Sender"`
+	Name        pgtype.Text    `json:"Name"`
+	Sender      pgtype.Text    `json:"Sender"`
 	ReplyTo     pgtype.Text    `json:"ReplyTo"`
 	RcptMax     pgtype.Int2    `json:"RcptMax"`
 	Burst       pgtype.Int4    `json:"Burst"`
 	RateLimit   pgtype.Text    `json:"RateLimit"`
 	SizeMax     pgtype.Numeric `json:"SizeMax"`
 	RcptPattern pgtype.Text    `json:"RcptPattern"`
-	Enable      bool           `json:"Enable"`
+	Enable      pgtype.Bool    `json:"Enable"`
 	UUID        pgtype.UUID    `json:"UUID"`
 }
 

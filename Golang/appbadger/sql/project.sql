@@ -192,14 +192,14 @@ RETURNING id_project AS uuid, name, sender, enabled;
 -- name: ModProject :one
 UPDATE Projects
 SET
-    name = sqlc.arg('Name'),
-    sender = sqlc.arg('Sender'),
+    name = sqlc.narg('Name'),
+    sender = sqlc.narg('Sender'),
     reply_to = sqlc.narg('ReplyTo'),
     rcpt_max = sqlc.narg('RcptMax'),
     burst = sqlc.narg('Burst'),
     rate_limit = sqlc.narg('RateLimit'),
     size_max = sqlc.narg('SizeMax'),
     rcpt_pattern = sqlc.narg('RcptPattern'),
-    enabled = sqlc.arg('Enable')
+    enabled = sqlc.narg('Enable')
 WHERE id_project = sqlc.arg('UUID')
 RETURNING id_project AS uuid, name, sender, reply_to, rcpt_max, burst, rate_limit,size_max,rcpt_pattern, enabled;
