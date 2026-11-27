@@ -16,7 +16,7 @@ import (
 var helpFS embed.FS
 
 const (
-	glamourStyle string = "dracula"
+	glamourStyle string = "ascii"
 	glamourWidth int    = 150
 )
 
