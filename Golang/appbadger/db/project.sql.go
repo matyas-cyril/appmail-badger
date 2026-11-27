@@ -509,3 +509,74 @@ func (q *Queries) GetProjects(ctx context.Context) ([]GetProjectsRow, error) {
 	}
 	return items, nil
 }
+
+const modProject = `-- name: ModProject :one
+UPDATE Projects
+SET
+    name = $1,
+    sender = $2,
+    reply_to = $3,
+    rcpt_max = $4,
+    burst = $5,
+    rate_limit = $6,
+    size_max = $7,
+    rcpt_pattern = $8,
+    enabled = $9
+WHERE id_project = $10
+RETURNING id_project AS uuid, name, sender, reply_to, rcpt_max, burst, rate_limit,size_max,rcpt_pattern, enabled
+`
+
+type ModProjectParams struct {
+	Name        string         `json:"Name"`
+	Sender      string         `json:"Sender"`
+	ReplyTo     pgtype.Text    `json:"ReplyTo"`
+	RcptMax     pgtype.Int2    `json:"RcptMax"`
+	Burst       pgtype.Int4    `json:"Burst"`
+	RateLimit   pgtype.Text    `json:"RateLimit"`
+	SizeMax     pgtype.Numeric `json:"SizeMax"`
+	RcptPattern pgtype.Text    `json:"RcptPattern"`
+	Enable      bool           `json:"Enable"`
+	UUID        pgtype.UUID    `json:"UUID"`
+}
+
+type ModProjectRow struct {
+	Uuid        pgtype.UUID    `json:"uuid"`
+	Name        string         `json:"name"`
+	Sender      string         `json:"sender"`
+	ReplyTo     pgtype.Text    `json:"reply_to"`
+	RcptMax     pgtype.Int2    `json:"rcpt_max"`
+	Burst       int32          `json:"burst"`
+	RateLimit   string         `json:"rate_limit"`
+	SizeMax     pgtype.Numeric `json:"size_max"`
+	RcptPattern pgtype.Text    `json:"rcpt_pattern"`
+	Enabled     bool           `json:"enabled"`
+}
+
+func (q *Queries) ModProject(ctx context.Context, arg ModProjectParams) (ModProjectRow, error) {
+	row := q.db.QueryRow(ctx, modProject,
+		arg.Name,
+		arg.Sender,
+		arg.ReplyTo,
+		arg.RcptMax,
+		arg.Burst,
+		arg.RateLimit,
+		arg.SizeMax,
+		arg.RcptPattern,
+		arg.Enable,
+		arg.UUID,
+	)
+	var i ModProjectRow
+	err := row.Scan(
+		&i.Uuid,
+		&i.Name,
+		&i.Sender,
+		&i.ReplyTo,
+		&i.RcptMax,
+		&i.Burst,
+		&i.RateLimit,
+		&i.SizeMax,
+		&i.RcptPattern,
+		&i.Enabled,
+	)
+	return i, err
+}
