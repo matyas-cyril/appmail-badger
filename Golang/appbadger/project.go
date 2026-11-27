@@ -250,6 +250,93 @@ func project(args []string) (int, error) {
 
 	case "modify":
 
+		var (
+			uuid, name, sender, domains, auths string
+			rcptMaxStr, burstStr, sizeMaxStr   string
+			rateLimit, servers, confFile       string
+			enable, help                       bool
+		)
+
+		modProj := flag.NewFlagSet(arg, flag.ExitOnError)
+		modProj.StringVar(&uuid, "uuid", "", "search by uuid")
+		modProj.StringVar(&name, "name", "", "define name")
+		modProj.StringVar(&sender, "sender", "", "define sender")
+		modProj.StringVar(&domains, "domains", "", "define domains")
+		modProj.StringVar(&auths, "auths", "", "define auth users")
+		modProj.StringVar(&servers, "servers", "", "define server name or ip")
+		modProj.BoolVar(&enable, "enable", false, "enable project")
+		modProj.StringVar(&rcptMaxStr, "rcpt_max", "", "define rcpt max")
+		modProj.StringVar(&burstStr, "burst", "", "define burst")
+		modProj.StringVar(&sizeMaxStr, "size_max", "", "define size max")
+		modProj.StringVar(&rateLimit, "rate_limit", "", "define rate limit")
+		modProj.StringVar(&confFile, "conf", DEFAULT_CONFIG_FILE, "json configuration file")
+		modProj.BoolVar(&help, "help", false, "help me !!!")
+
+		if err := modProj.Parse(args[1:]); err != nil {
+			return ERR_ARGS, err
+		}
+
+		if help {
+			printHelp("project_add")
+			return OK, nil
+		}
+
+		if len(modProj.Args()) > 0 {
+			return ERR_ARGS, fmt.Errorf("unexpected arg : %q", modProj.Args()[0])
+		}
+
+		pkgDefine.TrimSpace(&uuid, &name, &sender, &confFile, &domains, &auths, &rateLimit)
+
+		// Charger la conf
+		cfg, err := pkgConfig.Load(confFile)
+		if err != nil {
+			return ERR_CONF_FILE, err
+		}
+
+		var rcptMax *uint16 = nil
+		if rcptMaxStr = strings.TrimSpace(rcptMaxStr); rcptMaxStr != "" {
+			val, err := strconv.ParseUint(rcptMaxStr, 10, 16)
+			if err != nil {
+				return ERR_CONF_FILE, fmt.Errorf("arg rcpt_max invalid integer: %w", err)
+			}
+			if val > 1500 {
+				return ERR_CONF_FILE, fmt.Errorf("arg rcpt_max value must be between 0 and 1500")
+			}
+			rcptMax = new(uint16(val))
+		}
+
+		var burst *uint16 = nil
+		if burstStr = strings.TrimSpace(burstStr); burstStr != "" {
+			val, err := strconv.ParseUint(burstStr, 10, 16)
+			if err != nil {
+				return ERR_CONF_FILE, fmt.Errorf("arg rcpt_max invalid integer: %w", err)
+			}
+			burst = new(uint16(val))
+		}
+
+		var sizeMax *uint64 = nil
+		if burstStr = strings.TrimSpace(burstStr); burstStr != "" {
+			val, err := strconv.ParseUint(burstStr, 10, 64)
+			if err != nil {
+				return ERR_CONF_FILE, fmt.Errorf("arg rcpt_max invalid integer: %w", err)
+			}
+			sizeMax = &val
+		}
+
+		if err := pkgProject.ModProject(uuid, pkgProject.MOD{
+			Name:      name,
+			Sender:    sender,
+			AuthUsers: strings.Split(auths, ","),
+			Domains:   strings.Split(domains, ","),
+			Servers:   strings.Split(servers, ","),
+			Enable:    enable,
+			RcptMax:   rcptMax,
+			Burst:     burst,
+			SizeMax:   sizeMax,
+		}, *cfg); err != nil {
+			return ERR_PROJECT, err
+		}
+
 	default:
 		fmt.Fprintf(os.Stdout, "command '%s' not exits\n", arg)
 		return ERR_ARGS, nil
